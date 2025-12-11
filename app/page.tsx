@@ -28,15 +28,15 @@ export default function Home() {
   const [fromInfo, setFromInfo] = useState<FromInfo>({
     name: '',
     street: '',
-    zip: '8037 Zurich',
-    iban: 'CH93 0076 2011 6238 5295 7'
+    zip: '',
+    iban: ''
   })
   
   const [toInfo, setToInfo] = useState<ToInfo>({
-    uid: 'CHE-123.456.789',
-    name: 'Company AG',
-    address: 'Bucheggstrasse 21',
-    zip: '8037 Zurich'
+    uid: '',
+    name: '',
+    address: '',
+    zip: ''
   })
   
   const [description, setDescription] = useState('')
@@ -204,7 +204,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f5f3] dark:bg-[#141414] flex">
+    <div className="min-h-screen bg-design-background flex">
       {/* Sidebar */}
       <GuestSidebar />
       
@@ -213,7 +213,7 @@ export default function Home() {
         <div className="max-w-[750px]">
           {/* Header */}
           <div className="mb-9">
-            <h1 className="text-[32px] font-semibold text-[#141414] dark:text-white tracking-[-0.512px]">
+            <h1 className="text-[32px] font-semibold text-design-content-default tracking-[-0.512px]">
               Create an invoice in less than 2 minutes
             </h1>
           </div>
@@ -221,7 +221,7 @@ export default function Home() {
           {/* Invoice Form Sections */}
           <div className="flex flex-col gap-8">
             {/* Invoice Header Card */}
-            <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-5">
+            <div className="bg-design-surface-default border border-design-border-default rounded-2xl p-5">
               <InvoiceHeader
                 invoiceNumber={invoiceNumber}
                 issuedOn={issuedOn}
@@ -271,13 +271,13 @@ export default function Home() {
             <div className="flex items-center justify-end gap-4 pt-4">
               <button
                 onClick={handlePreview}
-                className="px-6 py-3 border border-[rgba(20,20,20,0.4)] rounded-full text-[16px] text-[#141414] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors"
+                className="px-6 py-3 border border-design-content-weakest rounded-full text-[16px] text-design-content-default hover:bg-design-surface-field transition-colors"
               >
                 Preview
               </button>
               <button
                 onClick={handleSave}
-                className="px-6 py-3 bg-[#141414] dark:bg-white text-white dark:text-[#141414] rounded-full text-[16px] hover:opacity-90 transition-opacity"
+                className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity"
               >
                 Save
               </button>

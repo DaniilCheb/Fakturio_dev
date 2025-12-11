@@ -49,10 +49,10 @@ export default function TextArea({
       rows={rows}
       disabled={disabled}
       maxLength={maxLength}
-      className={`w-full px-2 py-2 bg-[#f7f5f3] dark:bg-[#2a2a2a] border rounded-lg text-[16px] text-[#141414] dark:text-white placeholder-[#9e9e9e] dark:placeholder-[#666] focus:outline-none focus:border-[#141414] dark:focus:border-white transition-all duration-200 resize-none ${
+      className={`w-full px-2 py-2 bg-design-surface-field border rounded-lg text-[16px] md:text-sm font-normal text-design-content-default focus:outline-none focus:border-design-content-default transition-all duration-200 resize-none ${
         error 
           ? 'border-red-500 dark:border-red-500' 
-          : 'border-[#e0e0e0] dark:border-[#444]'
+          : 'border-design-border-default'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
     />
   )
@@ -66,7 +66,7 @@ export default function TextArea({
             <p className="text-[12px] text-red-500">{error}</p>
           )}
           {maxLength && (
-            <p className="text-[11px] text-[#999] dark:text-[#666] ml-auto">
+            <p className="text-[11px] text-design-content-weak ml-auto">
               {value?.length || 0}/{maxLength}
             </p>
           )}
@@ -78,7 +78,7 @@ export default function TextArea({
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
-        <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
+        <label className="font-medium text-[13px] text-design-content-weakest tracking-[-0.208px]">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -89,7 +89,7 @@ export default function TextArea({
           <p className="text-[12px] text-red-500">{error}</p>
         )}
         {maxLength && (
-          <p className="text-[11px] text-[#999] dark:text-[#666] ml-auto">
+          <p className="text-[11px] text-design-content-weak ml-auto">
             {value?.length || 0}/{maxLength}
           </p>
         )}

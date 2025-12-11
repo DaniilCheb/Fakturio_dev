@@ -1,13 +1,13 @@
 import { InvoiceItem } from '../types/invoice'
 
 /**
- * Calculate line item total (qty × um × price)
+ * Calculate line item total (qty × price/um)
+ * Note: UM is a unit of measure label (pcs, hour, kg), not a multiplier
  */
 export function calculateItemTotal(item: InvoiceItem): number {
   const qty = parseFloat(String(item.quantity)) || 0
-  const um = parseFloat(String(item.um)) || 0
   const price = parseFloat(String(item.pricePerUm)) || 0
-  return qty * um * price
+  return qty * price
 }
 
 /**

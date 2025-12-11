@@ -1,9 +1,165 @@
 @tailwind base;
+
+@custom-variant dark (&:is(.dark *));
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Design System Variables - Base */
+    --design-background: 30 14% 97%;
+    --design-content-default: 0 0% 8%;
+    --design-content-weak: 0 0% 26%;
+    --design-content-weakest: 0 0% 8%;
+    --design-border-default: 0 0% 88%;
+    --design-surface-field: 30 14% 97%;
+    --design-button-primary: 0 0% 8%;
+    --design-surface-inverted: 0 0% 8%;
+    --design-surface-default: 0 0% 100%;
+    --design-on-button-content: 0 0% 100%;
+    --design-on-button-content-inverted: 0 0% 8%;
+    
+    /* Shadcn Variables - Mapped to Design System */
+    --background: var(--design-background);
+    --foreground: var(--design-content-default);
+    --card: var(--design-surface-default);
+    --card-foreground: var(--design-content-default);
+    --popover: var(--design-surface-default);
+    --popover-foreground: var(--design-content-default);
+    --primary: var(--design-button-primary);
+    --primary-foreground: var(--design-on-button-content);
+    --secondary: var(--design-surface-field);
+    --secondary-foreground: var(--design-content-default);
+    --muted: var(--design-surface-field);
+    --muted-foreground: var(--design-content-weak);
+    --accent: var(--design-surface-field);
+    --accent-foreground: var(--design-content-default);
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: var(--design-border-default);
+    --input: var(--design-border-default);
+    --ring: var(--design-content-default);
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    /* Design System Variables - Dark Mode */
+    --design-background: 0 0% 8%;
+    --design-content-default: 0 0% 100%;
+    --design-content-weak: 0 0% 67%;
+    --design-content-weakest: 0 0% 100%;
+    --design-border-default: 0 0% 20%;
+    --design-surface-field: 0 0% 16%;
+    --design-button-primary: 0 0% 100%;
+    --design-surface-inverted: 0 0% 8%;
+    --design-surface-default: 0 0% 16%;
+    --design-on-button-content: 0 0% 8%;
+    --design-on-button-content-inverted: 0 0% 100%;
+    
+    /* Shadcn Variables - Mapped to Design System (Dark Mode) */
+    --background: var(--design-background);
+    --foreground: var(--design-content-default);
+    --card: var(--design-surface-default);
+    --card-foreground: var(--design-content-default);
+    --popover: var(--design-surface-default);
+    --popover-foreground: var(--design-content-default);
+    --primary: var(--design-button-primary);
+    --primary-foreground: var(--design-on-button-content);
+    --secondary: var(--design-surface-field);
+    --secondary-foreground: var(--design-content-default);
+    --muted: var(--design-surface-field);
+    --muted-foreground: var(--design-content-weak);
+    --accent: var(--design-surface-field);
+    --accent-foreground: var(--design-content-default);
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: var(--design-border-default);
+    --input: var(--design-border-default);
+    --ring: var(--design-content-default);
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
   body {
-    @apply bg-[#F7F5F2] dark:bg-[#141414];
+    @apply bg-background text-foreground;
+  }
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #9D9B9A;
   }
 }

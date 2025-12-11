@@ -11,10 +11,10 @@ interface CardProps {
 
 export default function Card({ title, children, className = '', noPadding = false }: CardProps) {
   return (
-    <div className={`bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-xl shadow-sm transition-colors duration-200 ${className}`}>
+    <div className={`bg-design-surface-default border border-design-border-default rounded-xl shadow-sm transition-colors duration-200 ${className}`}>
       {title && (
-        <div className="px-4 md:px-6 py-3 bg-white dark:bg-[#2a2a2a] border-b border-[#e0e0e0] dark:border-[#333] rounded-t-xl">
-          <p className="text-[13px] font-medium text-[#666666] dark:text-[#999] uppercase tracking-wide">{title}</p>
+        <div className="px-4 md:px-6 py-3 bg-design-surface-field border-b border-design-border-default rounded-t-xl">
+          <p className="text-[13px] font-medium text-design-content-weak uppercase tracking-wide">{title}</p>
         </div>
       )}
       {noPadding ? children : <div className="p-4 md:p-6">{children}</div>}

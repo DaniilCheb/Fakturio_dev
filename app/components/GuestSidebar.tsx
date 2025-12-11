@@ -16,27 +16,27 @@ export default function GuestSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="fixed bg-white dark:bg-[#1f1f1f] border border-[#e0e0e0] dark:border-[#333] left-4 top-4 bottom-4 w-[260px] hidden lg:flex flex-col transition-colors duration-200 overflow-hidden rounded-2xl shadow-sm">
+      <div className="fixed bg-design-surface-default border border-design-border-default left-4 top-4 bottom-4 w-[260px] hidden lg:flex flex-col transition-colors duration-200 overflow-hidden rounded-2xl shadow-sm">
         <div className="flex flex-col h-full p-6 relative z-10">
           {/* Logo at top */}
           <div className="flex-shrink-0 mb-6">
             <div className="inline-flex items-center gap-2">
               <div className="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center">
                 <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                  <div className="bg-[#141414] rounded-tl"></div>
-                  <div className="bg-[#141414] rounded-tr"></div>
-                  <div className="bg-[#141414] rounded-bl"></div>
-                  <div className="bg-[#141414] rounded-br"></div>
+                  <div className="bg-design-content-default rounded-tl"></div>
+                  <div className="bg-design-content-default rounded-tr"></div>
+                  <div className="bg-design-content-default rounded-bl"></div>
+                  <div className="bg-design-content-default rounded-br"></div>
                 </div>
               </div>
-              <span className="text-[18px] font-semibold text-[#141414] dark:text-white">Fakturio</span>
+              <span className="text-[18px] font-semibold text-design-content-default">Fakturio</span>
             </div>
           </div>
           
           {/* Text + Buttons in middle */}
           <div className="flex-1 flex flex-col justify-center">
             <div className="flex flex-col gap-6">
-              <p className="text-[15px] text-[#141414] dark:text-white leading-relaxed">
+              <p className="text-[15px] text-design-content-default leading-relaxed">
                 Fakturio is the fastest way for Swiss freelancers to create invoices, track expenses, and stay tax-ready without the accounting headache.
               </p>
               <div className="flex flex-col gap-3">
@@ -60,7 +60,7 @@ export default function GuestSidebar() {
               <div className="w-4 h-4 bg-red-600 rounded flex items-center justify-center">
                 <div className="w-2 h-2 bg-white rounded-sm"></div>
               </div>
-              <span className="text-[12px] text-[#666666] dark:text-[#999] uppercase tracking-wide">
+              <span className="text-[12px] text-design-content-weak uppercase tracking-wide">
                 MADE IN SWITZERLAND
               </span>
             </div>

@@ -30,23 +30,23 @@ export default function Button({
   
   const variantClasses = {
     // Primary - Dark filled button
-    primary: "bg-[#141414] dark:bg-white text-white dark:text-[#141414] hover:bg-[#333333] dark:hover:bg-[#e0e0e0] active:bg-[#000000] dark:active:bg-[#d0d0d0] focus:ring-[#141414] dark:focus:ring-white",
+    primary: "bg-design-button-primary text-design-on-button-content hover:opacity-90 active:opacity-80 focus:ring-design-button-primary",
     
     // Secondary - Light with border (white background)
-    secondary: "bg-white dark:bg-[#2a2a2a] text-[#141414] dark:text-white border border-[#e0e0e0] dark:border-[#444] hover:bg-[#f5f5f5] dark:hover:bg-[#333] hover:border-[#d0d0d0] dark:hover:border-[#555] active:bg-[#ebebeb] dark:active:bg-[#3a3a3a] focus:ring-[#e0e0e0] dark:focus:ring-[#555]",
+    secondary: "bg-design-surface-default text-design-content-default border border-design-border-default hover:bg-design-surface-field hover:border-design-border-default/80 active:bg-design-surface-field/80 focus:ring-design-border-default",
     
     // Outline - Same as secondary (white background with border)
-    outline: "bg-white dark:bg-[#2a2a2a] text-[#141414] dark:text-white border border-[#e0e0e0] dark:border-[#444] hover:bg-[#f5f5f5] dark:hover:bg-[#333] hover:border-[#d0d0d0] dark:hover:border-[#555] active:bg-[#ebebeb] dark:active:bg-[#3a3a3a] focus:ring-[#e0e0e0] dark:focus:ring-[#555]",
+    outline: "bg-design-surface-default text-design-content-default border border-design-border-default hover:bg-design-surface-field hover:border-design-border-default/80 active:bg-design-surface-field/80 focus:ring-design-border-default",
     
     // Destructive - Red variant for delete actions
-    destructive: "bg-white dark:bg-[#2a2a2a] text-red-600 dark:text-red-400 border border-[#e0e0e0] dark:border-[#444] hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800/50 hover:text-red-700 dark:hover:text-red-300 active:bg-red-100 dark:active:bg-red-900/30 focus:ring-red-200 dark:focus:ring-red-800",
+    destructive: "bg-design-surface-default text-red-600 dark:text-red-400 border border-design-border-default hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800/50 hover:text-red-700 dark:hover:text-red-300 active:bg-red-100 dark:active:bg-red-900/30 focus:ring-red-200 dark:focus:ring-red-800",
     
     // Ghost - Minimal button
-    ghost: "bg-transparent text-[#555555] dark:text-[#aaa] hover:bg-[#f5f5f5] dark:hover:bg-[#333] hover:text-[#141414] dark:hover:text-white active:bg-[#ebebeb] dark:active:bg-[#3a3a3a] rounded-lg",
+    ghost: "bg-transparent text-design-content-weak hover:bg-design-surface-field hover:text-design-content-default active:bg-design-surface-field/80 rounded-lg",
     
     // Inverted variants for dark backgrounds
-    'primary-inverted': "bg-white text-[#141414] hover:bg-[#e0e0e0] active:bg-[#d0d0d0] focus:ring-white",
-    'outline-inverted': "bg-transparent text-white border border-[#444] hover:bg-[#333] active:bg-[#444] focus:ring-[#444]"
+    'primary-inverted': "bg-design-on-button-content-inverted text-design-on-button-content hover:opacity-90 active:opacity-80 focus:ring-design-on-button-content-inverted",
+    'outline-inverted': "bg-transparent text-design-on-button-content border border-design-border-default hover:bg-design-surface-inverted/20 active:bg-design-surface-inverted/30 focus:ring-design-border-default"
   }
   
   return (
