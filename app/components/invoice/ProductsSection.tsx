@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { InvoiceItem } from '@/lib/types/invoice'
 import { PlusIcon } from '../Icons'
+import Input from '../Input'
 import { calculateItemTotalWithVAT, calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { formatNumber, formatSwissCurrency } from '@/lib/utils/formatters'
 
@@ -79,134 +80,116 @@ export default function ProductsSection({
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <h3 className="font-medium text-[15px] text-[#141414] dark:text-white">Products</h3>
-      
-      <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-xl shadow-sm transition-colors duration-200">
-        <div className="p-4 flex flex-col gap-2">
-          {/* Header Row */}
-          <div className="flex gap-3 items-center text-[13px] font-medium text-[#474743] dark:text-[#999]">
-            <div className="w-[60px]">Qty</div>
-            <div className="w-[60px] relative group/tooltip">
-              <span className="border-b border-dashed border-[#474743] dark:border-[#999] cursor-help">UM</span>
-              <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-[#333] dark:bg-[#1a1a1a] text-white text-[12px] font-normal rounded-lg whitespace-nowrap opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-200 z-50 shadow-lg">
-                Unit of Measure (pcs, hour, kg...)
-                <div className="absolute top-full left-4 border-4 border-transparent border-t-[#333] dark:border-t-[#1a1a1a]"></div>
-              </div>
-            </div>
-            <div className="flex-1">Description</div>
-            <div className="w-[90px]">Price/UM</div>
-            <div className="w-[70px] relative group/vat">
-              <span className="border-b border-dashed border-[#474743] dark:border-[#999] cursor-help">VAT</span>
-              <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-[#333] dark:bg-[#1a1a1a] text-white text-[12px] font-normal rounded-lg whitespace-nowrap opacity-0 invisible group-hover/vat:opacity-100 group-hover/vat:visible transition-all duration-200 z-50 shadow-lg">
-                <div className="flex flex-col gap-1">
-                  <span><strong>8.1%</strong> – Standard rate</span>
-                  <span><strong>2.6%</strong> – Food, books, meds</span>
-                  <span><strong>3.8%</strong> – Accommodation</span>
-                  <span><strong>0%</strong> – Exempt</span>
-                </div>
-                <div className="absolute top-full left-4 border-4 border-transparent border-t-[#333] dark:border-t-[#1a1a1a]"></div>
-              </div>
-            </div>
-            <div className="w-[100px] text-right pr-1">Total</div>
-          </div>
+      <h2 className="text-[18px] font-medium text-[#141414] dark:text-white tracking-[-0.288px]">
+        Products
+      </h2>
+      <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-5">
+        <div className="flex flex-col gap-5">
 
-          {/* Item Rows */}
-          <div className="flex flex-col gap-3">
+          {/* Product Items */}
+          <div className="flex flex-col gap-[10px]">
             {items.map((item, index) => {
               const isFirstInvalidItem = hasInvalidItems && !isItemValid(item) && index === items.findIndex(i => !isItemValid(i))
               return (
-                <div key={item.id} className="flex gap-3 items-start group relative">
-                  <div className="w-[60px] flex flex-col">
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={item.quantity}
-                      onChange={(e) => updateItem(item.id, 'quantity', e.target.value)}
-                      placeholder="0"
-                      className={`w-full h-[40px] px-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border rounded-lg text-[14px] text-[#141414] dark:text-white placeholder-[#9e9e9e] dark:placeholder-[#666] focus:outline-none transition-all duration-200 ${
-                        hasInvalidItems && !isItemValid(item)
-                          ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500' 
-                          : 'border-[#e0e0e0] dark:border-[#444] focus:border-[#141414] dark:focus:border-white'
-                      }`}
-                    />
-                    {isFirstInvalidItem && (
-                      <span className="text-red-500 dark:text-red-400 text-[12px] mt-[1px] m-0 block">
-                        Required field
-                      </span>
-                    )}
-                  </div>
-                  <div className="w-[60px]">
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={item.um}
-                      onChange={(e) => updateItem(item.id, 'um', e.target.value)}
-                      placeholder="0"
-                      className={`w-full h-[40px] px-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border rounded-lg text-[14px] text-[#141414] dark:text-white placeholder-[#9e9e9e] dark:placeholder-[#666] focus:outline-none transition-all duration-200 ${
-                        hasInvalidItems && !isItemValid(item)
-                          ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500' 
-                          : 'border-[#e0e0e0] dark:border-[#444] focus:border-[#141414] dark:focus:border-white'
-                      }`}
-                    />
-                  </div>
+                <div key={item.id} className="flex gap-[10px] items-start group relative">
                   <div className="flex-1">
-                    <input
+                    <Input
                       type="text"
                       value={item.description}
                       onChange={(e) => updateItem(item.id, 'description', e.target.value)}
                       placeholder="Enter description"
-                      className={`w-full h-[40px] px-3 bg-[#F7F5F2] dark:bg-[#2a2a2a] border rounded-lg text-[14px] text-[#141414] dark:text-white placeholder-[#9e9e9e] dark:placeholder-[#666] focus:outline-none transition-all duration-200 ${
-                        hasInvalidItems && !isItemValid(item)
-                          ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500' 
-                          : 'border-[#e0e0e0] dark:border-[#444] focus:border-[#141414] dark:focus:border-white'
-                      }`}
+                      noLabel
+                      error={hasInvalidItems && !isItemValid(item) && !isFirstInvalidItem ? 'Required' : undefined}
                     />
                   </div>
-                  <div className="w-[90px]">
-                    <input
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={String(item.quantity)}
+                      onChange={(e) => updateItem(item.id, 'quantity', e.target.value)}
+                      placeholder="Qty"
+                      noLabel
+                      error={isFirstInvalidItem ? 'Required field' : undefined}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Input
                       type="number"
                       min="0"
                       step="0.01"
-                      value={item.pricePerUm}
+                      value={String(item.pricePerUm)}
                       onChange={(e) => updateItem(item.id, 'pricePerUm', e.target.value)}
-                      placeholder="0.00"
-                      className={`w-full h-[40px] px-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border rounded-lg text-[14px] text-[#141414] dark:text-white placeholder-[#9e9e9e] dark:placeholder-[#666] focus:outline-none transition-all duration-200 ${
-                        hasInvalidItems && !isItemValid(item)
-                          ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500' 
-                          : 'border-[#e0e0e0] dark:border-[#444] focus:border-[#141414] dark:focus:border-white'
-                      }`}
+                      placeholder="Price"
+                      noLabel
+                      error={hasInvalidItems && !isItemValid(item) && !isFirstInvalidItem ? 'Required' : undefined}
                     />
                   </div>
-                  <div className="w-[70px]">
+                  <div className="flex-1">
                     <select
                       value={item.vat || '8.1'}
                       onChange={(e) => updateItem(item.id, 'vat', e.target.value)}
-                      className="w-full h-[40px] px-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg text-[14px] text-[#141414] dark:text-white focus:outline-none focus:border-[#141414] dark:focus:border-white transition-all duration-200"
+                      className="w-full px-2 py-2 bg-[#f7f5f3] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg text-[16px] text-[#141414] dark:text-white focus:outline-none focus:border-[#141414] dark:focus:border-white transition-all duration-200"
                     >
                       {SWISS_VAT_RATES.map((rate) => (
                         <option key={rate.value} value={rate.value}>{rate.label}</option>
                       ))}
                     </select>
                   </div>
-                  <div className="w-[100px] text-right pr-1 flex items-center justify-end gap-2">
-                    <span className="text-[14px] font-medium text-[#141414] dark:text-white">
-                      {formatNumber(calculateItemTotalWithVAT(item))}
-                    </span>
-                    {items.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        className="opacity-0 group-hover:opacity-100 text-[#9e9e9e] dark:text-[#666] hover:text-[#141414] dark:hover:text-white transition-all"
-                      >
-                        <XIcon />
-                      </button>
-                    )}
-                  </div>
+                  {items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="opacity-0 group-hover:opacity-100 text-[#9e9e9e] dark:text-[#666] hover:text-[#141414] dark:hover:text-white transition-all mt-2"
+                    >
+                      <XIcon />
+                    </button>
+                  )}
                 </div>
               )
             })}
+          </div>
+
+          {/* Totals */}
+          <div className="mt-4 pt-4 border-t border-[#e0e0e0] dark:border-[#444]">
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-end items-center gap-8">
+                <span className="text-[13px] text-[#474743] dark:text-[#999]">Subtotal</span>
+                <span className="text-[14px] text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
+                  {formatSwissCurrency(totals.subtotal, currency)}
+                </span>
+              </div>
+              {totals.discountAmount > 0 && (
+                <div className="flex justify-end items-center gap-8">
+                  <span className="text-[13px] text-[#474743] dark:text-[#999]">Discount</span>
+                  <span className="text-[14px] text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
+                    - {formatSwissCurrency(totals.discountAmount, currency)}
+                  </span>
+                </div>
+              )}
+              {/* Show VAT by rate */}
+              {Object.entries(totals.vatBreakdown)
+                .filter(([rate, group]) => group.vatAmount > 0)
+                .map(([rate, group]) => (
+                  <div key={rate} className="flex justify-end items-center gap-8">
+                    <span className="text-[13px] text-[#474743] dark:text-[#999]">
+                      VAT {rate}%
+                    </span>
+                    <span className="text-[14px] text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
+                      {formatSwissCurrency(group.vatAmount * (1 - (parseFloat(String(discount)) || 0) / 100), currency)}
+                    </span>
+                  </div>
+                ))}
+              <div className="flex justify-end items-center gap-8 pt-2 border-t border-[#e0e0e0] dark:border-[#444]">
+                <span className="text-[14px] font-medium text-[#141414] dark:text-white whitespace-nowrap">
+                  Total (incl. VAT)
+                </span>
+                <span className="text-[24px] font-semibold text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
+                  {formatSwissCurrency(totals.total, currency)}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Footer Actions */}
@@ -224,55 +207,17 @@ export default function ProductsSection({
             <div className="flex items-center gap-2">
               <span className="text-[13px] text-[#474743] dark:text-[#999]">Discount</span>
               <div className="relative w-[70px]">
-                <input
+                <Input
                   type="number"
                   step="0.1"
                   min="0"
-                  value={discount}
+                  value={String(discount)}
                   onChange={(e) => onChangeDiscount(e.target.value)}
-                  className="w-full h-[36px] pl-2 pr-6 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg text-[13px] text-[#141414] dark:text-white text-right focus:outline-none focus:border-[#141414] dark:focus:border-white transition-all duration-200"
+                  noLabel
+                  className="h-[36px] pl-2 pr-6 text-[13px] text-right"
                 />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-[#9e9e9e] dark:text-[#666]">%</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-[#9e9e9e] dark:text-[#666] pointer-events-none">%</span>
               </div>
-            </div>
-          </div>
-
-          {/* Totals */}
-          <div className="flex flex-col gap-2 pt-4 border-t border-[#f0f0f0] dark:border-[#333] mt-2">
-            <div className="flex justify-end items-center gap-8">
-              <span className="text-[13px] text-[#474743] dark:text-[#999]">Subtotal</span>
-              <span className="text-[14px] text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
-                {formatSwissCurrency(totals.subtotal, currency)}
-              </span>
-            </div>
-            {totals.discountAmount > 0 && (
-              <div className="flex justify-end items-center gap-8">
-                <span className="text-[13px] text-[#474743] dark:text-[#999]">Discount</span>
-                <span className="text-[14px] text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
-                  - {formatSwissCurrency(totals.discountAmount, currency)}
-                </span>
-              </div>
-            )}
-            {/* Show VAT by rate */}
-            {Object.entries(totals.vatBreakdown)
-              .filter(([rate, group]) => group.vatAmount > 0)
-              .map(([rate, group]) => (
-                <div key={rate} className="flex justify-end items-center gap-8">
-                  <span className="text-[13px] text-[#474743] dark:text-[#999]">
-                    VAT {rate}%
-                  </span>
-                  <span className="text-[14px] text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
-                    {formatSwissCurrency(group.vatAmount * (1 - (parseFloat(String(discount)) || 0) / 100), currency)}
-                  </span>
-                </div>
-              ))}
-            <div className="flex justify-end items-center gap-8 pt-2 border-t border-[#f0f0f0] dark:border-[#333]">
-              <span className="text-[14px] font-medium text-[#141414] dark:text-white whitespace-nowrap">
-                Total (incl. VAT)
-              </span>
-              <span className="text-[20px] font-semibold text-[#141414] dark:text-white min-w-[140px] text-right whitespace-nowrap">
-                {formatSwissCurrency(totals.total, currency)}
-              </span>
             </div>
           </div>
         </div>

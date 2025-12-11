@@ -15,8 +15,7 @@ import ProductsSection from './components/invoice/ProductsSection'
 import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
 import PreviewModal from './components/invoice/PreviewModal'
 import GuestSidebar from './components/GuestSidebar'
-import Button from './components/Button'
-import Card from './components/Card'
+import { PreviewIcon, SaveIcon } from './components/Icons'
 
 export default function Home() {
   // Invoice state
@@ -205,88 +204,85 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F5F2] dark:bg-[#141414] flex">
+    <div className="min-h-screen bg-[#f7f5f3] dark:bg-[#141414] flex">
       {/* Sidebar */}
       <GuestSidebar />
       
       {/* Main Content */}
-      <div className="flex-1 lg:ml-[292px] ml-0 pt-10 px-4 lg:px-8 pb-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="flex-1 lg:ml-[292px] ml-0 pt-7 px-6 pb-8">
+        <div className="max-w-[750px]">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-[24px] md:text-[32px] font-semibold text-[#141414] dark:text-white tracking-tight mb-2">
-              Create an invoice in under 2 minutes
+          <div className="mb-9">
+            <h1 className="text-[32px] font-semibold text-[#141414] dark:text-white tracking-[-0.512px]">
+              Create an invoice in less than 2 minutes
             </h1>
           </div>
 
-        {/* Invoice Form */}
-        <div className="flex flex-col gap-6">
-          {/* Invoice Header */}
-          <Card>
-            <InvoiceHeader
-              invoiceNumber={invoiceNumber}
-              issuedOn={issuedOn}
-              dueDate={dueDate}
-              currency={currency}
-              paymentMethod={paymentMethod}
-              onChange={handleHeaderChange}
-              errors={validationErrors}
-            />
-          </Card>
+          {/* Invoice Form Sections */}
+          <div className="flex flex-col gap-8">
+            {/* Invoice Header Card */}
+            <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-5">
+              <InvoiceHeader
+                invoiceNumber={invoiceNumber}
+                issuedOn={issuedOn}
+                dueDate={dueDate}
+                currency={currency}
+                paymentMethod={paymentMethod}
+                onChange={handleHeaderChange}
+                errors={validationErrors}
+              />
+            </div>
 
-          {/* From and To Sections */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FromSection
-              fromInfo={fromInfo}
-              onChange={setFromInfo}
-              errors={validationErrors}
-            />
-            <ToSection
-              toInfo={toInfo}
-              onChange={setToInfo}
-              errors={validationErrors}
-            />
-          </div>
-
-          {/* Description */}
-          <DescriptionSection
-            description={description}
-            onChange={setDescription}
-          />
-
-          {/* Products */}
-          <ProductsSection
-            items={items}
-            discount={discount}
-            currency={currency}
-            onChangeItems={setItems}
-            onChangeDiscount={setDiscount}
-            errors={validationErrors}
-          />
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center pt-4 border-t border-[#e0e0e0] dark:border-[#333]">
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 text-[14px] text-[#141414] dark:text-white cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-[#e0e0e0] dark:border-[#444]"
-                  disabled
+            {/* From and To Sections */}
+            <div className="flex gap-8">
+              <div className="flex-1">
+                <FromSection
+                  fromInfo={fromInfo}
+                  onChange={setFromInfo}
+                  errors={validationErrors}
                 />
-                <span>Include Swiss QR code</span>
-              </label>
+              </div>
+              <div className="flex-1">
+                <ToSection
+                  toInfo={toInfo}
+                  onChange={setToInfo}
+                  errors={validationErrors}
+                />
+              </div>
             </div>
-            
-            <div className="flex gap-3">
-              <Button variant="secondary" onClick={handlePreview}>
+
+            {/* Description Section */}
+            <DescriptionSection
+              description={description}
+              onChange={setDescription}
+            />
+
+            {/* Products Section */}
+            <ProductsSection
+              items={items}
+              discount={discount}
+              currency={currency}
+              onChangeItems={setItems}
+              onChangeDiscount={setDiscount}
+              errors={validationErrors}
+            />
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-4 pt-4">
+              <button
+                onClick={handlePreview}
+                className="px-6 py-3 border border-[rgba(20,20,20,0.4)] rounded-full text-[16px] text-[#141414] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors"
+              >
                 Preview
-              </Button>
-              <Button variant="primary" onClick={handleSave}>
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-6 py-3 bg-[#141414] dark:bg-white text-white dark:text-[#141414] rounded-full text-[16px] hover:opacity-90 transition-opacity"
+              >
                 Save
-              </Button>
+              </button>
             </div>
           </div>
-        </div>
         </div>
       </div>
 

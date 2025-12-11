@@ -24,22 +24,23 @@ const currencies = [
 const customStyles = {
   control: (provided: any) => ({
     ...provided,
-    backgroundColor: '#F7F5F2',
-    minHeight: '40px',
-    height: '40px',
-    fontSize: '14px',
+    backgroundColor: '#f7f5f3',
+    minHeight: 'auto',
+    height: 'auto',
+    fontSize: '16px',
     fontWeight: 400,
     border: '1px solid #e0e0e0',
     borderRadius: '8px',
     boxShadow: 'none',
+    padding: '8px 12px',
     '&:hover': {
       borderColor: '#b0b0b0',
     },
   }),
   valueContainer: (provided: any) => ({
     ...provided,
-    height: '38px',
-    padding: '0 12px',
+    height: 'auto',
+    padding: '0',
   }),
   input: (provided: any) => ({
     ...provided,
@@ -51,7 +52,7 @@ const customStyles = {
   }),
   indicatorsContainer: (provided: any) => ({
     ...provided,
-    height: '38px',
+    height: 'auto',
   }),
   dropdownIndicator: (provided: any) => ({
     ...provided,
@@ -89,9 +90,10 @@ interface CurrencyPickerProps {
   onChange: (value: string) => void
   error?: string
   required?: boolean
+  noLabel?: boolean
 }
 
-export default function CurrencyPicker({ label, value, onChange, error, required }: CurrencyPickerProps) {
+export default function CurrencyPicker({ label, value, onChange, error, required, noLabel = false }: CurrencyPickerProps) {
   // TODO: Uncomment when language context is available
   // const { t } = useLanguage()
   const selectedOption = currencies.find(c => c.value === value) || currencies[0]
@@ -109,6 +111,31 @@ export default function CurrencyPicker({ label, value, onChange, error, required
     }),
   }
 
+  const selectElement = (
+    <Select
+      value={selectedOption}
+      onChange={(option) => onChange(option!.value)}
+      options={currencies}
+      styles={errorStyles}
+      classNamePrefix="currency-select"
+      className="w-full"
+      isSearchable={true}
+    />
+  )
+
+  if (noLabel) {
+    return (
+      <div className="flex flex-col gap-1 w-full">
+        {selectElement}
+        {hasError && (
+          <span className="text-red-500 dark:text-red-400 text-[12px] mt-[1px] m-0 block">
+            {error || 'Required field'}
+          </span>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
@@ -116,15 +143,7 @@ export default function CurrencyPicker({ label, value, onChange, error, required
           {label}
         </label>
       )}
-      <Select
-        value={selectedOption}
-        onChange={(option) => onChange(option!.value)}
-        options={currencies}
-        styles={errorStyles}
-        classNamePrefix="currency-select"
-        className="w-full"
-        isSearchable={true}
-      />
+      {selectElement}
       {hasError && (
         <span className="text-red-500 dark:text-red-400 text-[12px] mt-[1px] m-0 block">
           {error || 'Required field'}

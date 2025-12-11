@@ -24,9 +24,11 @@ export default function ToSection({ toInfo, onChange, errors = {} }: ToSectionPr
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <h3 className="font-medium text-[15px] text-[#141414] dark:text-white">To</h3>
-      <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-xl shadow-sm overflow-hidden transition-colors duration-200">
-        <div className="p-4 flex flex-col gap-4">
+      <h2 className="text-[18px] font-medium text-[#141414] dark:text-white tracking-[-0.288px]">
+        To
+      </h2>
+      <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-5">
+        <div className="flex flex-col gap-5">
           <Input
             label="UID"
             value={toInfo.uid || ''}
