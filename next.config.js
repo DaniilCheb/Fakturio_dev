@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  // Path alias is handled by tsconfig.json
+}
 
 module.exports = nextConfig

@@ -1,80 +1,313 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useSession, useUser } from "@clerk/nextjs";
-import { createClient } from "@supabase/supabase-js";
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import { GuestInvoice, FromInfo, ToInfo, InvoiceItem } from '@/lib/types/invoice'
+import { getNextInvoiceNumber, generateInvoiceId } from '@/lib/utils/invoiceNumber'
+import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
+import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
+import { validateInvoice, ValidationErrors } from '@/lib/utils/invoiceValidation'
+import { generateInvoicePDF } from '@/lib/services/pdfService'
+import InvoiceHeader from './components/invoice/InvoiceHeader'
+import FromSection from './components/invoice/FromSection'
+import ToSection from './components/invoice/ToSection'
+import DescriptionSection from './components/invoice/DescriptionSection'
+import ProductsSection from './components/invoice/ProductsSection'
+import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
+import PreviewModal from './components/invoice/PreviewModal'
+import GuestSidebar from './components/GuestSidebar'
+import Button from './components/Button'
+import Card from './components/Card'
 
 export default function Home() {
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
-  // The `useUser()` hook will be used to ensure that Clerk has loaded data about the logged in user
-  const { user } = useUser();
-  // The `useSession()` hook will be used to get the Clerk session object
-  const { session } = useSession();
+  // Invoice state
+  const [invoiceNumber, setInvoiceNumber] = useState('')
+  const [issuedOn, setIssuedOn] = useState(getCurrentDateISO())
+  const [dueDate, setDueDate] = useState('')
+  const [currency, setCurrency] = useState('CHF')
+  const [paymentMethod, setPaymentMethod] = useState<'Bank' | 'Card' | 'Cash' | 'Other'>('Bank')
+  
+  const [fromInfo, setFromInfo] = useState<FromInfo>({
+    name: '',
+    street: '',
+    zip: '8037 Zurich',
+    iban: 'CH93 0076 2011 6238 5295 7'
+  })
+  
+  const [toInfo, setToInfo] = useState<ToInfo>({
+    uid: 'CHE-123.456.789',
+    name: 'Company AG',
+    address: 'Bucheggstrasse 21',
+    zip: '8037 Zurich'
+  })
+  
+  const [description, setDescription] = useState('')
+  const [items, setItems] = useState<InvoiceItem[]>([
+    {
+      id: generateInvoiceId(),
+      quantity: '',
+      um: '',
+      description: '',
+      pricePerUm: '',
+      vat: '8.1'
+    }
+  ])
+  const [discount, setDiscount] = useState<number | string>(0)
+  
+  // UI state
+  const [showSaveModal, setShowSaveModal] = useState(false)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [previewInvoice, setPreviewInvoice] = useState<GuestInvoice | null>(null)
 
-  // Create a custom supabase client that injects the Clerk Supabase token into the request headers
-  function createClerkSupabaseClient() {
-    return createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-      {
-        async accessToken() {
-          return session?.getToken() ?? null;
-        },
-      }
-    );
+  // Initialize invoice number and due date
+  useEffect(() => {
+    if (!invoiceNumber) {
+      setInvoiceNumber(getNextInvoiceNumber())
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!dueDate && issuedOn) {
+      const calculated = calculateDueDate(issuedOn, '14 days')
+      setDueDate(calculated)
+    }
+  }, [issuedOn])
+
+  // Recalculate totals when items or discount change
+  useEffect(() => {
+    if (items.length > 0) {
+      setIsCalculating(true)
+      // Trigger a re-render by updating state
+      setTimeout(() => setIsCalculating(false), 0)
+    }
+  }, [items, discount])
+
+  const handleHeaderChange = (field: string, value: string) => {
+    switch (field) {
+      case 'invoice_number':
+        setInvoiceNumber(value)
+        break
+      case 'issued_on':
+        setIssuedOn(value)
+        if (dueDate && issuedOn) {
+          const days = Math.ceil((new Date(dueDate).getTime() - new Date(issuedOn).getTime()) / (1000 * 60 * 60 * 24))
+          if (days > 0) {
+            setDueDate(calculateDueDate(value, `${days} days`))
+          } else {
+            setDueDate(calculateDueDate(value, '14 days'))
+          }
+        } else {
+          setDueDate(calculateDueDate(value, '14 days'))
+        }
+        break
+      case 'due_date':
+        setDueDate(value)
+        break
+      case 'currency':
+        setCurrency(value)
+        break
+      case 'payment_method':
+        setPaymentMethod(value as 'Bank' | 'Card' | 'Cash' | 'Other')
+        break
+    }
   }
 
-  // Create a `client` object for accessing Supabase data using the Clerk token
-  const client = createClerkSupabaseClient();
-
-  // This `useEffect` will wait for the User object to be loaded before requesting
-  // the tasks for the logged in user
-  useEffect(() => {
-    if (!user) return;
-
-    async function loadTasks() {
-      setLoading(true);
-      const { data, error } = await client.from("tasks").select();
-      if (!error) setTasks(data);
-      setLoading(false);
+  const buildInvoice = (): Partial<GuestInvoice> => {
+    const totals = calculateGrandTotal(items, discount)
+    
+    return {
+      invoice_number: invoiceNumber,
+      issued_on: issuedOn,
+      due_date: dueDate,
+      currency,
+      payment_method: paymentMethod,
+      from_info: fromInfo,
+      to_info: toInfo,
+      description,
+      items,
+      discount: parseFloat(String(discount)) || 0,
+      subtotal: totals.subtotal,
+      vat_amount: totals.vatAmount,
+      total: totals.total
     }
+  }
 
-    loadTasks();
-  }, [user]);
+  const handlePreview = () => {
+    const invoice = buildInvoice()
+    const validation = validateInvoice(invoice)
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors)
+      return
+    }
+    
+    setValidationErrors({})
+    // Build full invoice for preview
+    const fullInvoice: GuestInvoice = {
+      id: generateInvoiceId(),
+      ...invoice as any,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    setPreviewInvoice(fullInvoice)
+    setShowPreviewModal(true)
+  }
 
-  async function createTask(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    // Insert task into the "tasks" database
-    await client.from("tasks").insert({
-      name,
-    });
-    window.location.reload();
+  const handleSave = () => {
+    const invoice = buildInvoice()
+    const validation = validateInvoice(invoice)
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors)
+      return
+    }
+    
+    setValidationErrors({})
+    setShowSaveModal(true)
+  }
+
+  const handleDownload = async () => {
+    const invoice = buildInvoice()
+    const validation = validateInvoice(invoice)
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors)
+      setShowSaveModal(false)
+      return
+    }
+    
+    try {
+      const fullInvoice: GuestInvoice = {
+        id: generateInvoiceId(),
+        ...invoice as any,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      await generateInvoicePDF(fullInvoice)
+      setShowSaveModal(false)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Failed to generate PDF. Please try again.')
+    }
+  }
+
+  const handlePreviewDownload = async () => {
+    if (previewInvoice) {
+      try {
+        await generateInvoicePDF(previewInvoice)
+        setShowPreviewModal(false)
+      } catch (error) {
+        console.error('Error generating PDF:', error)
+        alert('Failed to generate PDF. Please try again.')
+      }
+    }
   }
 
   return (
-    <div>
-      <h1>Tasks</h1>
+    <div className="min-h-screen bg-[#F7F5F2] dark:bg-[#141414] flex">
+      {/* Sidebar */}
+      <GuestSidebar />
+      
+      {/* Main Content */}
+      <div className="flex-1 lg:ml-[292px] ml-0 pt-10 px-4 lg:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-[24px] md:text-[32px] font-semibold text-[#141414] dark:text-white tracking-tight mb-2">
+              Create an invoice in under 2 minutes
+            </h1>
+          </div>
 
-      {loading && <p>Loading...</p>}
+        {/* Invoice Form */}
+        <div className="flex flex-col gap-6">
+          {/* Invoice Header */}
+          <Card>
+            <InvoiceHeader
+              invoiceNumber={invoiceNumber}
+              issuedOn={issuedOn}
+              dueDate={dueDate}
+              currency={currency}
+              paymentMethod={paymentMethod}
+              onChange={handleHeaderChange}
+              errors={validationErrors}
+            />
+          </Card>
 
-      {!loading &&
-        tasks.length > 0 &&
-        tasks.map((task: any) => <p key={task.id}>{task.name}</p>)}
+          {/* From and To Sections */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FromSection
+              fromInfo={fromInfo}
+              onChange={setFromInfo}
+              errors={validationErrors}
+            />
+            <ToSection
+              toInfo={toInfo}
+              onChange={setToInfo}
+              errors={validationErrors}
+            />
+          </div>
 
-      {!loading && tasks.length === 0 && <p>No tasks found</p>}
+          {/* Description */}
+          <DescriptionSection
+            description={description}
+            onChange={setDescription}
+          />
 
-      <form onSubmit={createTask}>
-        <input
-          autoFocus
-          type="text"
-          name="name"
-          placeholder="Enter new task"
-          onChange={(e) => setName(e.target.value)}
-          value={name}
+          {/* Products */}
+          <ProductsSection
+            items={items}
+            discount={discount}
+            currency={currency}
+            onChangeItems={setItems}
+            onChangeDiscount={setDiscount}
+            errors={validationErrors}
+          />
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center pt-4 border-t border-[#e0e0e0] dark:border-[#333]">
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 text-[14px] text-[#141414] dark:text-white cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-[#e0e0e0] dark:border-[#444]"
+                  disabled
+                />
+                <span>Include Swiss QR code</span>
+              </label>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={handlePreview}>
+                Preview
+              </Button>
+              <Button variant="primary" onClick={handleSave}>
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <SaveInvoiceModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        onDownload={handleDownload}
+      />
+
+      {previewInvoice && (
+        <PreviewModal
+          isOpen={showPreviewModal}
+          onClose={() => {
+            setShowPreviewModal(false)
+            setPreviewInvoice(null)
+          }}
+          invoice={previewInvoice}
+          onDownload={handlePreviewDownload}
         />
-        <button type="submit">Add</button>
-      </form>
+      )}
     </div>
-  );
+  )
 }
