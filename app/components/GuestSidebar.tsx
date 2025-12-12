@@ -72,9 +72,16 @@ export default function GuestSidebar() {
           {/* Text + Buttons in middle */}
           <div className="flex-1 flex flex-col justify-center">
             <div className="flex flex-col gap-6">
-              <p className="text-[15px] text-design-content-default leading-relaxed">
-                Professional Swiss invoices (QR-bill ready), taxes, projects, and time tracking—built for freelancers. Try it right now for free.
-              </p>
+              {/* Desktop hero */}
+              <h1 className="text-[28px] leading-[34px] font-semibold text-design-content-default tracking-[-0.4px]">
+                Invoice simply. Get paid faster.
+              </h1>
+              <ul className="text-[15px] text-design-content-default leading-relaxed list-disc pl-5 space-y-2">
+                <li>Invoices with QR code.</li>
+                <li>Tax-ready (VAT, exports).</li>
+                <li>Projects + time tracking.</li>
+                <li>Everything in one place.</li>
+              </ul>
               <div className="flex flex-col gap-3">
                 <SignUpButton mode="modal">
                   <Button variant="primary" className="w-full justify-center">

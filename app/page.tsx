@@ -346,23 +346,26 @@ export default function Home() {
         <div className="flex gap-8 h-full">
           {/* Form Section */}
           <div className="flex-1 px-4 lg:px-8 max-w-[800px] mx-auto">
-            {/* Header */}
-            <div className="mt-[64px] mb-6 sm:mb-9 px-4">
+            {/* Header (mobile only — desktop headline lives in sidebar) */}
+            <div className="mt-[64px] mb-8 px-4 lg:hidden">
               <h1 className="text-[36px] leading-[44px] font-semibold text-design-content-default tracking-[-0.512px]">
-                Invoice simply.
-                <br />
-                Get paid faster.
+                Invoice simply.<br /> Get paid faster.
               </h1>
-              <p className="text-[15px] text-design-content-default leading-relaxed mt-4 xl:hidden">
+              <p className="text-[15px] text-design-content-default leading-relaxed mt-4">
                 Professional Swiss invoices (QR-bill ready). Tax-ready by default (VAT, exports, categories). Projects + time tracking that turns into invoices. Expenses, dashboards, and everything in one place.
               </p>
-              <p className="text-[15px] text-design-content-default leading-relaxed mt-2 xl:hidden">
-                Try it now for free 👇
+              <p className="text-[15px] text-design-content-default leading-relaxed mt-2">
+                Try it now for free.
               </p>
             </div>
 
             {/* Invoice Form Sections */}
             <div className="flex flex-col gap-6 sm:gap-8">
+              {/* Try it now - Desktop only */}
+              <p className="hidden lg:block text-[20px] font-semibold text-design-content-default pt-10 mb-[3px]">
+                Create an invoice in less than 2 minutes.
+              </p>
+
               {/* Invoice Header Card */}
               <div className="bg-design-surface-default border border-design-border-default rounded-2xl p-4 sm:p-5">
                 <InvoiceHeader
