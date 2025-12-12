@@ -7,6 +7,7 @@ import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { validateInvoice, ValidationErrors } from '@/lib/utils/invoiceValidation'
 import { generateInvoicePDF } from '@/lib/services/pdfService'
+import { useInvoiceStorage } from '@/lib/hooks/useInvoiceStorage'
 import InvoiceHeader from './components/invoice/InvoiceHeader'
 import FromSection from './components/invoice/FromSection'
 import ToSection from './components/invoice/ToSection'
@@ -18,6 +19,9 @@ import GuestSidebar from './components/GuestSidebar'
 import { PreviewIcon, SaveIcon } from './components/Icons'
 
 export default function Home() {
+  // Invoice storage hook (handles localStorage for guests)
+  const { saveInvoice: saveToStorage, invoices } = useInvoiceStorage()
+  
   // Invoice state
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [issuedOn, setIssuedOn] = useState(getCurrentDateISO())
@@ -44,10 +48,10 @@ export default function Home() {
     {
       id: generateInvoiceId(),
       quantity: '',
-      um: '',
+      um: 'pcs', // Default unit of measure
       description: '',
       pricePerUm: '',
-      vat: '8.1'
+      vat: '0'
     }
   ])
   const [discount, setDiscount] = useState<number | string>(0)
@@ -58,6 +62,9 @@ export default function Home() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [isCalculating, setIsCalculating] = useState(false)
   const [previewInvoice, setPreviewInvoice] = useState<GuestInvoice | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
 
   // Initialize invoice number and due date
   useEffect(() => {
@@ -176,30 +183,158 @@ export default function Home() {
       return
     }
     
+    setIsGeneratingPDF(true)
+    
     try {
       const fullInvoice: GuestInvoice = {
         id: generateInvoiceId(),
-        ...invoice as any,
+        invoice_number: invoice.invoice_number || '',
+        issued_on: invoice.issued_on || '',
+        due_date: invoice.due_date || '',
+        currency: invoice.currency || 'CHF',
+        payment_method: invoice.payment_method || 'Bank',
+        from_info: invoice.from_info || { name: '', street: '', zip: '', iban: '' },
+        to_info: invoice.to_info || { name: '', address: '', zip: '' },
+        description: invoice.description,
+        items: invoice.items || [],
+        discount: invoice.discount || 0,
+        subtotal: invoice.subtotal || 0,
+        vat_amount: invoice.vat_amount || 0,
+        total: invoice.total || 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
-      await generateInvoicePDF(fullInvoice)
+      
+      // Generate PDF directly without QR code for now (simpler)
+      await generateInvoicePDF(fullInvoice, {
+        includeQRCode: false,
+        qrCodeDataUrl: undefined
+      })
+      
+      // Try to save to localStorage after successful PDF
+      try {
+        await saveToStorage({
+          invoice_number: fullInvoice.invoice_number,
+          issued_on: fullInvoice.issued_on,
+          due_date: fullInvoice.due_date,
+          currency: fullInvoice.currency,
+          payment_method: fullInvoice.payment_method,
+          from_info: fullInvoice.from_info,
+          to_info: fullInvoice.to_info,
+          description: fullInvoice.description,
+          items: fullInvoice.items,
+          discount: fullInvoice.discount,
+          subtotal: fullInvoice.subtotal,
+          vat_amount: fullInvoice.vat_amount,
+          total: fullInvoice.total
+        })
+      } catch (saveError) {
+        console.warn('Failed to save to localStorage:', saveError)
+      }
+      
+      setSaveSuccess(true)
       setShowSaveModal(false)
+      
+      setTimeout(() => {
+        setSaveSuccess(false)
+      }, 3000)
     } catch (error) {
       console.error('Error generating PDF:', error)
-      alert('Failed to generate PDF. Please try again.')
+      alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsGeneratingPDF(false)
     }
   }
 
   const handlePreviewDownload = async () => {
     if (previewInvoice) {
+      setIsGeneratingPDF(true)
       try {
-        await generateInvoicePDF(previewInvoice)
+        // Generate PDF directly without QR code for now
+        await generateInvoicePDF(previewInvoice, {
+          includeQRCode: false,
+          qrCodeDataUrl: undefined
+        })
+        
+        // Try to save to localStorage after successful PDF
+        try {
+          await saveToStorage({
+            invoice_number: previewInvoice.invoice_number,
+            issued_on: previewInvoice.issued_on,
+            due_date: previewInvoice.due_date,
+            currency: previewInvoice.currency,
+            payment_method: previewInvoice.payment_method,
+            from_info: previewInvoice.from_info,
+            to_info: previewInvoice.to_info,
+            description: previewInvoice.description,
+            items: previewInvoice.items,
+            discount: previewInvoice.discount,
+            subtotal: previewInvoice.subtotal,
+            vat_amount: previewInvoice.vat_amount,
+            total: previewInvoice.total
+          })
+        } catch (saveError) {
+          console.warn('Failed to save to localStorage:', saveError)
+        }
+        
+        setSaveSuccess(true)
         setShowPreviewModal(false)
+        setPreviewInvoice(null)
+        
+        setTimeout(() => {
+          setSaveSuccess(false)
+        }, 3000)
       } catch (error) {
         console.error('Error generating PDF:', error)
-        alert('Failed to generate PDF. Please try again.')
+        alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      } finally {
+        setIsGeneratingPDF(false)
       }
+    }
+  }
+
+  // Handle save only (without download)
+  const handleSaveOnly = async () => {
+    const invoice = buildInvoice()
+    const validation = validateInvoice(invoice)
+    
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors)
+      return
+    }
+    
+    setIsSaving(true)
+    
+    try {
+      // Save to localStorage
+      await saveToStorage({
+        invoice_number: invoice.invoice_number || '',
+        issued_on: invoice.issued_on || '',
+        due_date: invoice.due_date || '',
+        currency: invoice.currency || 'CHF',
+        payment_method: invoice.payment_method || 'Bank',
+        from_info: invoice.from_info || { name: '', street: '', zip: '', iban: '' },
+        to_info: invoice.to_info || { name: '', address: '', zip: '' },
+        description: invoice.description,
+        items: invoice.items || [],
+        discount: invoice.discount || 0,
+        subtotal: invoice.subtotal || 0,
+        vat_amount: invoice.vat_amount || 0,
+        total: invoice.total || 0
+      })
+      
+      setSaveSuccess(true)
+      setShowSaveModal(false)
+      
+      // Show success message for 3 seconds
+      setTimeout(() => {
+        setSaveSuccess(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Error saving invoice:', error)
+      alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -209,19 +344,22 @@ export default function Home() {
       <GuestSidebar />
       
       {/* Main Content */}
-      <div className="flex-1 lg:ml-[292px] ml-0 pt-7 px-6 pb-8">
-        <div className="max-w-[750px]">
+      <div className="flex-1 lg:ml-[292px] ml-0 pt-7 lg:pt-7 pt-20 px-4 sm:px-6 pb-8 w-full">
+        <div className="max-w-[750px] mx-auto lg:mx-0">
           {/* Header */}
-          <div className="mb-9">
-            <h1 className="text-[32px] font-semibold text-design-content-default tracking-[-0.512px]">
+          <div className="mt-[64px] mb-6 sm:mb-9">
+            <h1 className="text-[30px] leading-[36px] font-semibold text-design-content-default tracking-[-0.512px]">
               Create an invoice in less than 2 minutes
             </h1>
+            <p className="text-[15px] text-design-content-default leading-relaxed mt-4 lg:hidden">
+              Fakturio is the fastest way for Swiss freelancers to create invoices, track expenses, and stay tax-ready without the accounting headache.
+            </p>
           </div>
 
           {/* Invoice Form Sections */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 sm:gap-8">
             {/* Invoice Header Card */}
-            <div className="bg-design-surface-default border border-design-border-default rounded-2xl p-5">
+            <div className="bg-design-surface-default border border-design-border-default rounded-2xl p-4 sm:p-5">
               <InvoiceHeader
                 invoiceNumber={invoiceNumber}
                 issuedOn={issuedOn}
@@ -234,7 +372,7 @@ export default function Home() {
             </div>
 
             {/* From and To Sections */}
-            <div className="flex gap-8">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
               <div className="flex-1">
                 <FromSection
                   fromInfo={fromInfo}
@@ -268,16 +406,16 @@ export default function Home() {
             />
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
               <button
                 onClick={handlePreview}
-                className="px-6 py-3 border border-design-content-weakest rounded-full text-[16px] text-design-content-default hover:bg-design-surface-field transition-colors"
+                className="px-6 py-3 border border-design-content-weakest rounded-full text-[16px] text-design-content-default hover:bg-design-surface-field transition-colors w-full sm:w-auto"
               >
                 Preview
               </button>
               <button
                 onClick={handleSave}
-                className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity"
+                className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity w-full sm:w-auto"
               >
                 Save
               </button>
@@ -286,11 +424,27 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Success Toast */}
+      {saveSuccess && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-[#141414] dark:bg-white text-white dark:text-[#141414] px-5 py-3 rounded-xl shadow-lg flex items-center gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#22C55E" />
+              <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="text-[14px] font-medium">Invoice saved successfully!</span>
+          </div>
+        </div>
+      )}
+
       {/* Modals */}
       <SaveInvoiceModal
         isOpen={showSaveModal}
         onClose={() => setShowSaveModal(false)}
         onDownload={handleDownload}
+        onSaveOnly={handleSaveOnly}
+        isLoading={isGeneratingPDF}
+        isSaving={isSaving}
       />
 
       {previewInvoice && (

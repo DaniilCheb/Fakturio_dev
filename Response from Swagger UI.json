@@ -1,0 +1,317 @@
+[
+  {
+    "name": "Qube AG",
+    "ehraid": 348639,
+    "uid": "CHE107721785",
+    "chid": "CH40030163378",
+    "legalSeatId": 4001,
+    "legalSeat": "Aarau",
+    "registryOfCommerceId": 400,
+    "legalForm": {
+      "id": 3,
+      "uid": "0106",
+      "name": {
+        "de": "Aktiengesellschaft",
+        "fr": "Société anonyme",
+        "it": "Società anonima",
+        "en": "Corporation"
+      },
+      "shortName": {
+        "de": "AG",
+        "fr": "SA",
+        "it": "SA",
+        "en": "Ltd"
+      }
+    },
+    "status": "ACTIVE",
+    "sogcDate": "2024-11-04",
+    "deletionDate": null,
+    "translation": null,
+    "purpose": "Die Gesellschaft bezweckt den Betrieb einer Kommunikations- und Webagentur, insbesondere die Planung, Konzeption, Kreation, Produktion, den Handel mit Medienprodukten aller Art sowie die Erbringung von IT-Dienstleistungen. Die Gesellschaft kann Grundstücke, Beteiligungen, Patente, Urheberrechte und Lizenzen erwerben, halten und verkaufen. Die Gesellschaft kann Zweigniederlassungen und Tochtergesellschaften im In- und Ausland errichten und sich an anderen Unternehmen im In- und Ausland beteiligen. Die Gesellschaft kann alle kommerziellen, finanziellen und anderen Tätigkeiten ausüben, welche mit dem Zweck der Gesellschaft im Zusammenhang stehen.",
+    "sogcPub": [
+      {
+        "sogcDate": "2024-11-04",
+        "sogcId": 1006169959,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 14695,
+        "registryOfCommerceJournalDate": "2024-10-30",
+        "message": "<FT TYPE=\"F\">Qube AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 72 vom 15.04.2024, Publ. 1006008957). Eingetragene Personen neu oder mutierend: Balmer-Etienne AG Bern (<FT TYPE=\"B\">CHE-102.704.443</FT>), in Bern, Revisionsstelle [bisher: Dr. Röthlisberger AG (<FT TYPE=\"B\">CHE-102.704.443</FT>)].",
+        "mutationTypes": []
+      },
+      {
+        "sogcDate": "2024-04-15",
+        "sogcId": 1006008957,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 5161,
+        "registryOfCommerceJournalDate": "2024-04-10",
+        "message": "<FT TYPE=\"F\">Qube AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 177 vom 13.09.2023, Publ. 1005837248). Domizil neu: Aeschbachweg 6, 5000 Aarau. Eingetragene Personen neu oder mutierend: Perrelet, Roland, von Le Locle und Pleigne, in Buchs (AG), mit Kollektivunterschrift zu zweien [bisher: von Le Locle und Pleigne, Mitglied des Verwaltungsrates, mit Einzelunterschrift].",
+        "mutationTypes": [
+          {
+            "id": 16,
+            "key": "adressaenderung"
+          },
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2023-09-13",
+        "sogcId": 1005837248,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 12739,
+        "registryOfCommerceJournalDate": "2023-09-08",
+        "message": "<FT TYPE=\"F\">Qube AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 52 vom 15.03.2022, Publ. 1005427536). Ausgeschiedene Personen und erloschene Unterschriften: treuhand-kanzlei ag (<FT TYPE=\"B\">CHE-262.995.747</FT>), in Chur, Revisionsstelle. Eingetragene Personen neu oder mutierend: Dr. Röthlisberger AG (<FT TYPE=\"B\">CHE-102.704.443</FT>), in Bern, Revisionsstelle.",
+        "mutationTypes": [
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2022-03-15",
+        "sogcId": 1005427536,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 4163,
+        "registryOfCommerceJournalDate": "2022-03-10",
+        "message": "<FT TYPE=\"F\">Qube AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 31 vom 14.02.2022, Publ. 1005404938). Fusion: Übernahme der Aktiven und Passiven der IT &amp; Design Solutions GmbH, in Rubigen (<FT TYPE=\"B\">CHE-112.133.855</FT>), gemäss Fusionsvertrag vom 01.03.2022 und Bilanz per 31.12.2021. Aktiven von CHF 236&apos;808.40 und Passiven (Fremdkapital) von CHF 154&apos;134.01 gehen auf die übernehmende Gesellschaft über. Da dieselbe Gesellschaft sämtliche Aktien und Stammanteile der an der Fusion beteiligten Gesellschaften hält, findet weder eine Kapitalerhöhung noch eine Aktienzuteilung statt.",
+        "mutationTypes": [
+          {
+            "id": 19,
+            "key": "fusion"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2022-02-14",
+        "sogcId": 1005404938,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 2459,
+        "registryOfCommerceJournalDate": "2022-02-09",
+        "message": "<FT TYPE=\"F\">Qube AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 15 vom 21.01.2022, Publ. 1005386892). Zweigniederlassung neu: Rubigen (<FT TYPE=\"B\">CHE-437.191.698</FT>).",
+        "mutationTypes": []
+      },
+      {
+        "sogcDate": "2022-01-21",
+        "sogcId": 1005386892,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 1090,
+        "registryOfCommerceJournalDate": "2022-01-18",
+        "message": "<FT TYPE=\"F\">Qube AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 189 vom 29.09.2021, Publ. 1005301252). [Gemeindefusion vom 01.01.2022]. Eingetragene Personen neu oder mutierend: Herzog, Lukas, von Böztal, in Olten, Präsident des Verwaltungsrates, mit Einzelunterschrift [bisher: von Hornussen]; Baldinger, Zoe, von Zurzach, in Aarau, Mitglied des Verwaltungsrates, mit Einzelunterschrift [bisher: von Rekingen (AG)].",
+        "mutationTypes": [
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2021-09-29",
+        "sogcId": 1005301252,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 11716,
+        "registryOfCommerceJournalDate": "2021-09-24",
+        "message": "<FT TYPE=\"F\">Baldinger &amp; Baldinger AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 92 vom 14.05.2021, Publ. 1005181399). Statutenänderung: 06.09.2021. 22.09.2021. Firma neu: <FT TYPE=\"N\">Qube AG</FT>. Zweck neu: Die Gesellschaft bezweckt den Betrieb einer Kommunikations- und Webagentur, insbesondere die Planung, Konzeption, Kreation, Produktion, den Handel mit Medienprodukten aller Art sowie die Erbringung von IT-Dienstleistungen. Die Gesellschaft kann Grundstücke, Beteiligungen, Patente, Urheberrechte und Lizenzen erwerben, halten und verkaufen. Die Gesellschaft kann Zweigniederlassungen und Tochtergesellschaften im In- und Ausland errichten und sich an anderen Unternehmen im In- und Ausland beteiligen. Die Gesellschaft kann alle kommerziellen, finanziellen und anderen Tätigkeiten ausüben, welche mit dem Zweck der Gesellschaft im Zusammenhang stehen. Mitteilungen neu: Mitteilungen an die Aktionäre erfolgen per Brief oder E-Mail an die im Aktienbuch verzeichneten Adressen. Vinkulierung neu: Die Übertragbarkeit der Namenaktien ist nach Massgabe der Statuten beschränkt.",
+        "mutationTypes": [
+          {
+            "id": 9,
+            "key": "firmenaenderung"
+          },
+          {
+            "id": 11,
+            "key": "zweckaenderung"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2021-05-14",
+        "sogcId": 1005181399,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 5945,
+        "registryOfCommerceJournalDate": "2021-05-10",
+        "message": "<FT TYPE=\"F\">Baldinger &amp; Baldinger AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 67 vom 05.04.2019, Publ. 1004604555). Ausgeschiedene Personen und erloschene Unterschriften: Baldinger, Vital, von Rekingen AG, in Aarau, Präsident des Verwaltungsrates, mit Einzelunterschrift; Herzog Treuhand AG (<FT TYPE=\"B\">CHE-106.004.497</FT>), in Stein (AG), Revisionsstelle. Eingetragene Personen neu oder mutierend: Herzog, Lukas, von Hornussen, in Olten, Präsident des Verwaltungsrates, mit Einzelunterschrift; treuhand-kanzlei ag (<FT TYPE=\"B\">CHE-262.995.747</FT>), in Chur, Revisionsstelle.",
+        "mutationTypes": [
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2019-04-05",
+        "sogcId": 1004604555,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 3815,
+        "registryOfCommerceJournalDate": "2019-04-02",
+        "message": "<FT TYPE=\"F\">Baldinger &amp; Baldinger AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 5 vom 09.01.2019, Publ. 1004537387). Eingetragene Personen neu oder mutierend: Baldinger, Zoe, von Rekingen (AG), in Aarau, Mitglied des Verwaltungsrates, mit Einzelunterschrift [bisher: Mitglied des Verwaltungsrates, mit Kollektivunterschrift zu zweien].",
+        "mutationTypes": [
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2019-01-09",
+        "sogcId": 1004537387,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 139,
+        "registryOfCommerceJournalDate": "2019-01-04",
+        "message": "<FT TYPE=\"F\">Baldinger &amp; Baldinger AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 38 vom 23.02.2018, Publ. 4075047). Ausgeschiedene Personen und erloschene Unterschriften: Friederich-Hilfiker, Marianne, von Staufen, in Leutwil, mit Kollektivunterschrift zu zweien. Eingetragene Personen neu oder mutierend: Baldinger, Zoe, von Rekingen (AG), in Aarau, Mitglied des Verwaltungsrates, mit Kollektivunterschrift zu zweien [bisher: ohne eingetragene Funktion, mit Kollektivunterschrift zu zweien].",
+        "mutationTypes": [
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      },
+      {
+        "sogcDate": "2018-02-23",
+        "sogcId": 4075047,
+        "registryOfCommerceId": 400,
+        "registryOfCommerceCanton": "AG",
+        "registryOfCommerceJournalId": 1914,
+        "registryOfCommerceJournalDate": "2018-02-20",
+        "message": "<FT TYPE=\"F\">Baldinger &amp; Baldinger AG</FT>, in <FT TYPE=\"S\">Aarau</FT>, <FT TYPE=\"A\">CHE-107.721.785</FT>, Aktiengesellschaft (SHAB Nr. 15 vom 22.01.2016, Publ. 2614043). Eingetragene Personen neu oder mutierend: Baldinger, Zoe, von Rekingen (AG), in Aarau, mit Kollektivunterschrift zu zweien.",
+        "mutationTypes": [
+          {
+            "id": 17,
+            "key": "aenderungorgane"
+          }
+        ]
+      }
+    ],
+    "address": {
+      "organisation": "Qube AG",
+      "careOf": "",
+      "street": "Aeschbachweg",
+      "houseNumber": "6",
+      "addon": "",
+      "poBox": "",
+      "city": "Aarau",
+      "swissZipCode": "5000"
+    },
+    "canton": "AG",
+    "capitalNominal": "100000",
+    "capitalCurrency": "CHF",
+    "headOffices": null,
+    "furtherHeadOffices": null,
+    "branchOffices": [
+      {
+        "name": "Qube AG",
+        "ehraid": 1522108,
+        "uid": "CHE437191698",
+        "chid": "CH03690887837",
+        "legalSeatId": 623,
+        "legalSeat": "Rubigen",
+        "registryOfCommerceId": 36,
+        "legalForm": {
+          "id": 9,
+          "uid": "0151",
+          "name": {
+            "de": "Zweigniederlassung",
+            "fr": "Succursale",
+            "it": "Succursale",
+            "en": "Branch"
+          },
+          "shortName": {
+            "de": "ZN",
+            "fr": "Succ",
+            "it": "Succ",
+            "en": "Bran"
+          }
+        },
+        "status": "ACTIVE",
+        "sogcDate": "2022-02-03",
+        "deletionDate": null
+      }
+    ],
+    "hasTakenOver": [
+      {
+        "name": "IT & Design Solutions GmbH",
+        "ehraid": 775736,
+        "uid": "CHE112133855",
+        "chid": "CH03540337807",
+        "legalSeatId": 623,
+        "legalSeat": "Rubigen",
+        "registryOfCommerceId": 36,
+        "legalForm": {
+          "id": 4,
+          "uid": "0107",
+          "name": {
+            "de": "Gesellschaft mit beschränkter Haftung",
+            "fr": "Société à responsabilité limitée",
+            "it": "Società a garanzia limitata",
+            "en": "Limited Liability Company"
+          },
+          "shortName": {
+            "de": "GmbH",
+            "fr": "Sàrl",
+            "it": "Sagl",
+            "en": "LLC"
+          }
+        },
+        "status": "CANCELLED",
+        "sogcDate": "2022-03-15",
+        "deletionDate": "2022-03-15"
+      }
+    ],
+    "wasTakenOverBy": null,
+    "auditCompanies": [
+      {
+        "name": "Balmer-Etienne AG Bern",
+        "ehraid": 154999,
+        "uid": "CHE102704443",
+        "chid": "CH03530012202",
+        "legalSeatId": 351,
+        "legalSeat": "Bern",
+        "registryOfCommerceId": 36,
+        "legalForm": {
+          "id": 3,
+          "uid": "0106",
+          "name": {
+            "de": "Aktiengesellschaft",
+            "fr": "Société anonyme",
+            "it": "Società anonima",
+            "en": "Corporation"
+          },
+          "shortName": {
+            "de": "AG",
+            "fr": "SA",
+            "it": "SA",
+            "en": "Ltd"
+          }
+        },
+        "status": "ACTIVE",
+        "sogcDate": "2025-08-14",
+        "deletionDate": null
+      }
+    ],
+    "oldNames": [
+      {
+        "name": "Baldinger & Baldinger AG",
+        "sequenceNr": 940,
+        "translation": null
+      }
+    ],
+    "cantonalExcerptWeb": "https://ag.chregister.ch/cr-portal/auszug/auszug.xhtml?uid=CHE-107.721.785",
+    "zefixDetailWeb": {
+      "de": "https://www.zefix.admin.ch/de/search/entity/list?name=CHE107721785&directLink=true",
+      "fr": "https://www.zefix.admin.ch/fr/search/entity/list?name=CHE107721785&directLink=true",
+      "it": "https://www.zefix.admin.ch/it/search/entity/list?name=CHE107721785&directLink=true",
+      "en": "https://www.zefix.admin.ch/en/search/entity/list?name=CHE107721785&directLink=true"
+    }
+  }
+]

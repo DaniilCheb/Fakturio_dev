@@ -1,28 +1,21 @@
 'use client'
 
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 import { GuestInvoice } from '@/lib/types/invoice'
 import { formatDate } from '@/lib/utils/dateUtils'
 import { formatSwissCurrency, formatSwissNumber } from '@/lib/utils/formatters'
 import { calculateItemTotal, calculateItemTotalWithVAT } from '@/lib/utils/invoiceCalculations'
 
-// Register font - Radio Canada Big from Google Fonts
-Font.register({
-  family: 'Radio Canada Big',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/radiocanadabig/v1/0qksMX5VJ1A4nO4qEYV6HdTwjvxedQsdYgOEg.woff2', fontWeight: 400 },
-    { src: 'https://fonts.gstatic.com/s/radiocanadabig/v1/0qksMX5VJ1A4nO4qEYV6HdTwjvxedQsdYgOEg.woff2', fontWeight: 500 },
-    { src: 'https://fonts.gstatic.com/s/radiocanadabig/v1/0qksMX5VJ1A4nO4qEYV6HdTwjvxedQsdYgOEg.woff2', fontWeight: 600 },
-  ]
-})
+// Using built-in Helvetica font (no external loading needed)
+// react-pdf has built-in support for: Courier, Helvetica, Times-Roman
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
     padding: 40,
-    fontFamily: 'Radio Canada Big',
+    fontFamily: 'Helvetica',
   },
   header: {
     flexDirection: 'row',
@@ -31,7 +24,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 600,
+    fontWeight: 'bold',
     color: '#141414',
   },
   invoiceNumber: {
@@ -44,7 +37,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 10,
-    fontWeight: 500,
+    fontWeight: 'bold',
     color: '#999',
     marginBottom: 4,
     textTransform: 'uppercase',
@@ -75,7 +68,7 @@ const styles = StyleSheet.create({
   },
   tableHeaderCell: {
     fontSize: 9,
-    fontWeight: 500,
+    fontWeight: 'bold',
     color: '#999',
     textTransform: 'uppercase',
   },
@@ -126,13 +119,13 @@ const styles = StyleSheet.create({
   },
   grandTotalLabel: {
     fontSize: 12,
-    fontWeight: 600,
+    fontWeight: 'bold',
     color: '#141414',
     width: 100,
   },
   grandTotalValue: {
     fontSize: 12,
-    fontWeight: 600,
+    fontWeight: 'bold',
     color: '#141414',
     width: 100,
     textAlign: 'right',
@@ -157,7 +150,7 @@ const styles = StyleSheet.create({
   },
   paymentTitle: {
     fontSize: 10,
-    fontWeight: 500,
+    fontWeight: 'bold',
     color: '#141414',
     marginBottom: 8,
   },
@@ -336,4 +329,7 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
     </Document>
   )
 }
+
+
+
 

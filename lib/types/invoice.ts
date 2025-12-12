@@ -39,6 +39,7 @@ export interface GuestInvoice {
   total: number
   created_at: string
   updated_at: string
+  qr_code_data_url?: string // Cached Swiss QR code
 }
 
 export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'overdue' | 'cancelled'

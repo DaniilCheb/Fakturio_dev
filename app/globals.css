@@ -161,5 +161,6 @@
   input::placeholder,
   textarea::placeholder {
     color: #9D9B9A;
+    text-align: left;
   }
 }

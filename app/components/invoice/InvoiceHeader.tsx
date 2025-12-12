@@ -82,28 +82,29 @@ export default function InvoiceHeader({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* First Row: Invoice # */}
-      <div>
-        <Input
-          label="Invoice #"
-          value={invoiceNumber}
-          onChange={(e) => onChange('invoice_number', e.target.value)}
-          error={errors.invoice_number}
-          required
-        />
-      </div>
-
-      {/* Second Row: Issued on and Due */}
-      <div className="flex gap-4">
+      {/* First Row: Invoice # and Issued on */}
+      <div className="flex flex-row gap-4">
+        <div className="flex-1">
+          <Input
+            label="Invoice #"
+            value={invoiceNumber}
+            onChange={(e) => onChange('invoice_number', e.target.value)}
+            error={errors.invoice_number}
+            required
+          />
+        </div>
         <div className="flex-1">
           <DatePicker
             label="Issued on"
             value={issuedOn || getCurrentDateISO()}
             onChange={handleIssuedDateChange}
             error={errors.issued_on}
-            required
           />
         </div>
+      </div>
+
+      {/* Second Row: Due */}
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <div className="flex flex-col gap-1">
             <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
@@ -150,7 +151,7 @@ export default function InvoiceHeader({
       </div>
 
       {/* Third Row: Currency and Payment Method */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <CurrencyPicker
             label="Currency"
@@ -181,7 +182,7 @@ export default function InvoiceHeader({
                   key={option.value}
                   value={option.value}
                   className={cn(
-                    "flex-1 h-full px-3 text-[16px] md:text-sm font-normal transition-all border",
+                    "flex-1 h-full px-3 text-sm font-normal transition-all border",
                     // Override default toggle styles for selected state
                     "data-[state=on]:!bg-white dark:data-[state=on]:!bg-design-surface-default",
                     "data-[state=on]:!text-design-content-default",

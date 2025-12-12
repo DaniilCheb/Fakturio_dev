@@ -19,14 +19,14 @@ export interface ValidationErrors {
 
 /**
  * Validate a single invoice item
+ * Note: um (unit of measure) is now optional - it's a label, not a multiplier
  */
 function validateItem(item: InvoiceItem): boolean {
   const qty = parseFloat(String(item.quantity)) || 0
-  const um = parseFloat(String(item.um)) || 0
   const price = parseFloat(String(item.pricePerUm)) || 0
   const description = String(item.description || '').trim()
   
-  return qty > 0 && um > 0 && price > 0 && description.length > 0
+  return qty > 0 && price > 0 && description.length > 0
 }
 
 /**

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { SignInButton, SignUpButton } from '@clerk/nextjs'
+import { SignUpButton } from '@clerk/nextjs'
 import Button from './Button'
 
 const SwissFlag = () => (
@@ -15,21 +15,57 @@ const SwissFlag = () => (
 export default function GuestSidebar() {
   return (
     <>
+      {/* Mobile Header - Only visible on small screens */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-design-surface-default border-b border-design-border-default z-50 lg:hidden">
+        <div className="flex items-center justify-between h-full px-4">
+          <div className="inline-flex items-center gap-2">
+            <Image
+              src="/logo-dark.svg"
+              alt="Fakturio"
+              width={102}
+              height={29}
+              className="h-8 w-auto dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo-dark-mode.svg"
+              alt="Fakturio"
+              width={102}
+              height={29}
+              className="h-8 w-auto hidden dark:block"
+              priority
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <SignUpButton mode="modal">
+              <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Sign up</Button>
+            </SignUpButton>
+          </div>
+        </div>
+      </header>
+
       {/* Desktop Sidebar */}
       <div className="fixed bg-design-surface-default border border-design-border-default left-4 top-4 bottom-4 w-[260px] hidden lg:flex flex-col transition-colors duration-200 overflow-hidden rounded-2xl shadow-sm">
         <div className="flex flex-col h-full p-6 relative z-10">
           {/* Logo at top */}
           <div className="flex-shrink-0 mb-6">
             <div className="inline-flex items-center gap-2">
-              <div className="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center">
-                <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                  <div className="bg-design-content-default rounded-tl"></div>
-                  <div className="bg-design-content-default rounded-tr"></div>
-                  <div className="bg-design-content-default rounded-bl"></div>
-                  <div className="bg-design-content-default rounded-br"></div>
-                </div>
-              </div>
-              <span className="text-[18px] font-semibold text-design-content-default">Fakturio</span>
+              <Image
+                src="/logo-dark.svg"
+                alt="Fakturio"
+                width={102}
+                height={29}
+                className="h-8 w-auto dark:hidden"
+                priority
+              />
+              <Image
+                src="/logo-dark-mode.svg"
+                alt="Fakturio"
+                width={102}
+                height={29}
+                className="h-8 w-auto hidden dark:block"
+                priority
+              />
             </div>
           </div>
           
@@ -45,11 +81,6 @@ export default function GuestSidebar() {
                     Create free account
                   </Button>
                 </SignUpButton>
-                <SignInButton mode="modal">
-                  <Button variant="secondary" className="w-full justify-center">
-                    Log in
-                  </Button>
-                </SignInButton>
               </div>
             </div>
           </div>

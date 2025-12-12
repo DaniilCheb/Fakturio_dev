@@ -38,7 +38,7 @@ export default function Input({
       onChange={onChange}
       placeholder={placeholder}
       className={cn(
-        "h-auto px-2 py-2 text-[16px] md:text-sm",
+        "h-auto px-2 py-2 text-sm",
         hasError && "border-destructive focus-visible:ring-destructive",
         className
       )}

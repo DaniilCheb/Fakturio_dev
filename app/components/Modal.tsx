@@ -36,18 +36,17 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       
-      {/* Modal Container */}
-      <div className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClasses[maxWidth]} mx-4 overflow-hidden`}>
+      <div className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClasses[maxWidth]} mx-0 sm:mx-4 overflow-hidden`}>
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between p-5 border-b border-[#e0e0e0] dark:border-[#333]">
+          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#e0e0e0] dark:border-[#333]">
             <h2 className="text-[18px] font-semibold text-[#141414] dark:text-white">
               {title}
             </h2>
@@ -72,7 +71,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
  */
 export function ModalBody({ children, className = '' }: { children: React.ReactNode, className?: string }) {
   return (
-    <div className={`p-5 flex flex-col gap-4 ${className}`}>
+    <div className={`p-4 sm:p-5 flex flex-col gap-4 ${className}`}>
       {children}
     </div>
   )
@@ -83,7 +82,7 @@ export function ModalBody({ children, className = '' }: { children: React.ReactN
  */
 export function ModalFooter({ children, className = '' }: { children: React.ReactNode, className?: string }) {
   return (
-    <div className={`flex gap-3 px-5 pb-5 ${className}`}>
+    <div className={`flex flex-col sm:flex-row gap-3 px-4 sm:px-5 pb-4 sm:pb-5 ${className}`}>
       {children}
     </div>
   )

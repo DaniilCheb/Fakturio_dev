@@ -2,14 +2,23 @@
 
 import React from 'react'
 import { GuestInvoice } from '@/lib/types/invoice'
-import { formatDate, formatSwissCurrency } from '@/lib/utils/formatters'
+import { formatSwissCurrency } from '@/lib/utils/formatters'
+import { formatDate } from '@/lib/utils/dateUtils'
 import { calculateItemTotal, calculateItemVAT, calculateItemTotalWithVAT } from '@/lib/utils/invoiceCalculations'
 
 interface InvoicePreviewProps {
   invoice: GuestInvoice
+  qrCodeDataUrl?: string | null
+  qrCodeType?: 'swiss' | 'simple' | 'none'
+  isLoadingQR?: boolean
 }
 
-export default function InvoicePreview({ invoice }: InvoicePreviewProps) {
+export default function InvoicePreview({ 
+  invoice, 
+  qrCodeDataUrl, 
+  qrCodeType = 'none',
+  isLoadingQR = false 
+}: InvoicePreviewProps) {
   return (
     <div className="bg-white dark:bg-[#252525] p-8 max-w-4xl mx-auto">
       {/* Header */}
@@ -137,12 +146,38 @@ export default function InvoicePreview({ invoice }: InvoicePreviewProps) {
 
       {/* Payment Info */}
       <div className="mt-8 pt-6 border-t border-[#e0e0e0] dark:border-[#333]">
-        <p className="text-[13px] font-medium text-[#474743] dark:text-[#999] mb-2">Payment Information</p>
-        <p className="text-[14px] text-[#141414] dark:text-white">Payment Method: {invoice.payment_method}</p>
-        {invoice.from_info.iban && (
-          <p className="text-[14px] text-[#141414] dark:text-white">IBAN: {invoice.from_info.iban}</p>
-        )}
-        <p className="text-[14px] text-[#141414] dark:text-white">Reference: {invoice.invoice_number}</p>
+        <div className="flex justify-between items-start gap-8">
+          <div className="flex-1">
+            <p className="text-[13px] font-medium text-[#474743] dark:text-[#999] mb-2">Payment Information</p>
+            <p className="text-[14px] text-[#141414] dark:text-white">Payment Method: {invoice.payment_method}</p>
+            {invoice.from_info.iban && (
+              <p className="text-[14px] text-[#141414] dark:text-white">IBAN: {invoice.from_info.iban}</p>
+            )}
+            <p className="text-[14px] text-[#141414] dark:text-white">Reference: {invoice.invoice_number}</p>
+          </div>
+          
+          {/* QR Code Section */}
+          {(isLoadingQR || qrCodeDataUrl) && (
+            <div className="flex flex-col items-center">
+              {isLoadingQR ? (
+                <div className="w-[120px] h-[120px] bg-[#f0f0f0] dark:bg-[#333] rounded-lg animate-pulse flex items-center justify-center">
+                  <span className="text-[12px] text-[#999]">Loading...</span>
+                </div>
+              ) : qrCodeDataUrl ? (
+                <>
+                  <img 
+                    src={qrCodeDataUrl} 
+                    alt="Payment QR Code" 
+                    className="w-[120px] h-[120px] rounded-lg"
+                  />
+                  <p className="text-[10px] text-[#999] mt-2 text-center">
+                    {qrCodeType === 'swiss' ? 'Swiss QR Payment' : 'Scan to pay'}
+                  </p>
+                </>
+              ) : null}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
