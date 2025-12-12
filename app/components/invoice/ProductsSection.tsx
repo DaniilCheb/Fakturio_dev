@@ -153,7 +153,7 @@ export default function ProductsSection({
                             <div>
                               <Select
                                 label="VAT"
-                                value={item.vat || '0'}
+                                value={String(item.vat ?? '0')}
                                 onChange={(e) => updateItem(item.id, 'vat', e.target.value)}
                                 options={SWISS_VAT_RATES}
                                 className="h-[40px]"
