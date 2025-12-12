@@ -73,7 +73,7 @@ export default function SaveInvoiceModal({
         </div>
       </ModalBody>
       
-      <ModalFooter className="flex-col gap-3">
+      <ModalFooter className="flex-col sm:flex-col gap-3">
         <SignUpButton mode="modal">
           <Button variant="primary" className="w-full">
             Create free account

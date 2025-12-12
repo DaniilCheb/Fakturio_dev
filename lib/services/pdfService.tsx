@@ -3,9 +3,11 @@
 import { GuestInvoice } from '../types/invoice'
 import InvoicePDF from '@/app/components/invoice/InvoicePDF'
 import { pdf } from '@react-pdf/renderer'
+import { generateInvoiceQRCode } from './qrCodeService'
 
 /**
  * Generate and download invoice PDF using react-pdf/renderer
+ * Automatically generates Swiss QR code if possible
  */
 export async function generateInvoicePDF(
   invoice: GuestInvoice,
@@ -19,11 +21,22 @@ export async function generateInvoicePDF(
   }
 
   try {
+    // Auto-generate QR code if not provided
+    let qrCodeDataUrl = options?.qrCodeDataUrl
+    let includeQRCode = options?.includeQRCode ?? true // Default to true
+    
+    if (includeQRCode && !qrCodeDataUrl) {
+      const qrResult = await generateInvoiceQRCode(invoice)
+      if (qrResult.dataUrl) {
+        qrCodeDataUrl = qrResult.dataUrl
+      }
+    }
+
     const pdfDoc = (
       <InvoicePDF
         invoice={invoice}
-        includeQRCode={options?.includeQRCode}
-        qrCodeDataUrl={options?.qrCodeDataUrl}
+        includeQRCode={includeQRCode}
+        qrCodeDataUrl={qrCodeDataUrl}
       />
     )
 
@@ -44,6 +57,7 @@ export async function generateInvoicePDF(
 
 /**
  * Generate invoice PDF as blob (for preview or upload)
+ * Automatically generates Swiss QR code if possible
  */
 export async function generateInvoicePDFBlob(
   invoice: GuestInvoice,
@@ -57,11 +71,22 @@ export async function generateInvoicePDFBlob(
   }
 
   try {
+    // Auto-generate QR code if not provided
+    let qrCodeDataUrl = options?.qrCodeDataUrl
+    let includeQRCode = options?.includeQRCode ?? true // Default to true
+    
+    if (includeQRCode && !qrCodeDataUrl) {
+      const qrResult = await generateInvoiceQRCode(invoice)
+      if (qrResult.dataUrl) {
+        qrCodeDataUrl = qrResult.dataUrl
+      }
+    }
+
     const pdfDoc = (
       <InvoicePDF
         invoice={invoice}
-        includeQRCode={options?.includeQRCode}
-        qrCodeDataUrl={options?.qrCodeDataUrl}
+        includeQRCode={includeQRCode}
+        qrCodeDataUrl={qrCodeDataUrl}
       />
     )
 
@@ -71,4 +96,3 @@ export async function generateInvoicePDFBlob(
     throw error
   }
 }
-

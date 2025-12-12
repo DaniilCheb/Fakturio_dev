@@ -189,6 +189,7 @@ export default function ToSection({ toInfo, onChange, errors = {} }: ToSectionPr
                 noLabel
                 value={searchQuery}
                 onChange={handleSearchQueryChange}
+                onBlur={() => setLookupError(null)}
                 placeholder="Enter company name..."
                 className={searchQuery || isLoading ? "pr-12" : ""}
               />
@@ -200,7 +201,7 @@ export default function ToSection({ toInfo, onChange, errors = {} }: ToSectionPr
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-[#666] dark:text-[#999] rounded-full border border-transparent transition-all hover:bg-white hover:text-[#333] hover:shadow-sm hover:border-[#e0e0e0]"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-[#666] dark:text-[#999] rounded-full border border-transparent transition-all hover:bg-[#e0e0e0] hover:text-[#333] hover:shadow-sm hover:border-[#e0e0e0]"
                 >
                   <CloseIcon size={16} />
                 </button>

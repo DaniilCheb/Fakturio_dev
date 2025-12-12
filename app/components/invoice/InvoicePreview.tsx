@@ -20,7 +20,7 @@ export default function InvoicePreview({
   isLoadingQR = false 
 }: InvoicePreviewProps) {
   return (
-    <div className="bg-white dark:bg-[#252525] p-8 max-w-4xl mx-auto">
+    <div className="bg-white dark:bg-[#252525] p-8 w-full">
       {/* Header */}
       <div className="flex justify-between items-start mb-8 pb-6 border-b border-[#e0e0e0] dark:border-[#333]">
         <div>

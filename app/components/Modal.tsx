@@ -8,7 +8,7 @@ interface ModalProps {
   onClose: () => void
   title?: string
   children: React.ReactNode
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl'
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | string
 }
 
 /**
@@ -35,6 +35,17 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
     xl: 'max-w-xl'
   }
 
+  // Check if maxWidth is a predefined size or a custom value
+  const maxWidthClass = maxWidthClasses[maxWidth as keyof typeof maxWidthClasses] 
+    ? maxWidthClasses[maxWidth as keyof typeof maxWidthClasses]
+    : undefined
+  
+  const customMaxWidth = maxWidthClass 
+    ? undefined 
+    : typeof maxWidth === 'string' && maxWidth.includes('px') 
+      ? { maxWidth } 
+      : { maxWidth: `${maxWidth}px` }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
@@ -43,7 +54,10 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
         onClick={onClose}
       />
       
-      <div className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClasses[maxWidth]} mx-0 sm:mx-4 overflow-hidden`}>
+      <div 
+        className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClass || ''} mx-0 sm:mx-4 overflow-hidden`}
+        style={customMaxWidth}
+      >
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#e0e0e0] dark:border-[#333]">

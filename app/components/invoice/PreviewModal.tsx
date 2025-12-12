@@ -55,7 +55,7 @@ export default function PreviewModal({ isOpen, onClose, invoice, onDownload }: P
   }, [isOpen])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="656px">
       <ModalBody className="p-0 max-h-[90vh] overflow-y-auto">
         <InvoicePreview 
           invoice={invoice} 

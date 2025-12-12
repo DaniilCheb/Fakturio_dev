@@ -57,7 +57,7 @@ export default function InvoicePreviewV2({
     : 10
 
   return (
-    <div className="bg-white w-[595px] min-h-[842px] relative font-['Inter',sans-serif] text-[#1a1c21]">
+    <div className="bg-white w-full max-w-[800px] min-h-[842px] relative font-['Inter',sans-serif] text-[#1a1c21]">
       {/* Header Section */}
       <div className="px-8 pt-7 pb-6">
         <div className="flex justify-between items-start">
@@ -112,10 +112,10 @@ export default function InvoicePreviewV2({
       </div>
 
       {/* Date Info Box */}
-      <div className="px-4">
+      <div className="px-8">
         <div className="flex">
           {/* Left box with dates */}
-          <div className="bg-[#f7f5f3] rounded-tl-[12px] rounded-bl-[12px] px-4 py-2.5 w-[281px]">
+          <div className="bg-[#f7f5f3] rounded-tl-[12px] rounded-bl-[12px] px-5 py-3 w-[340px]">
             <div className="flex justify-between">
               <div className="flex flex-col gap-1">
                 <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Due date</p>
@@ -133,7 +133,7 @@ export default function InvoicePreviewV2({
           </div>
           
           {/* Right box with invoice number */}
-          <div className="px-4 py-2.5 flex-1">
+          <div className="px-5 py-3 flex-1">
             <div className="flex flex-col gap-1">
               <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Invoice number</p>
               <p className="text-[10px] font-semibold text-[#1a1c21] leading-[14px]">
@@ -145,19 +145,19 @@ export default function InvoicePreviewV2({
       </div>
 
       {/* Items Section */}
-      <div className="px-4 mt-4">
+      <div className="px-8 mt-5">
         {/* Table Header */}
         <div className="px-4 py-3 flex">
           <div className="flex-1 text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
             Item description
           </div>
-          <div className="w-[50px] text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
+          <div className="w-[60px] text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
             Qty
           </div>
-          <div className="w-[85px] text-right text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
+          <div className="w-[100px] text-right text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
             Rate
           </div>
-          <div className="w-[85px] text-right text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
+          <div className="w-[100px] text-right text-[10px] font-medium text-[#5e6470] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
             Amount
           </div>
         </div>
@@ -194,22 +194,22 @@ export default function InvoicePreviewV2({
           </div>
 
           {/* Right column - with beige background */}
-          <div className="bg-[#f7f5f3] w-[282px] rounded-tr-0 rounded-br-0">
+          <div className="bg-[#f7f5f3] w-[340px] rounded-tr-0 rounded-br-0">
             {invoice.items.length > 0 ? (
               invoice.items.map((item, index) => {
                 const itemTotal = calculateItemTotal(item)
                 const rate = parseFloat(String(item.pricePerUm)) || 0
                 const qty = parseFloat(String(item.quantity)) || 0
                 
-                return (
+                  return (
                   <div key={item.id} className="px-4 py-3 flex border-b border-[#e0e0e0] last:border-b-0">
-                    <div className="w-[50px] text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
+                    <div className="w-[60px] text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
                       {qty}
                     </div>
-                    <div className="w-[85px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
+                    <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
                       {formatCurrencyDisplay(rate, invoice.currency)}
                     </div>
-                    <div className="w-[85px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
+                    <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">
                       {formatCurrencyDisplay(itemTotal, invoice.currency)}
                     </div>
                   </div>
@@ -218,14 +218,14 @@ export default function InvoicePreviewV2({
             ) : (
               <>
                 <div className="px-4 py-3 flex border-b border-[#e0e0e0]">
-                  <div className="w-[50px] text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">1</div>
-                  <div className="w-[85px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$3,000.00</div>
-                  <div className="w-[85px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$3,000.00</div>
+                  <div className="w-[60px] text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">1</div>
+                  <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$3,000.00</div>
+                  <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$3,000.00</div>
                 </div>
                 <div className="px-4 py-3 flex">
-                  <div className="w-[50px] text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">1</div>
-                  <div className="w-[85px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$1,500.00</div>
-                  <div className="w-[85px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$1,500.00</div>
+                  <div className="w-[60px] text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">1</div>
+                  <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$1,500.00</div>
+                  <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] font-['Radio_Canada_Big',sans-serif] leading-[14px]">$1,500.00</div>
                 </div>
               </>
             )}

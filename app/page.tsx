@@ -16,7 +16,6 @@ import ProductsSection from './components/invoice/ProductsSection'
 import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
 import PreviewModal from './components/invoice/PreviewModal'
 import GuestSidebar from './components/GuestSidebar'
-import { PreviewIcon, SaveIcon } from './components/Icons'
 
 export default function Home() {
   // Invoice storage hook (handles localStorage for guests)
@@ -205,10 +204,9 @@ export default function Home() {
         updated_at: new Date().toISOString()
       }
       
-      // Generate PDF directly without QR code for now (simpler)
+      // Generate PDF with Swiss QR code (auto-generated)
       await generateInvoicePDF(fullInvoice, {
-        includeQRCode: false,
-        qrCodeDataUrl: undefined
+        includeQRCode: true
       })
       
       // Try to save to localStorage after successful PDF
@@ -344,81 +342,84 @@ export default function Home() {
       <GuestSidebar />
       
       {/* Main Content */}
-      <div className="flex-1 lg:ml-[292px] ml-0 pt-7 lg:pt-7 pt-20 px-4 sm:px-6 pb-8 w-full">
-        <div className="max-w-[750px] mx-auto lg:mx-0">
-          {/* Header */}
-          <div className="mt-[64px] mb-6 sm:mb-9">
-            <h1 className="text-[30px] leading-[36px] font-semibold text-design-content-default tracking-[-0.512px]">
-              Create an invoice in less than 2 minutes
-            </h1>
-            <p className="text-[15px] text-design-content-default leading-relaxed mt-4 lg:hidden">
-              Fakturio is the fastest way for Swiss freelancers to create invoices, track expenses, and stay tax-ready without the accounting headache.
-            </p>
-          </div>
+      <div className="flex-1 lg:ml-[292px] ml-0 pt-7 lg:pt-7 pt-20 pb-8 w-full">
+        <div className="flex gap-8 h-full">
+          {/* Form Section */}
+          <div className="flex-1 px-6 lg:px-8 max-w-[800px] mx-auto">
+            {/* Header */}
+            <div className="mt-[64px] mb-6 sm:mb-9">
+              <h1 className="text-[30px] leading-[36px] font-semibold text-design-content-default tracking-[-0.512px]">
+                Create an invoice in less than 2 minutes
+              </h1>
+              <p className="text-[15px] text-design-content-default leading-relaxed mt-4 xl:hidden">
+                Fakturio is the fastest way for Swiss freelancers to create invoices, track expenses, and stay tax-ready without the accounting headache.
+              </p>
+            </div>
 
-          {/* Invoice Form Sections */}
-          <div className="flex flex-col gap-6 sm:gap-8">
-            {/* Invoice Header Card */}
-            <div className="bg-design-surface-default border border-design-border-default rounded-2xl p-4 sm:p-5">
-              <InvoiceHeader
-                invoiceNumber={invoiceNumber}
-                issuedOn={issuedOn}
-                dueDate={dueDate}
+            {/* Invoice Form Sections */}
+            <div className="flex flex-col gap-6 sm:gap-8">
+              {/* Invoice Header Card */}
+              <div className="bg-design-surface-default border border-design-border-default rounded-2xl p-4 sm:p-5">
+                <InvoiceHeader
+                  invoiceNumber={invoiceNumber}
+                  issuedOn={issuedOn}
+                  dueDate={dueDate}
+                  currency={currency}
+                  paymentMethod={paymentMethod}
+                  onChange={handleHeaderChange}
+                  errors={validationErrors}
+                />
+              </div>
+
+              {/* From and To Sections */}
+              <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+                <div className="flex-1">
+                  <FromSection
+                    fromInfo={fromInfo}
+                    onChange={setFromInfo}
+                    errors={validationErrors}
+                  />
+                </div>
+                <div className="flex-1">
+                  <ToSection
+                    toInfo={toInfo}
+                    onChange={setToInfo}
+                    errors={validationErrors}
+                  />
+                </div>
+              </div>
+
+              {/* Description Section */}
+              <DescriptionSection
+                description={description}
+                onChange={setDescription}
+              />
+
+              {/* Products Section */}
+              <ProductsSection
+                items={items}
+                discount={discount}
                 currency={currency}
-                paymentMethod={paymentMethod}
-                onChange={handleHeaderChange}
+                onChangeItems={setItems}
+                onChangeDiscount={setDiscount}
                 errors={validationErrors}
               />
-            </div>
 
-            {/* From and To Sections */}
-            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-              <div className="flex-1">
-                <FromSection
-                  fromInfo={fromInfo}
-                  onChange={setFromInfo}
-                  errors={validationErrors}
-                />
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
+                <button
+                  onClick={handlePreview}
+                  className="px-6 py-3 border border-design-content-weakest rounded-full text-[16px] text-design-content-default hover:bg-design-surface-field transition-colors w-full sm:w-auto"
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity w-full sm:w-auto"
+                >
+                  Save
+                </button>
               </div>
-              <div className="flex-1">
-                <ToSection
-                  toInfo={toInfo}
-                  onChange={setToInfo}
-                  errors={validationErrors}
-                />
-              </div>
-            </div>
-
-            {/* Description Section */}
-            <DescriptionSection
-              description={description}
-              onChange={setDescription}
-            />
-
-            {/* Products Section */}
-            <ProductsSection
-              items={items}
-              discount={discount}
-              currency={currency}
-              onChangeItems={setItems}
-              onChangeDiscount={setDiscount}
-              errors={validationErrors}
-            />
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
-              <button
-                onClick={handlePreview}
-                className="px-6 py-3 border border-design-content-weakest rounded-full text-[16px] text-design-content-default hover:bg-design-surface-field transition-colors w-full sm:w-auto"
-              >
-                Preview
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity w-full sm:w-auto"
-              >
-                Save
-              </button>
             </div>
           </div>
         </div>

@@ -14,6 +14,19 @@ export function formatDate(date: string | Date | null | undefined): string {
 }
 
 /**
+ * Format date to invoice format (d MMM, yyyy) e.g., "1 Aug, 2023"
+ */
+export function formatDateInvoice(date: string | Date | null | undefined): string {
+  if (!date) return ''
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date
+    return format(dateObj, 'd MMM, yyyy')
+  } catch {
+    return ''
+  }
+}
+
+/**
  * Format date to ISO string (YYYY-MM-DD)
  */
 export function formatDateISO(date: Date | string | null | undefined): string {

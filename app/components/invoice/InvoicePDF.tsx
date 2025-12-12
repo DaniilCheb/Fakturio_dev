@@ -3,175 +3,237 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 import { GuestInvoice } from '@/lib/types/invoice'
-import { formatDate } from '@/lib/utils/dateUtils'
-import { formatSwissCurrency, formatSwissNumber } from '@/lib/utils/formatters'
-import { calculateItemTotal, calculateItemTotalWithVAT } from '@/lib/utils/invoiceCalculations'
-
-// Using built-in Helvetica font (no external loading needed)
-// react-pdf has built-in support for: Courier, Helvetica, Times-Roman
+import { formatDateInvoice } from '@/lib/utils/dateUtils'
+import { formatSwissCurrency } from '@/lib/utils/formatters'
+import { calculateItemTotalWithVAT } from '@/lib/utils/invoiceCalculations'
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 40,
+    padding: 32,
     fontFamily: 'Helvetica',
+    fontSize: 10,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 40,
+  // Logo section
+  logoPlaceholder: {
+    width: 160,
+    height: 48,
+    backgroundColor: 'rgba(21, 21, 20, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#141414',
-  },
-  invoiceNumber: {
+  logoText: {
     fontSize: 12,
-    color: '#666',
-    marginTop: 4,
+    fontWeight: 'bold',
+    color: '#151514',
   },
-  section: {
-    marginBottom: 20,
+  // Two column layout for Billed from / Billed to
+  billingRow: {
+    flexDirection: 'row',
+    marginBottom: 24,
   },
+  billingColumn: {
+    width: '50%',
+  },
+  // Section styles
   sectionTitle: {
     fontSize: 10,
-    fontWeight: 'bold',
-    color: '#999',
+    color: '#5e6470',
     marginBottom: 4,
-    textTransform: 'uppercase',
   },
-  sectionContent: {
-    fontSize: 11,
-    color: '#141414',
-    lineHeight: 1.5,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  column: {
-    width: '48%',
-  },
-  table: {
-    marginTop: 30,
-    marginBottom: 30,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingBottom: 8,
-    marginBottom: 8,
-  },
-  tableHeaderCell: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#999',
-    textTransform: 'uppercase',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  tableCell: {
+  sectionName: {
     fontSize: 10,
-    color: '#141414',
+    fontWeight: 'bold',
+    color: '#1a1c21',
+    marginBottom: 2,
   },
-  colQty: { width: '10%' },
-  colUm: { width: '10%' },
-  colDesc: { width: '45%' },
-  colPrice: { width: '15%', textAlign: 'right' },
-  colTotal: { width: '20%', textAlign: 'right' },
-  totalsSection: {
-    marginTop: 20,
+  sectionText: {
+    fontSize: 10,
+    color: '#5e6470',
+    marginBottom: 2,
+  },
+  // Invoice details row
+  invoiceDetailsRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  invoiceDetailsLeft: {
+    width: '50%',
+    backgroundColor: '#f7f5f3',
+    flexDirection: 'row',
+    padding: 12,
+  },
+  invoiceDetailsRight: {
+    width: '50%',
+    paddingLeft: 16,
+    paddingVertical: 12,
+  },
+  dueDateColumn: {
+    width: '50%',
+  },
+  issuedColumn: {
+    width: '50%',
     alignItems: 'flex-end',
   },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    width: 200,
-    paddingVertical: 4,
-  },
-  totalLabel: {
+  invoiceDetailLabel: {
     fontSize: 10,
-    color: '#666',
-    width: 100,
+    color: '#5e6470',
+    marginBottom: 4,
   },
-  totalValue: {
-    fontSize: 10,
-    color: '#141414',
-    width: 100,
-    textAlign: 'right',
-  },
-  grandTotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    width: 200,
-    paddingVertical: 8,
-    borderTopWidth: 2,
-    borderTopColor: '#141414',
-    marginTop: 4,
-  },
-  grandTotalLabel: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#141414',
-    width: 100,
-  },
-  grandTotalValue: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#141414',
-    width: 100,
-    textAlign: 'right',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 40,
-    right: 40,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  footerText: {
-    fontSize: 9,
-    color: '#999',
-  },
-  paymentInfo: {
-    marginTop: 30,
-    padding: 16,
-    backgroundColor: '#f5f5f3',
-    borderRadius: 4,
-  },
-  paymentTitle: {
+  invoiceDetailValue: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#141414',
+    color: '#1a1c21',
+  },
+  // Main table container
+  tableContainer: {
+    flexDirection: 'row',
     marginBottom: 8,
   },
-  paymentText: {
-    fontSize: 9,
-    color: '#666',
-    lineHeight: 1.5,
+  // Left column (Item description) - white background
+  tableLeftColumn: {
+    width: '50%',
+  },
+  // Right column (Qty, Rate, Amount + Summary) - beige background
+  tableRightColumn: {
+    width: '50%',
+    backgroundColor: '#f7f5f3',
+  },
+  // Table header row
+  tableHeaderLeft: {
+    paddingVertical: 10,
+    paddingRight: 16,
+  },
+  tableHeaderRight: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  tableHeaderText: {
+    fontSize: 10,
+    color: '#5e6470',
+  },
+  headerQty: {
+    width: '20%',
+  },
+  headerRate: {
+    width: '40%',
+    textAlign: 'right',
+  },
+  headerAmount: {
+    width: '40%',
+    textAlign: 'right',
+  },
+  // Table data rows
+  tableRowLeft: {
+    paddingVertical: 12,
+    paddingRight: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  tableRowRight: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  tableCellText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#1a1c21',
+  },
+  cellQty: {
+    width: '20%',
+  },
+  cellRate: {
+    width: '40%',
+    textAlign: 'right',
+  },
+  cellAmount: {
+    width: '40%',
+    textAlign: 'right',
+  },
+  // Summary section (inside right column)
+  summaryRow: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  summaryLabel: {
+    fontSize: 10,
+    color: '#1a1c21',
+    width: '60%',
+  },
+  summaryValue: {
+    fontSize: 10,
+    color: '#1a1c21',
+    width: '40%',
+    textAlign: 'right',
+  },
+  // Divider before Total
+  summaryDivider: {
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    marginHorizontal: 16,
+    marginVertical: 4,
+  },
+  // Total Due black bar
+  totalDueBar: {
+    backgroundColor: '#151514',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  totalDueLabel: {
+    fontSize: 10,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+  totalDueValue: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  // Created with text
+  createdWithText: {
+    fontSize: 10,
+    color: '#5e6470',
+    marginTop: 16,
+    marginBottom: 40,
+  },
+  // Footer area
+  footerArea: {
+    flexDirection: 'row',
+  },
+  paymentInfo: {
+    width: '50%',
   },
   qrSection: {
-    marginTop: 30,
+    width: '50%',
+    alignItems: 'flex-end',
+  },
+  qrPlaceholder: {
+    width: 160,
+    height: 161,
+    backgroundColor: 'rgba(21, 21, 20, 0.4)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   qrImage: {
-    width: 150,
-    height: 150,
+    width: 160,
+    height: 161,
   },
   qrText: {
-    fontSize: 8,
-    color: '#999',
-    marginTop: 8,
-    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#151514',
   },
 })
 
@@ -184,152 +246,181 @@ interface InvoicePDFProps {
 export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: InvoicePDFProps) {
   const discountPercent = parseFloat(String(invoice.discount)) || 0
   const discountAmount = invoice.subtotal * (discountPercent / 100)
+  
+  // Calculate tax rate from first item or use default
+  const taxRate = invoice.items.length > 0 
+    ? (parseFloat(String(invoice.items[0].vat)) || 0) 
+    : 0
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>INVOICE</Text>
-            <Text style={styles.invoiceNumber}>#{invoice.invoice_number || 'N/A'}</Text>
+        {/* Logo */}
+        <View style={styles.logoPlaceholder}>
+          <Text style={styles.logoText}>Customer logo</Text>
+        </View>
+
+        {/* Billed from / Billed to */}
+        <View style={styles.billingRow}>
+          {/* Billed from */}
+          <View style={styles.billingColumn}>
+            <Text style={styles.sectionTitle}>Billed from</Text>
+            <Text style={styles.sectionName}>{invoice.from_info.name || 'To Company Name'}</Text>
+            <Text style={styles.sectionText}>Your name</Text>
+            <Text style={styles.sectionText}>{invoice.from_info.street || 'Street'}</Text>
+            <Text style={styles.sectionText}>{invoice.from_info.zip || 'ZIP/City'}</Text>
+            <Text style={styles.sectionText}>email</Text>
+            <Text style={styles.sectionText}>website</Text>
           </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={styles.sectionContent}>Date: {formatDate(invoice.issued_on)}</Text>
-            <Text style={styles.sectionContent}>Due: {formatDate(invoice.due_date)}</Text>
+          
+          {/* Billed to */}
+          <View style={styles.billingColumn}>
+            <Text style={styles.sectionTitle}>Billed to</Text>
+            <Text style={styles.sectionName}>{invoice.to_info.name || 'To Company Name'}</Text>
+            <Text style={styles.sectionText}>{invoice.to_info.address || 'Address'}</Text>
+            <Text style={styles.sectionText}>{invoice.to_info.zip || 'Zip/City'}</Text>
+            <Text style={styles.sectionText}>Telephone</Text>
+            <Text style={styles.sectionText}>Email</Text>
           </View>
         </View>
 
-        {/* From / To */}
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.sectionTitle}>From</Text>
-            <Text style={styles.sectionContent}>{invoice.from_info.name || '-'}</Text>
-            <Text style={styles.sectionContent}>{invoice.from_info.street || '-'}</Text>
-            <Text style={styles.sectionContent}>{invoice.from_info.zip || '-'}</Text>
-            {invoice.from_info.iban && (
-              <Text style={[styles.sectionContent, { marginTop: 8 }]}>
-                IBAN: {invoice.from_info.iban}
+        {/* Invoice Details Row - Due date/Issued (beige) | Invoice number (white) */}
+        <View style={styles.invoiceDetailsRow}>
+          <View style={styles.invoiceDetailsLeft}>
+            <View style={styles.dueDateColumn}>
+              <Text style={styles.invoiceDetailLabel}>Due date</Text>
+              <Text style={styles.invoiceDetailValue}>{formatDateInvoice(invoice.due_date)}</Text>
+            </View>
+            <View style={styles.issuedColumn}>
+              <Text style={styles.invoiceDetailLabel}>Issued</Text>
+              <Text style={styles.invoiceDetailValue}>{formatDateInvoice(invoice.issued_on)}</Text>
+            </View>
+          </View>
+          <View style={styles.invoiceDetailsRight}>
+            <Text style={styles.invoiceDetailLabel}>Invoice number</Text>
+            <Text style={styles.invoiceDetailValue}>#{invoice.invoice_number || 'N/A'}</Text>
+          </View>
+        </View>
+
+        {/* Table: Left column (white) + Right column (beige with summary) */}
+        <View style={styles.tableContainer}>
+          {/* Left Column - Item descriptions */}
+          <View style={styles.tableLeftColumn}>
+            {/* Header */}
+            <View style={styles.tableHeaderLeft}>
+              <Text style={styles.tableHeaderText}>Item description</Text>
+            </View>
+            
+            {/* Item rows */}
+            {invoice.items.map((item, index) => (
+              <View key={index} style={styles.tableRowLeft}>
+                <Text style={styles.tableCellText}>{item.description || 'Item Name'}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Right Column - Qty, Rate, Amount + Summary */}
+          <View style={styles.tableRightColumn}>
+            {/* Header */}
+            <View style={styles.tableHeaderRight}>
+              <Text style={[styles.tableHeaderText, styles.headerQty]}>Qty</Text>
+              <Text style={[styles.tableHeaderText, styles.headerRate]}>Rate</Text>
+              <Text style={[styles.tableHeaderText, styles.headerAmount]}>Amount</Text>
+            </View>
+            
+            {/* Item rows */}
+            {invoice.items.map((item, index) => {
+              const itemTotal = calculateItemTotalWithVAT(item)
+              const qty = parseFloat(String(item.quantity)) || 0
+              const um = parseFloat(String(item.um)) || 1
+              const totalQty = qty * um
+              const rate = parseFloat(String(item.pricePerUm)) || 0
+              
+              return (
+                <View key={index} style={styles.tableRowRight}>
+                  <Text style={[styles.tableCellText, styles.cellQty]}>{totalQty || '1'}</Text>
+                  <Text style={[styles.tableCellText, styles.cellRate]}>
+                    {rate ? formatSwissCurrency(rate, invoice.currency) : '-'}
+                  </Text>
+                  <Text style={[styles.tableCellText, styles.cellAmount]}>
+                    {formatSwissCurrency(itemTotal, invoice.currency)}
+                  </Text>
+                </View>
+              )
+            })}
+
+            {/* Summary rows */}
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Subtotal</Text>
+              <Text style={styles.summaryValue}>
+                {formatSwissCurrency(invoice.subtotal, invoice.currency)}
               </Text>
-            )}
-          </View>
-          <View style={styles.column}>
-            <Text style={styles.sectionTitle}>To</Text>
-            {invoice.to_info.uid && (
-              <Text style={styles.sectionContent}>UID: {invoice.to_info.uid}</Text>
-            )}
-            <Text style={styles.sectionContent}>{invoice.to_info.name || '-'}</Text>
-            <Text style={styles.sectionContent}>{invoice.to_info.address || '-'}</Text>
-            <Text style={styles.sectionContent}>{invoice.to_info.zip || '-'}</Text>
-          </View>
-        </View>
-
-        {/* Description */}
-        {invoice.description && (
-          <View style={styles.section}>
-            <Text style={styles.sectionContent}>{invoice.description}</Text>
-          </View>
-        )}
-
-        {/* Items Table */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty</Text>
-            <Text style={[styles.tableHeaderCell, styles.colUm]}>UM</Text>
-            <Text style={[styles.tableHeaderCell, styles.colDesc]}>Description</Text>
-            <Text style={[styles.tableHeaderCell, styles.colPrice]}>Price/UM</Text>
-            <Text style={[styles.tableHeaderCell, styles.colTotal]}>Total</Text>
-          </View>
-          {invoice.items.map((item, index) => {
-            const itemTotal = calculateItemTotalWithVAT(item)
-            return (
-              <View key={index} style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.colQty]}>
-                  {item.quantity || '-'}
-                </Text>
-                <Text style={[styles.tableCell, styles.colUm]}>
-                  {item.um || '-'}
-                </Text>
-                <Text style={[styles.tableCell, styles.colDesc]}>
-                  {item.description || '-'}
-                </Text>
-                <Text style={[styles.tableCell, styles.colPrice]}>
-                  {item.pricePerUm
-                    ? formatSwissNumber(parseFloat(String(item.pricePerUm)))
-                    : '-'}
-                </Text>
-                <Text style={[styles.tableCell, styles.colTotal]}>
-                  {formatSwissCurrency(itemTotal, invoice.currency)}
+            </View>
+            
+            {taxRate > 0 && invoice.vat_amount > 0 && (
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Tax ({taxRate}%)</Text>
+                <Text style={styles.summaryValue}>
+                  {formatSwissCurrency(invoice.vat_amount, invoice.currency)}
                 </Text>
               </View>
-            )
-          })}
-        </View>
+            )}
+            
+            {discountPercent > 0 && (
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Discount ({discountPercent}%)</Text>
+                <Text style={styles.summaryValue}>
+                  -{formatSwissCurrency(discountAmount, invoice.currency)}
+                </Text>
+              </View>
+            )}
 
-        {/* Totals */}
-        <View style={styles.totalsSection}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>
-              {formatSwissCurrency(invoice.subtotal, invoice.currency)}
-            </Text>
-          </View>
-          {discountPercent > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Discount ({discountPercent}%)</Text>
-              <Text style={styles.totalValue}>
-                -{formatSwissCurrency(discountAmount, invoice.currency)}
+            <View style={styles.summaryDivider} />
+            
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Total</Text>
+              <Text style={styles.summaryValue}>
+                {formatSwissCurrency(invoice.total, invoice.currency)}
               </Text>
             </View>
-          )}
-          {invoice.vat_amount > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>VAT</Text>
-              <Text style={styles.totalValue}>
-                {formatSwissCurrency(invoice.vat_amount, invoice.currency)}
+
+            {/* Total Due black bar */}
+            <View style={styles.totalDueBar}>
+              <Text style={styles.totalDueLabel}>Total Due</Text>
+              <Text style={styles.totalDueValue}>
+                {formatSwissCurrency(invoice.total, invoice.currency)}
               </Text>
             </View>
-          )}
-          <View style={styles.grandTotalRow}>
-            <Text style={styles.grandTotalLabel}>Total</Text>
-            <Text style={styles.grandTotalValue}>
-              {formatSwissCurrency(invoice.total, invoice.currency)}
-            </Text>
           </View>
         </View>
 
-        {/* Payment Info */}
-        <View style={styles.paymentInfo}>
-          <Text style={styles.paymentTitle}>Payment Information</Text>
-          <Text style={styles.paymentText}>
-            Payment Method: {invoice.payment_method}
-          </Text>
-          {invoice.from_info.iban && (
-            <Text style={styles.paymentText}>IBAN: {invoice.from_info.iban}</Text>
-          )}
-          <Text style={styles.paymentText}>
-            Reference: {invoice.invoice_number || 'N/A'}
-          </Text>
-        </View>
+        {/* Created with Fakturio.ch */}
+        <Text style={styles.createdWithText}>Created with Fakturio.ch</Text>
 
-        {/* Swiss QR Code */}
-        {includeQRCode && qrCodeDataUrl && (
+        {/* Footer area: Payment info + QR code */}
+        <View style={styles.footerArea}>
+          {/* Payment Information */}
+          <View style={styles.paymentInfo}>
+            <Text style={styles.sectionTitle}>Payment information</Text>
+            {invoice.from_info.iban && (
+              <Text style={styles.sectionName}>IBAN: {invoice.from_info.iban}</Text>
+            )}
+            <Text style={styles.sectionText}>Payment Method: {invoice.payment_method}</Text>
+            <Text style={styles.sectionText}>Reference: {invoice.invoice_number || 'N/A'}</Text>
+          </View>
+
+          {/* QR Code */}
           <View style={styles.qrSection}>
-            <Image style={styles.qrImage} src={qrCodeDataUrl} />
-            <Text style={styles.qrText}>Swiss QR-bill payment code</Text>
+            {includeQRCode && qrCodeDataUrl ? (
+              <Image style={styles.qrImage} src={qrCodeDataUrl} />
+            ) : (
+              <View style={styles.qrPlaceholder}>
+                <Text style={styles.qrText}>QR</Text>
+              </View>
+            )}
           </View>
-        )}
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Generated by Fakturio</Text>
-          <Text style={styles.footerText}>Page 1</Text>
         </View>
       </Page>
     </Document>
   )
 }
-
-
-
-
