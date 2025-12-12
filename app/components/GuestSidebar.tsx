@@ -3,7 +3,6 @@
 import React from 'react'
 import Image from 'next/image'
 import Button from './Button'
-import { SignUpButton } from '@clerk/nextjs'
 
 const SwissFlag = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,9 +36,7 @@ export default function GuestSidebar() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <SignUpButton mode="modal">
-              <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Sign up</Button>
-            </SignUpButton>
+            <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Sign up</Button>
           </div>
         </div>
       </header>
@@ -83,11 +80,9 @@ export default function GuestSidebar() {
                 <li>Everything in one place.</li>
               </ul>
               <div className="flex flex-col gap-3">
-                <SignUpButton mode="modal">
-                  <Button variant="primary" className="w-full justify-center">
-                    Create free account
-                  </Button>
-                </SignUpButton>
+                <Button variant="primary" className="w-full justify-center">
+                  Create free account
+                </Button>
               </div>
             </div>
           </div>

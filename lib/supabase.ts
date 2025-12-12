@@ -1,46 +1,34 @@
-import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
+
+// Clerk auth disabled - these functions are stubs for now
 
 /**
  * Create a Supabase client for server-side operations
- * Automatically injects Clerk JWT token
+ * Note: Clerk auth is disabled - this is a basic client without auth
  */
 export function createServerSupabaseClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      async accessToken() {
-        return (await auth()).getToken();
-      },
-    }
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!
   );
 }
 
 /**
  * Create a Supabase client for client-side operations
- * Requires a session object from Clerk (use useSession() hook to get it)
+ * Note: Clerk auth is disabled - this is a basic client without auth
  */
 export function createClientSupabaseClient(session: { getToken: () => Promise<string | null> } | null) {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      async accessToken() {
-        return session ? await session.getToken() : null;
-      },
-    }
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!
   );
 }
 
 /**
- * Get the current user ID from Clerk (server-side)
+ * Get the current user ID
+ * Note: Clerk auth is disabled - returns null
  */
 export async function getCurrentUserId(): Promise<string> {
-  const { userId } = await auth();
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
-  return userId;
+  throw new Error("Auth is disabled");
 }
 

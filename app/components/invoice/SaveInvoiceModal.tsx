@@ -3,15 +3,6 @@
 import React from 'react'
 import Modal, { ModalBody, ModalFooter } from '../Modal'
 import Button from '../Button'
-import { isClerkConfigured } from '@/lib/clerk'
-
-// Conditionally import Clerk components
-const SignUpButton = isClerkConfigured 
-  ? require('@clerk/nextjs').SignUpButton 
-  : null
-const SignInButton = isClerkConfigured 
-  ? require('@clerk/nextjs').SignInButton 
-  : null
 
 interface SaveInvoiceModalProps {
   isOpen: boolean
@@ -82,17 +73,9 @@ export default function SaveInvoiceModal({
       </ModalBody>
       
       <ModalFooter className="flex-col sm:flex-col gap-3">
-        {SignUpButton ? (
-          <SignUpButton mode="modal">
-            <Button variant="primary" className="w-full">
-              Create free account
-            </Button>
-          </SignUpButton>
-        ) : (
-          <Button variant="primary" className="w-full">
-            Create free account
-          </Button>
-        )}
+        <Button variant="primary" className="w-full">
+          Create free account
+        </Button>
         
         <Button 
           variant="secondary" 
@@ -131,17 +114,9 @@ export default function SaveInvoiceModal({
         <div className="text-center mt-2">
           <p className="text-[13px] text-[#666666] dark:text-[#999]">
             Already have an account?{' '}
-            {SignInButton ? (
-              <SignInButton mode="modal">
-                <button className="text-[#141414] dark:text-white font-medium hover:underline">
-                  Log in
-                </button>
-              </SignInButton>
-            ) : (
-              <button className="text-[#141414] dark:text-white font-medium hover:underline">
-                Log in
-              </button>
-            )}
+            <button className="text-[#141414] dark:text-white font-medium hover:underline">
+              Log in
+            </button>
           </p>
         </div>
       </ModalFooter>
