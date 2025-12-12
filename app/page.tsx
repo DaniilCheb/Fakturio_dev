@@ -6,7 +6,6 @@ import { getNextInvoiceNumber, generateInvoiceId } from '@/lib/utils/invoiceNumb
 import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { validateInvoice, ValidationErrors } from '@/lib/utils/invoiceValidation'
-import { generateInvoicePDF } from '@/lib/services/pdfService'
 import { useInvoiceStorage } from '@/lib/hooks/useInvoiceStorage'
 import InvoiceHeader from './components/invoice/InvoiceHeader'
 import FromSection from './components/invoice/FromSection'
@@ -185,6 +184,9 @@ export default function Home() {
     setIsGeneratingPDF(true)
     
     try {
+      // Dynamic import to avoid SSR issues with @react-pdf/renderer
+      const { generateInvoicePDF } = await import('@/lib/services/pdfService')
+      
       const fullInvoice: GuestInvoice = {
         id: generateInvoiceId(),
         invoice_number: invoice.invoice_number || '',
@@ -248,6 +250,9 @@ export default function Home() {
     if (previewInvoice) {
       setIsGeneratingPDF(true)
       try {
+        // Dynamic import to avoid SSR issues with @react-pdf/renderer
+        const { generateInvoicePDF } = await import('@/lib/services/pdfService')
+        
         // Generate PDF directly without QR code for now
         await generateInvoicePDF(previewInvoice, {
           includeQRCode: false,
