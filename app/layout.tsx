@@ -16,26 +16,18 @@ const inter = Inter({
   display: "swap",
 });
 
-// Check if Clerk is configured
-const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const content = (
-    <html lang="en">
-      <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
-        <main>{children}</main>
-      </body>
-    </html>
+  return (
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
+          <main>{children}</main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
-
-  // Only wrap with ClerkProvider if Clerk is configured
-  if (isClerkConfigured) {
-    return <ClerkProvider>{content}</ClerkProvider>;
-  }
-
-  return content;
 }
