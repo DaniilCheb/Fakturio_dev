@@ -386,7 +386,7 @@ export async function updateInvoiceStatus(
   if (status === "paid" && paidDate) {
     updates.paid_date = paidDate;
   } else if (status !== "paid") {
-    updates.paid_date = null;
+    updates.paid_date = undefined;
   }
   
   return updateInvoice(invoiceId, updates);
@@ -406,7 +406,7 @@ export async function updateInvoiceStatusWithClient(
   if (status === "paid" && paidDate) {
     updates.paid_date = paidDate;
   } else if (status !== "paid") {
-    updates.paid_date = null;
+    updates.paid_date = undefined;
   }
   
   return updateInvoiceWithClient(supabase, userId, invoiceId, updates);
