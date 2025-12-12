@@ -347,7 +347,7 @@ export default function Home() {
           {/* Form Section */}
           <div className="flex-1 px-6 lg:px-8 max-w-[800px] mx-auto">
             {/* Header */}
-            <div className="mt-[64px] mb-6 sm:mb-9">
+            <div className="mt-[64px] mb-6 sm:mb-9 px-4 sm:px-5">
               <h1 className="text-[30px] leading-[36px] font-semibold text-design-content-default tracking-[-0.512px]">
                 Create an invoice in less than 2 minutes
               </h1>

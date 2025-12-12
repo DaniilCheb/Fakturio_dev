@@ -198,7 +198,7 @@ export async function getLogo(): Promise<string | null> {
  * Delete user logo (server-side)
  */
 export async function deleteLogo(): Promise<void> {
-  await updateUserProfile({ logo_url: null });
+  await updateUserProfile({ logo_url: undefined });
 }
 
 // ============ VAT Settings ============

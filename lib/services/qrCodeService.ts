@@ -130,7 +130,7 @@ export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
   
   const data: SwissQRData = {
     creditor: {
-      name: invoice.from_info.name || invoice.from_info.companyName || '',
+      name: invoice.from_info.name || '',
       address: invoice.from_info.street || '',
       zip: fromZipCity.zip,
       city: fromZipCity.city,
