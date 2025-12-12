@@ -16,18 +16,26 @@ const inter = Inter({
   display: "swap",
 });
 
+// Check if Clerk publishable key is available (needed for build time)
+const clerkPubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
-          <main>{children}</main>
-        </body>
-      </html>
-    </ClerkProvider>
+  const content = (
+    <html lang="en">
+      <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
+        <main>{children}</main>
+      </body>
+    </html>
   );
+
+  // Only wrap with ClerkProvider if the key is available
+  if (clerkPubKey) {
+    return <ClerkProvider publishableKey={clerkPubKey}>{content}</ClerkProvider>;
+  }
+
+  return content;
 }
