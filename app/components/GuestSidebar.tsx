@@ -73,7 +73,7 @@ export default function GuestSidebar() {
           <div className="flex-1 flex flex-col justify-center">
             <div className="flex flex-col gap-6">
               <p className="text-[15px] text-design-content-default leading-relaxed">
-                Fakturio is the fastest way for Swiss freelancers to create invoices, track expenses, and stay tax-ready without the accounting headache.
+                Professional Swiss invoices (QR-bill ready), taxes, projects, and time tracking—built for freelancers. Try it right now for free.
               </p>
               <div className="flex flex-col gap-3">
                 <SignUpButton mode="modal">

@@ -345,14 +345,19 @@ export default function Home() {
       <div className="flex-1 lg:ml-[292px] ml-0 pt-7 lg:pt-7 pt-20 pb-8 w-full">
         <div className="flex gap-8 h-full">
           {/* Form Section */}
-          <div className="flex-1 px-6 lg:px-8 max-w-[800px] mx-auto">
+          <div className="flex-1 px-4 lg:px-8 max-w-[800px] mx-auto">
             {/* Header */}
-            <div className="mt-[64px] mb-6 sm:mb-9 px-4 sm:px-5">
-              <h1 className="text-[30px] leading-[36px] font-semibold text-design-content-default tracking-[-0.512px]">
-                Create an invoice in less than 2 minutes
+            <div className="mt-[64px] mb-6 sm:mb-9 px-4">
+              <h1 className="text-[36px] leading-[44px] font-semibold text-design-content-default tracking-[-0.512px]">
+                Invoice simply.
+                <br />
+                Get paid faster.
               </h1>
               <p className="text-[15px] text-design-content-default leading-relaxed mt-4 xl:hidden">
-                Fakturio is the fastest way for Swiss freelancers to create invoices, track expenses, and stay tax-ready without the accounting headache.
+                Professional Swiss invoices (QR-bill ready). Tax-ready by default (VAT, exports, categories). Projects + time tracking that turns into invoices. Expenses, dashboards, and everything in one place.
+              </p>
+              <p className="text-[15px] text-design-content-default leading-relaxed mt-2 xl:hidden">
+                Try it now for free 👇
               </p>
             </div>
 
