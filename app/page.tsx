@@ -70,14 +70,14 @@ export default function Home() {
     if (!invoiceNumber) {
       setInvoiceNumber(getNextInvoiceNumber())
     }
-  }, [])
+  }, [invoiceNumber])
 
   useEffect(() => {
     if (!dueDate && issuedOn) {
       const calculated = calculateDueDate(issuedOn, '14 days')
       setDueDate(calculated)
     }
-  }, [issuedOn])
+  }, [issuedOn, dueDate])
 
   // Recalculate totals when items or discount change
   useEffect(() => {
