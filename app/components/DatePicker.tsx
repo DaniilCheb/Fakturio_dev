@@ -74,7 +74,7 @@ export default function DatePicker({
             variant="outline"
             disabled={disabled}
             className={cn(
-              "w-full justify-start text-left font-normal h-auto px-2 py-2",
+              "w-full justify-start text-left font-normal h-auto px-2 py-2 rounded-md text-[15px] bg-design-surface-field",
               !date && "text-muted-foreground",
               error && "border-destructive focus:ring-destructive",
               className

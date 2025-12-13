@@ -1,0 +1,33 @@
+import { notFound } from "next/navigation"
+import { getInvoiceById } from "@/lib/services/invoiceService"
+import { getProjectById } from "@/lib/services/projectService"
+import BackLink from "@/app/components/BackLink"
+import Header from "@/app/components/Header"
+import InvoiceDetailClient from "./InvoiceDetailClient"
+
+export default async function InvoiceDetailPage({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const invoice = await getInvoiceById(params.id)
+
+  if (!invoice) {
+    notFound()
+  }
+
+  // Fetch project if invoice has one
+  let project = null
+  if (invoice.project_id) {
+    project = await getProjectById(invoice.project_id)
+  }
+
+  return (
+    <div className="max-w-[800px] mx-auto space-y-8">
+      <BackLink to="/dashboard" label="Dashboard" />
+      <Header title={`Invoice ${invoice.invoice_number || invoice.id}`} />
+      <InvoiceDetailClient invoice={invoice} project={project} />
+    </div>
+  )
+}
+

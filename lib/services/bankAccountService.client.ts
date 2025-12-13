@@ -153,6 +153,25 @@ export async function deleteBankAccountWithClient(
   userId: string,
   accountId: string
 ): Promise<boolean> {
+  // First, check if this is the default account
+  const { data: account, error: fetchError } = await supabase
+    .from("bank_accounts")
+    .select("is_default")
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .single();
+  
+  if (fetchError) {
+    console.error("Error fetching bank account:", fetchError);
+    const errorMessage = fetchError.message || fetchError.details || fetchError.hint || "Failed to find bank account";
+    throw new Error(`Failed to find bank account: ${errorMessage}`);
+  }
+  
+  if (!account) {
+    throw new Error("Bank account not found");
+  }
+  
+  // Delete the account
   const { error } = await supabase
     .from("bank_accounts")
     .delete()
@@ -161,7 +180,26 @@ export async function deleteBankAccountWithClient(
   
   if (error) {
     console.error("Error deleting bank account:", error);
-    throw new Error("Failed to delete bank account");
+    // Handle different error formats from Supabase
+    const errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+    throw new Error(`Failed to delete bank account: ${errorMessage}`);
+  }
+  
+  // If deleted account was default, make first remaining account default
+  if (account.is_default) {
+    const remaining = await getBankAccountsWithClient(supabase, userId);
+    if (remaining.length > 0 && !remaining.some(a => a.is_default)) {
+      const { error: updateError } = await supabase
+        .from("bank_accounts")
+        .update({ is_default: true })
+        .eq("id", remaining[0].id)
+        .eq("user_id", userId);
+      
+      if (updateError) {
+        console.error("Error setting new default account:", updateError);
+        // Don't throw here - deletion succeeded, just default reassignment failed
+      }
+    }
   }
   
   return true;

@@ -1,73 +1,96 @@
-import { getInvoices, getInvoiceStatus, type Invoice } from '@/lib/services/invoiceService'
-import Link from 'next/link'
+import { getInvoices, getInvoiceStatus, type Invoice } from "@/lib/services/invoiceService"
+import Link from "next/link"
+import { Plus, FileText } from "lucide-react"
 
-// Status badge component
-function StatusBadge({ status }: { status: 'paid' | 'overdue' | 'pending' | 'draft' | 'cancelled' }) {
-  const styles = {
-    paid: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    overdue: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    draft: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-    cancelled: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500',
-  }
-
-  const labels = {
-    paid: 'Paid',
-    pending: 'Pending',
-    overdue: 'Overdue',
-    draft: 'Draft',
-    cancelled: 'Cancelled',
-  }
-
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-medium ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  )
-}
+import { Card, CardContent } from "@/app/components/ui/card"
+import { Badge } from "@/app/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/app/components/ui/table"
+import { Button } from "@/app/components/ui/button"
+import Header from "@/app/components/Header"
+import SectionHeader from "@/app/components/SectionHeader"
+import DashboardChart from "./DashboardChart"
+import InvoiceRowActions from "./InvoiceRowActions"
 
 // Format date for display
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-CH', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  return date.toLocaleDateString("en-CH", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   })
 }
 
 // Format currency
 function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('de-CH', {
-    style: 'currency',
+  return new Intl.NumberFormat("de-CH", {
+    style: "currency",
     currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(amount)
+}
+
+// Status badge component using shadcn Badge
+function StatusBadge({ status }: { status: "paid" | "overdue" | "pending" | "draft" | "cancelled" }) {
+  const variants: Record<typeof status, { className: string; label: string }> = {
+    paid: { 
+      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+      label: "Paid" 
+    },
+    pending: { 
+      className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-transparent hover:bg-yellow-100",
+      label: "Pending" 
+    },
+    overdue: { 
+      className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent hover:bg-red-100",
+      label: "Overdue" 
+    },
+    draft: { 
+      className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100",
+      label: "Draft" 
+    },
+    cancelled: { 
+      className: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 border-transparent hover:bg-gray-100",
+      label: "Cancelled" 
+    },
+  }
+
+  const { className, label } = variants[status]
+
+  return (
+    <Badge variant="outline" className={className}>
+      {label}
+    </Badge>
+  )
 }
 
 // Empty state component
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-16 h-16 mb-6 rounded-full bg-design-surface-field flex items-center justify-center">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-design-content-weak">
-          <path d="M8 6C8 5.44772 8.44772 5 9 5H23C23.5523 5 24 5.44772 24 6V26C24 26.5523 23.5523 27 23 27H9C8.44772 27 8 26.5523 8 26V6Z" stroke="currentColor" strokeWidth="2"/>
-          <path d="M12 11H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M12 16H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M12 21H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
+      <div className="w-16 h-16 mb-6 rounded-full bg-muted flex items-center justify-center">
+        <FileText className="w-8 h-8 text-muted-foreground" />
       </div>
-      <h3 className="text-[18px] font-semibold text-design-content-default mb-2">
+      <h3 className="text-[18px] font-semibold mb-2">
         No invoices yet
       </h3>
-      <p className="text-[14px] text-design-content-weak text-center max-w-sm mb-6">
+      <p className="text-[14px] text-muted-foreground text-center max-w-sm mb-6">
         Create your first invoice to start tracking your business income.
       </p>
-      <Link
-        href="/dashboard/invoices/new"
-        className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity"
-      >
-        Create Invoice
-      </Link>
+      <Button variant="default" asChild>
+        <Link href="/dashboard/invoices/new">
+          <Plus className="mr-2 h-4 w-4" />
+          Create Invoice
+        </Link>
+      </Button>
     </div>
   )
 }
@@ -75,155 +98,115 @@ function EmptyState() {
 // Invoice row component
 function InvoiceRow({ invoice }: { invoice: Invoice }) {
   const displayStatus = getInvoiceStatus(invoice)
-  const clientName = invoice.to_info?.name || 'Unknown Client'
-  
+  const clientName = invoice.to_info?.name || "Unknown Client"
+
   return (
-    <tr className="border-b border-design-border-default last:border-b-0 hover:bg-design-surface-field/50 transition-colors">
-      <td className="py-4 px-4 text-[14px] font-medium text-design-content-default">
-        {invoice.invoice_number}
-      </td>
-      <td className="py-4 px-4 text-[14px] text-design-content-default">
-        {clientName}
-      </td>
-      <td className="py-4 px-4 text-[14px] text-design-content-default font-medium">
-        {formatCurrency(invoice.total, invoice.currency)}
-      </td>
-      <td className="py-4 px-4">
-        <StatusBadge status={displayStatus} />
-      </td>
-      <td className="py-4 px-4 text-[14px] text-design-content-weak">
+    <TableRow className="group cursor-pointer hover:bg-muted/50">
+      <TableCell className="font-medium px-6">
+        <Link href={`/dashboard/invoices/${invoice.id}`} className="block">
+          <div className="flex flex-col">
+            <span className="font-medium text-[14px]">{clientName}</span>
+            <span className="text-[13px] text-muted-foreground">#{invoice.invoice_number}</span>
+          </div>
+        </Link>
+      </TableCell>
+      <TableCell className="text-[14px] text-muted-foreground px-6">
         {formatDate(invoice.issued_on)}
-      </td>
-      <td className="py-4 px-4 text-[14px] text-design-content-weak">
-        {formatDate(invoice.due_date)}
-      </td>
-    </tr>
+      </TableCell>
+      <TableCell className="text-[14px] font-medium px-6">
+        {formatCurrency(invoice.total, invoice.currency)}
+      </TableCell>
+      <TableCell className="px-6">
+        <StatusBadge status={displayStatus} />
+      </TableCell>
+      <TableCell className="text-right px-6">
+        <InvoiceRowActions invoice={invoice} />
+      </TableCell>
+    </TableRow>
   )
 }
 
 export default async function DashboardPage() {
   let invoices: Invoice[] = []
-  let error: string | null = null
 
   try {
     invoices = await getInvoices()
-    // If we successfully got an empty array, that's fine - user just hasn't created invoices yet
+    // Sort by issued date, newest first
+    invoices.sort((a, b) => {
+      const dateA = new Date(a.issued_on || 0)
+      const dateB = new Date(b.issued_on || 0)
+      return dateB.getTime() - dateA.getTime()
+    })
   } catch (e) {
-    // For new users who haven't created invoices yet, treat as empty state rather than error
-    // This provides better UX - showing an error when a user simply hasn't created invoices yet
-    // is confusing. We'll log the error for debugging but show empty state to the user.
-    console.error('Error fetching invoices (showing empty state):', e)
-    error = null // Don't show error to user - treat as empty state
-    invoices = [] // Ensure invoices is empty array
+    console.error("Error fetching invoices (showing empty state):", e)
+    invoices = []
   }
 
-  // Calculate summary stats
-  const totalInvoices = invoices.length
-  const totalRevenue = invoices
-    .filter(inv => inv.status === 'paid')
-    .reduce((sum, inv) => sum + inv.total, 0)
-  const pendingAmount = invoices
-    .filter(inv => inv.status === 'issued' || inv.status === 'overdue')
-    .reduce((sum, inv) => sum + inv.total, 0)
-  const overdueCount = invoices.filter(inv => getInvoiceStatus(inv) === 'overdue').length
+  // Prepare invoice data for chart (only pass what's needed)
+  const chartInvoices = invoices.map((inv) => ({
+    id: inv.id,
+    issued_on: inv.issued_on,
+    total: inv.total,
+    currency: inv.currency,
+  }))
+
+  // Get the most common currency
+  const currencyCount = invoices.reduce((acc, inv) => {
+    acc[inv.currency] = (acc[inv.currency] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+  const defaultCurrency = Object.entries(currencyCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "CHF"
 
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[800px] mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">
-            Invoices
-          </h1>
-          <p className="text-[14px] text-design-content-weak mt-1">
-            Manage and track all your invoices
-          </p>
-        </div>
-      <Link
-        href="/dashboard/invoices/new"
-        className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity"
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="mr-2">
-            <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          Create Invoice
-        </Link>
-      </div>
+      <Header 
+        title="Invoices" 
+        actions={
+          <Button variant="default" asChild>
+            <Link href="/dashboard/invoices/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Invoice
+            </Link>
+          </Button>
+        }
+      />
 
-      {/* Summary Cards */}
-      {totalInvoices > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-design-surface-default border border-design-border-default rounded-xl p-4">
-            <p className="text-[13px] text-design-content-weak mb-1">Total Invoices</p>
-            <p className="text-[24px] font-semibold text-design-content-default">{totalInvoices}</p>
-          </div>
-          <div className="bg-design-surface-default border border-design-border-default rounded-xl p-4">
-            <p className="text-[13px] text-design-content-weak mb-1">Paid Revenue</p>
-            <p className="text-[24px] font-semibold text-green-600 dark:text-green-400">
-              {formatCurrency(totalRevenue, 'CHF')}
-            </p>
-          </div>
-          <div className="bg-design-surface-default border border-design-border-default rounded-xl p-4">
-            <p className="text-[13px] text-design-content-weak mb-1">Pending</p>
-            <p className="text-[24px] font-semibold text-yellow-600 dark:text-yellow-400">
-              {formatCurrency(pendingAmount, 'CHF')}
-            </p>
-          </div>
-          <div className="bg-design-surface-default border border-design-border-default rounded-xl p-4">
-            <p className="text-[13px] text-design-content-weak mb-1">Overdue</p>
-            <p className="text-[24px] font-semibold text-red-600 dark:text-red-400">{overdueCount}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
-          <p className="text-[14px] text-red-600 dark:text-red-400">{error}</p>
-        </div>
+      {/* Stats & Chart */}
+      {invoices.length > 0 && (
+        <DashboardChart invoices={chartInvoices} defaultCurrency={defaultCurrency} />
       )}
 
       {/* Invoices Table */}
-      {invoices.length === 0 ? (
-        <div className="bg-design-surface-default border border-design-border-default rounded-xl">
-          <EmptyState />
-        </div>
-      ) : (
-        <div className="bg-design-surface-default border border-design-border-default rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-design-border-default bg-design-surface-field/50">
-                  <th className="text-left py-3 px-4 text-[13px] font-medium text-design-content-weak">
-                    Invoice #
-                  </th>
-                  <th className="text-left py-3 px-4 text-[13px] font-medium text-design-content-weak">
-                    Client
-                  </th>
-                  <th className="text-left py-3 px-4 text-[13px] font-medium text-design-content-weak">
-                    Amount
-                  </th>
-                  <th className="text-left py-3 px-4 text-[13px] font-medium text-design-content-weak">
-                    Status
-                  </th>
-                  <th className="text-left py-3 px-4 text-[13px] font-medium text-design-content-weak">
-                    Issued
-                  </th>
-                  <th className="text-left py-3 px-4 text-[13px] font-medium text-design-content-weak">
-                    Due
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
+      <Card className="overflow-hidden">
+        <SectionHeader>
+          <h2 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
+            Recent Invoices
+          </h2>
+        </SectionHeader>
+        <CardContent className="p-0">
+          {invoices.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-[13px] font-medium px-6">Client</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Date</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
+                  <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {invoices.map((invoice) => (
                   <InvoiceRow key={invoice.id} invoice={invoice} />
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
-

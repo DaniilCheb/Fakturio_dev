@@ -85,7 +85,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
  */
 export function ModalBody({ children, className = '' }: { children: React.ReactNode, className?: string }) {
   return (
-    <div className={`p-4 sm:p-5 flex flex-col gap-4 ${className}`}>
+    <div className={`p-4 sm:p-5 flex flex-col gap-4 text-left ${className}`}>
       {children}
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, createContext, ReactNode } from 'react'
 import { useSession } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { 
@@ -11,18 +11,116 @@ import {
   type CreateContactInput
 } from '@/lib/services/contactService.client'
 import AddCustomerModal from './AddCustomerModal'
+import { useConfirmDialog } from '@/app/components/useConfirmDialog'
+import { EditIcon, DeleteIcon, CustomersIcon } from '@/app/components/Icons'
+import { formatCurrency } from '@/lib/utils/formatters'
+import { Card, CardContent } from '@/app/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/app/components/ui/table'
+import SectionHeader from '@/app/components/SectionHeader'
+import { Button } from '@/app/components/ui/button'
+import { FileText } from 'lucide-react'
+import type { CustomerWithStats } from './page'
 
 interface CustomersListProps {
-  initialCustomers: Contact[]
+  initialCustomers: CustomerWithStats[]
+}
+
+// Context for triggering add modal
+export const AddModalContext = createContext<(() => void) | null>(null)
+
+// Empty state component
+function EmptyState({ onAddClick }: { onAddClick: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4">
+      <div className="w-16 h-16 mb-6 rounded-full bg-muted flex items-center justify-center">
+        <FileText className="w-8 h-8 text-muted-foreground" />
+      </div>
+      <h3 className="text-[18px] font-semibold mb-2">
+        No customers yet
+      </h3>
+      <p className="text-[14px] text-muted-foreground text-center max-w-sm mb-6">
+        Add your first customer to start tracking projects and invoices.
+      </p>
+      <Button variant="default" onClick={onAddClick}>
+        <CustomersIcon size={16} className="mr-2" />
+        New Customer
+      </Button>
+    </div>
+  )
+}
+
+// Customer row component
+function CustomerRow({ 
+  customer, 
+  onEdit, 
+  onDelete, 
+  isLoading 
+}: { 
+  customer: CustomerWithStats
+  onEdit: () => void
+  onDelete: () => void
+  isLoading: boolean
+}) {
+  const displayName = customer.company_name || customer.name || 'N/A'
+
+  return (
+    <TableRow className="group hover:bg-muted/50">
+      <TableCell className="font-medium px-6">
+        <div className="flex flex-col">
+          <span className="font-medium text-[14px]">{displayName}</span>
+          {customer.email && (
+            <span className="text-[13px] text-muted-foreground">{customer.email}</span>
+          )}
+        </div>
+      </TableCell>
+      <TableCell className="text-[14px] text-muted-foreground px-6">
+        {customer.projectCount} {customer.projectCount !== 1 ? 'projects' : 'project'}
+      </TableCell>
+      <TableCell className="text-[14px] text-muted-foreground px-6">
+        {customer.invoiceCount} {customer.invoiceCount !== 1 ? 'invoices' : 'invoice'}
+      </TableCell>
+      <TableCell className="text-[14px] font-medium px-6">
+        {formatCurrency(customer.totalAmount)}
+      </TableCell>
+      <TableCell className="text-right px-6">
+        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={onEdit}
+            disabled={isLoading}
+            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors disabled:opacity-50"
+            title="Edit customer"
+          >
+            <EditIcon size={16} />
+          </button>
+          <button
+            onClick={onDelete}
+            disabled={isLoading}
+            className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors disabled:opacity-50"
+            title="Delete customer"
+          >
+            <DeleteIcon size={16} />
+          </button>
+        </div>
+      </TableCell>
+    </TableRow>
+  )
 }
 
 export default function CustomersList({ initialCustomers }: CustomersListProps) {
   const { session } = useSession()
-  const [customers, setCustomers] = useState<Contact[]>(initialCustomers)
+  const [customers, setCustomers] = useState<CustomerWithStats[]>(initialCustomers)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [editingCustomer, setEditingCustomer] = useState<Contact | null>(null)
+  const [editingCustomer, setEditingCustomer] = useState<CustomerWithStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { confirm, DialogComponent } = useConfirmDialog()
 
   const handleAddCustomer = async (customerData: CreateContactInput) => {
     if (!session) return
@@ -39,7 +137,15 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
         type: 'customer',
       })
 
-      setCustomers(prev => [created, ...prev])
+      // New customer starts with 0 stats
+      const customerWithStats: CustomerWithStats = {
+        ...created,
+        invoiceCount: 0,
+        projectCount: 0,
+        totalAmount: 0
+      }
+
+      setCustomers(prev => [customerWithStats, ...prev])
       setShowAddModal(false)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to add customer')
@@ -63,7 +169,15 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
         type: 'customer',
       })
 
-      setCustomers(prev => prev.map(c => c.id === updated.id ? updated : c))
+      // Preserve existing stats when updating
+      const updatedWithStats: CustomerWithStats = {
+        ...updated,
+        invoiceCount: editingCustomer.invoiceCount,
+        projectCount: editingCustomer.projectCount,
+        totalAmount: editingCustomer.totalAmount
+      }
+
+      setCustomers(prev => prev.map(c => c.id === updated.id ? updatedWithStats : c))
       setEditingCustomer(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to update customer')
@@ -74,7 +188,13 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
 
   const handleDelete = async (customerId: string) => {
     if (!session) return
-    if (!confirm('Are you sure you want to delete this customer?')) return
+    
+    const confirmed = await confirm({
+      message: 'Are you sure you want to delete this customer?',
+      variant: 'destructive',
+    })
+    
+    if (!confirmed) return
 
     setIsLoading(true)
     setError(null)
@@ -92,93 +212,53 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
     }
   }
 
-  // Format address for display
-  const formatAddress = (customer: Contact) => {
-    const parts = []
-    if (customer.address) parts.push(customer.address)
-    if (customer.postal_code || customer.city) {
-      parts.push([customer.postal_code, customer.city].filter(Boolean).join(' '))
-    }
-    return parts.join(', ') || 'No address'
-  }
-
   return (
-    <div className="space-y-4">
+    <AddModalContext.Provider value={() => setShowAddModal(true)}>
+      {DialogComponent}
+      
       {/* Error */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
           <p className="text-[13px] text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
-      {/* Customers List */}
-      {customers.length > 0 ? (
-        <div className="space-y-3">
-          {customers.map((customer) => (
-            <div 
-              key={customer.id}
-              className="flex items-start justify-between p-4 bg-design-surface-field rounded-lg"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-[14px] font-medium text-design-content-default">
-                    {customer.name}
-                  </p>
-                  {customer.company_name && (
-                    <span className="text-[13px] text-design-content-weak">
-                      ({customer.company_name})
-                    </span>
-                  )}
-                </div>
-                <p className="text-[13px] text-design-content-weak mt-1">
-                  {formatAddress(customer)}
-                </p>
-                {customer.email && (
-                  <p className="text-[12px] text-design-content-weakest mt-0.5">
-                    {customer.email}
-                  </p>
-                )}
-                {customer.vat_number && (
-                  <p className="text-[12px] text-design-content-weakest mt-0.5 font-mono">
-                    VAT: {customer.vat_number}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-2 ml-4">
-                <button
-                  onClick={() => setEditingCustomer(customer)}
-                  disabled={isLoading}
-                  className="text-[13px] text-design-content-weak hover:text-design-content-default transition-colors disabled:opacity-50"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(customer.id)}
-                  disabled={isLoading}
-                  className="text-[13px] text-red-500 hover:text-red-600 transition-colors disabled:opacity-50"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-[14px] text-design-content-weak py-8 text-center">
-          No customers added yet. Add your first customer to get started.
-        </p>
-      )}
-
-      {/* Add Customer Button */}
-      <button
-        onClick={() => setShowAddModal(true)}
-        className="inline-flex items-center text-[14px] text-design-content-weak hover:text-design-content-default transition-colors"
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="mr-2">
-          <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-        Add Customer
-      </button>
+      {/* Customers Table */}
+      <Card className="overflow-hidden">
+        <SectionHeader>
+          <h2 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
+            Customers
+          </h2>
+        </SectionHeader>
+        <CardContent className="p-0">
+          {customers.length === 0 ? (
+            <EmptyState onAddClick={() => setShowAddModal(true)} />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-[13px] font-medium px-6">Customer</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Projects</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Invoices</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
+                  <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customers.map((customer) => (
+                  <CustomerRow
+                    key={customer.id}
+                    customer={customer}
+                    onEdit={() => setEditingCustomer(customer)}
+                    onDelete={() => handleDelete(customer.id)}
+                    isLoading={isLoading}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Add Customer Modal */}
       <AddCustomerModal
@@ -197,7 +277,6 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
         initialData={editingCustomer || undefined}
         isEditing
       />
-    </div>
+    </AddModalContext.Provider>
   )
 }
-

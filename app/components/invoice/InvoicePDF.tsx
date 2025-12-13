@@ -41,7 +41,7 @@ function formatCurrencyDisplay(value: number | string | undefined | null, curren
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
-    fontFamily: 'Radio Canada Big',
+    fontFamily: 'Helvetica', // Fallback to Helvetica if custom font fails
     position: 'relative',
     width: 595,
     height: 842,

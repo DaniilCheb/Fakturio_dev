@@ -105,28 +105,35 @@ function parseZipCity(combined: string): { zip: string; city: string } {
  * Build Swiss QR data from invoice
  */
 export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
+  console.log('[QR Code] Building Swiss QR data from invoice:', {
+    hasFromInfo: !!invoice.from_info,
+    hasIban: !!invoice.from_info?.iban,
+    currency: invoice.currency,
+    total: invoice.total
+  })
+
   // Validate required fields
-  if (!invoice.from_info.iban) {
-    console.warn('Cannot generate Swiss QR code: IBAN is required')
+  if (!invoice.from_info?.iban) {
+    console.warn('[QR Code] Cannot generate Swiss QR code: IBAN is required')
     return null
   }
   
   if (!validateSwissIBAN(invoice.from_info.iban)) {
-    console.warn('Cannot generate Swiss QR code: Invalid Swiss IBAN')
+    console.warn('[QR Code] Cannot generate Swiss QR code: Invalid Swiss IBAN', invoice.from_info.iban)
     return null
   }
   
   const currency = invoice.currency as 'CHF' | 'EUR'
   if (currency !== 'CHF' && currency !== 'EUR') {
-    console.warn('Cannot generate Swiss QR code: Currency must be CHF or EUR')
+    console.warn('[QR Code] Cannot generate Swiss QR code: Currency must be CHF or EUR, got:', currency)
     return null
   }
   
   // Parse creditor (from) info
-  const fromZipCity = parseZipCity(invoice.from_info.zip)
+  const fromZipCity = parseZipCity(invoice.from_info.zip || '')
   
   // Parse debtor (to) info  
-  const toZipCity = parseZipCity(invoice.to_info.zip)
+  const toZipCity = parseZipCity(invoice.to_info?.zip || '')
   
   const data: SwissQRData = {
     creditor: {
@@ -143,7 +150,7 @@ export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
   }
   
   // Add debtor if available
-  if (invoice.to_info.name) {
+  if (invoice.to_info?.name) {
     data.debtor = {
       name: invoice.to_info.name,
       address: invoice.to_info.address || '',
@@ -153,34 +160,153 @@ export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
     }
   }
   
+  console.log('[QR Code] Swiss QR data built successfully:', {
+    creditor: data.creditor.name,
+    account: `${data.creditor.account.substring(0, 4)}...`,
+    currency: data.currency,
+    amount: data.amount
+  })
+  
   return data
 }
 
 /**
- * Generate Swiss QR code as SVG data URL
+ * Convert SVG string to PNG data URL
+ * react-pdf has limited SVG support, so we convert to PNG for better compatibility
+ */
+async function svgToPngDataUrl(svgString: string, width: number = 200, height: number = 200): Promise<string | null> {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    console.warn('[QR Code] Cannot convert SVG to PNG in non-browser environment')
+    return null
+  }
+
+  try {
+    // Create an image from the SVG
+    const img = new Image()
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
+    const url = URL.createObjectURL(svgBlob)
+    
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(url)
+        reject(new Error('SVG to PNG conversion timeout'))
+      }, 5000) // 5 second timeout
+      
+      img.onload = () => {
+        clearTimeout(timeout)
+        try {
+          // Create a canvas to convert SVG to PNG
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          
+          if (!ctx) {
+            URL.revokeObjectURL(url)
+            reject(new Error('Could not get canvas context'))
+            return
+          }
+          
+          // Fill white background (SVG might be transparent)
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, width, height)
+          
+          // Draw the image to canvas
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          // Convert to PNG data URL
+          const pngDataUrl = canvas.toDataURL('image/png')
+          URL.revokeObjectURL(url)
+          console.log('[QR Code] SVG converted to PNG successfully')
+          resolve(pngDataUrl)
+        } catch (error) {
+          URL.revokeObjectURL(url)
+          reject(error)
+        }
+      }
+      
+      img.onerror = (error) => {
+        clearTimeout(timeout)
+        URL.revokeObjectURL(url)
+        console.error('[QR Code] Failed to load SVG image:', error)
+        reject(new Error('Failed to load SVG image'))
+      }
+      
+      img.src = url
+    })
+  } catch (error) {
+    console.error('[QR Code] Error converting SVG to PNG:', error)
+    return null
+  }
+}
+
+/**
+ * Generate Swiss QR code as PNG data URL (for PDF compatibility)
  * Uses swissqrbill library for compliant Swiss payment QR codes
+ * Converts SVG to PNG because react-pdf doesn't support SVG
  */
 export async function generateSwissQRCode(invoice: GuestInvoice): Promise<string | null> {
   try {
+    console.log('[QR Code] generateSwissQRCode called')
     const qrData = buildSwissQRData(invoice)
-    if (!qrData) return null
+    if (!qrData) {
+      console.warn('[QR Code] buildSwissQRData returned null')
+      return null
+    }
     
+    console.log('[QR Code] Attempting to import swissqrbill/svg...')
     // Dynamic import to avoid SSR issues
-    const { SwissQRCode } = await import('swissqrbill/svg')
+    let SwissQRCode
+    try {
+      const swissqrbillModule = await import('swissqrbill/svg')
+      SwissQRCode = swissqrbillModule.SwissQRCode || swissqrbillModule.default?.SwissQRCode || swissqrbillModule.default
+      console.log('[QR Code] SwissQRCode imported:', !!SwissQRCode)
+    } catch (importError) {
+      console.error('[QR Code] Failed to import swissqrbill/svg:', importError)
+      return null
+    }
     
+    if (!SwissQRCode) {
+      console.error('[QR Code] SwissQRCode is not available after import')
+      return null
+    }
+    
+    console.log('[QR Code] Creating SwissQRCode instance...')
     // Create Swiss QR code (46mm is standard size)
     const qrCode = new SwissQRCode(qrData, 46)
     
+    console.log('[QR Code] Converting to SVG string...')
     // Get SVG string
     const svgString = qrCode.toString()
     
-    // Convert to data URL
-    const base64 = btoa(unescape(encodeURIComponent(svgString)))
-    const dataUrl = `data:image/svg+xml;base64,${base64}`
+    if (!svgString) {
+      console.error('[QR Code] toString() returned empty string')
+      return null
+    }
     
-    return dataUrl
+    console.log('[QR Code] Converting SVG to PNG for PDF compatibility...')
+    // Convert SVG to PNG data URL (react-pdf doesn't support SVG)
+    const pngDataUrl = await svgToPngDataUrl(svgString, 200, 200)
+    
+    if (!pngDataUrl) {
+      console.error('[QR Code] Failed to convert SVG to PNG')
+      // Fallback: return SVG data URL (might work in some cases)
+      const base64 = btoa(unescape(encodeURIComponent(svgString)))
+      const svgDataUrl = `data:image/svg+xml;base64,${base64}`
+      console.warn('[QR Code] Falling back to SVG data URL')
+      return svgDataUrl
+    }
+    
+    console.log('[QR Code] Swiss QR code generated successfully as PNG, length:', pngDataUrl.length)
+    return pngDataUrl
   } catch (error) {
-    console.error('Error generating Swiss QR code:', error)
+    console.error('[QR Code] Error generating Swiss QR code:', error)
+    if (error instanceof Error) {
+      console.error('[QR Code] Error details:', {
+        message: error.message,
+        stack: error.stack
+      })
+    }
     return null
   }
 }
@@ -219,36 +345,68 @@ export async function generateInvoiceQRCode(invoice: GuestInvoice): Promise<{
   type: 'swiss' | 'simple' | 'none'
   error?: string
 }> {
+  // Debug logging
+  console.log('[QR Code] Generating QR code for invoice:', {
+    invoiceNumber: invoice.invoice_number,
+    currency: invoice.currency,
+    hasIban: !!invoice.from_info?.iban,
+    iban: invoice.from_info?.iban ? `${invoice.from_info.iban.substring(0, 4)}...` : 'missing',
+    total: invoice.total
+  })
+
   // Try Swiss QR first if conditions are met
-  if (invoice.from_info.iban && validateSwissIBAN(invoice.from_info.iban)) {
-    if (invoice.currency === 'CHF' || invoice.currency === 'EUR') {
-      try {
-        const dataUrl = await generateSwissQRCode(invoice)
-        if (dataUrl) {
-          return { dataUrl, type: 'swiss' }
+  if (invoice.from_info?.iban) {
+    const isValidIBAN = validateSwissIBAN(invoice.from_info.iban)
+    console.log('[QR Code] IBAN validation:', { iban: invoice.from_info.iban, isValid: isValidIBAN })
+    
+    if (isValidIBAN) {
+      const isValidCurrency = invoice.currency === 'CHF' || invoice.currency === 'EUR'
+      console.log('[QR Code] Currency check:', { currency: invoice.currency, isValid: isValidCurrency })
+      
+      if (isValidCurrency) {
+        try {
+          console.log('[QR Code] Attempting to generate Swiss QR code...')
+          const dataUrl = await generateSwissQRCode(invoice)
+          if (dataUrl) {
+            console.log('[QR Code] Swiss QR code generated successfully')
+            return { dataUrl, type: 'swiss' }
+          } else {
+            console.warn('[QR Code] Swiss QR code generation returned null')
+          }
+        } catch (error) {
+          console.error('[QR Code] Swiss QR generation failed, falling back to simple:', error)
         }
-      } catch (error) {
-        console.error('Swiss QR generation failed, falling back to simple:', error)
+      } else {
+        console.warn('[QR Code] Currency not CHF or EUR, cannot generate Swiss QR')
       }
+    } else {
+      console.warn('[QR Code] IBAN is not a valid Swiss IBAN')
     }
+  } else {
+    console.warn('[QR Code] No IBAN found in invoice.from_info')
   }
   
   // Always try simple QR as fallback
   try {
+    console.log('[QR Code] Attempting to generate simple QR code as fallback...')
     const paymentInfo = [
       `Invoice: ${invoice.invoice_number || 'N/A'}`,
       `Amount: ${invoice.currency || 'CHF'} ${(invoice.total || 0).toFixed(2)}`,
-      invoice.from_info.iban ? `IBAN: ${invoice.from_info.iban}` : '',
+      invoice.from_info?.iban ? `IBAN: ${invoice.from_info.iban}` : '',
       invoice.due_date ? `Due: ${invoice.due_date}` : ''
     ].filter(Boolean).join('\n')
     
     const dataUrl = await generateSimpleQRCode(paymentInfo)
     if (dataUrl) {
+      console.log('[QR Code] Simple QR code generated successfully')
       return { dataUrl, type: 'simple' }
+    } else {
+      console.warn('[QR Code] Simple QR code generation returned null')
     }
   } catch (error) {
-    console.error('Simple QR generation failed:', error)
+    console.error('[QR Code] Simple QR generation failed:', error)
   }
   
+  console.error('[QR Code] All QR code generation methods failed')
   return { dataUrl: null, type: 'none', error: 'Failed to generate QR code' }
 }

@@ -155,9 +155,9 @@ CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE TABLE IF NOT EXISTS invoices (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id TEXT NOT NULL,
-  contact_id UUID NOT NULL REFERENCES contacts(id) ON DELETE SET NULL,
+  contact_id UUID REFERENCES contacts(id) ON DELETE SET NULL,
   project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
-  bank_account_id UUID NOT NULL REFERENCES bank_accounts(id) ON DELETE SET NULL,
+  bank_account_id UUID REFERENCES bank_accounts(id) ON DELETE SET NULL,
   invoice_number TEXT NOT NULL,
   status TEXT DEFAULT 'issued' NOT NULL CHECK (status IN ('draft', 'issued', 'paid', 'overdue', 'cancelled')),
   currency TEXT DEFAULT 'CHF' NOT NULL,

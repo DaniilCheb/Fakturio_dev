@@ -158,6 +158,28 @@ export async function deleteContactWithClient(
   userId: string,
   contactId: string
 ): Promise<boolean> {
+  // First, verify the contact exists and belongs to the user
+  const { data: contact, error: fetchError } = await supabase
+    .from("contacts")
+    .select("id")
+    .eq("id", contactId)
+    .eq("user_id", userId)
+    .single();
+  
+  if (fetchError) {
+    if (fetchError.code === "PGRST116") {
+      throw new Error("Contact not found");
+    }
+    console.error("Error fetching contact:", fetchError);
+    const errorMessage = fetchError.message || fetchError.details || fetchError.hint || "Failed to find contact";
+    throw new Error(`Failed to find contact: ${errorMessage}`);
+  }
+  
+  if (!contact) {
+    throw new Error("Contact not found");
+  }
+  
+  // Delete the contact
   const { error } = await supabase
     .from("contacts")
     .delete()
@@ -166,7 +188,9 @@ export async function deleteContactWithClient(
   
   if (error) {
     console.error("Error deleting contact:", error);
-    throw new Error("Failed to delete contact");
+    // Handle different error formats from Supabase
+    const errorMessage = error.message || error.details || error.hint || JSON.stringify(error);
+    throw new Error(`Failed to delete contact: ${errorMessage}`);
   }
   
   return true;

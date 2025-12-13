@@ -9,6 +9,7 @@ import {
   setDefaultBankAccountWithClient,
   type BankAccount 
 } from '@/lib/services/bankAccountService.client'
+import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 
 interface BankAccountsSectionProps {
   initialBankAccounts: BankAccount[]
@@ -20,6 +21,7 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
   const [showAddForm, setShowAddForm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { confirm, DialogComponent } = useConfirmDialog()
   
   const [newAccount, setNewAccount] = useState({
     name: '',
@@ -57,7 +59,13 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
 
   const handleDelete = async (accountId: string) => {
     if (!session) return
-    if (!confirm('Are you sure you want to delete this bank account?')) return
+    
+    const confirmed = await confirm({
+      message: 'Are you sure you want to delete this bank account?',
+      variant: 'destructive',
+    })
+    
+    if (!confirmed) return
 
     setIsLoading(true)
     setError(null)
@@ -104,6 +112,8 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
 
   return (
     <div className="space-y-4">
+      {DialogComponent}
+      
       {/* Error */}
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">

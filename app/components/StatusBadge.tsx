@@ -30,7 +30,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   const style = statusStyles[status] || statusStyles.issued
   
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${style.bg} ${style.text}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal ${style.bg} ${style.text}`}>
       {style.label}
     </span>
   )

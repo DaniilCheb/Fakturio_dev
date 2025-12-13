@@ -9,11 +9,10 @@ import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { saveInvoiceWithClient } from '@/lib/services/invoiceService.client'
 import { getDefaultBankAccountWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
-import { Profile } from '@/lib/services/settingsService.client'
+import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
 
 // Components
 import InvoiceHeader from '@/app/components/invoice/InvoiceHeader'
-import AuthFromSection, { AuthFromInfo } from '@/app/components/invoice/AuthFromSection'
 import AuthToSection, { AuthToInfo } from '@/app/components/invoice/AuthToSection'
 import DescriptionSection from '@/app/components/invoice/DescriptionSection'
 import ProductsSection from '@/app/components/invoice/ProductsSection'
@@ -26,10 +25,6 @@ interface ValidationErrors {
   invoice_number?: string
   issued_on?: string
   due_date?: string
-  fromName?: string
-  fromStreet?: string
-  fromZip?: string
-  fromIban?: string
   toName?: string
   toAddress?: string
   toZip?: string
@@ -43,10 +38,6 @@ const ERROR_FIELD_PRIORITY = [
   'invoice_number',
   'issued_on',
   'due_date',
-  'fromName',
-  'fromStreet',
-  'fromZip',
-  'fromIban',
   'contact_id',
   'toName',
   'toAddress',
@@ -70,13 +61,6 @@ export default function NewInvoicePage() {
   const [issuedOn, setIssuedOn] = useState(getCurrentDateISO())
   const [dueDate, setDueDate] = useState('')
   const [currency, setCurrency] = useState('CHF')
-  
-  const [fromInfo, setFromInfo] = useState<AuthFromInfo>({
-    name: '',
-    street: '',
-    zip: '',
-    iban: ''
-  })
   
   const [toInfo, setToInfo] = useState<AuthToInfo>({
     contact_id: '',
@@ -102,6 +86,7 @@ export default function NewInvoicePage() {
   // Profile/Bank account state
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
   // UI state
   const [showSaveModal, setShowSaveModal] = useState(false)
@@ -151,11 +136,32 @@ export default function NewInvoicePage() {
     }
   }, [issuedOn, dueDate])
 
-  // Handle profile loaded callback
-  const handleProfileLoaded = (loadedProfile: Profile | null, loadedBankAccount: BankAccount | null) => {
-    setProfile(loadedProfile)
-    setBankAccount(loadedBankAccount)
-  }
+  // Load profile and bank account on mount
+  useEffect(() => {
+    async function loadProfileData() {
+      if (!supabase || !user) {
+        setIsLoadingProfile(false)
+        return
+      }
+
+      try {
+        // Fetch profile and bank account in parallel
+        const [loadedProfile, loadedBankAccount] = await Promise.all([
+          getUserProfileWithClient(supabase, user.id).catch(() => null),
+          getDefaultBankAccountWithClient(supabase, user.id).catch(() => null)
+        ])
+
+        setProfile(loadedProfile)
+        setBankAccount(loadedBankAccount)
+      } catch (error) {
+        console.error('Error loading profile data:', error)
+      } finally {
+        setIsLoadingProfile(false)
+      }
+    }
+
+    loadProfileData()
+  }, [supabase, user])
 
   const handleHeaderChange = (field: string, value: string) => {
     switch (field) {
@@ -188,6 +194,9 @@ export default function NewInvoicePage() {
   const buildInvoiceData = () => {
     const totals = calculateGrandTotal(items, discount)
     
+    // Build zip from city and postal_code
+    const zipCity = [profile?.postal_code, profile?.city].filter(Boolean).join(' ')
+    
     return {
       invoice_number: invoiceNumber,
       issued_on: issuedOn,
@@ -195,12 +204,12 @@ export default function NewInvoicePage() {
       currency,
       contact_id: toInfo.contact_id,
       from_info: {
-        name: fromInfo.name,
-        street: fromInfo.street,
-        zip: fromInfo.zip,
-        iban: fromInfo.iban,
-        logo_url: fromInfo.logo_url,
-        company_name: fromInfo.company_name
+        name: profile?.name || '',
+        street: profile?.address || '',
+        zip: zipCity || '',
+        iban: bankAccount?.iban || '',
+        logo_url: profile?.logo_url,
+        company_name: profile?.company_name
       },
       to_info: {
         uid: toInfo.uid,
@@ -231,20 +240,6 @@ export default function NewInvoicePage() {
     }
     if (!data.due_date) {
       errors.due_date = 'Due date is required'
-    }
-
-    // From section validation
-    if (!data.from_info.name?.trim()) {
-      errors.fromName = 'Your name is required'
-    }
-    if (!data.from_info.street?.trim()) {
-      errors.fromStreet = 'Street is required'
-    }
-    if (!data.from_info.zip?.trim()) {
-      errors.fromZip = 'ZIP / City is required'
-    }
-    if (!data.from_info.iban?.trim()) {
-      errors.fromIban = 'IBAN is required'
     }
 
     // To section validation - require contact selection
@@ -484,7 +479,7 @@ export default function NewInvoicePage() {
   }
 
   // Loading state
-  if (!session || !user || !supabase) {
+  if (!session || !user || !supabase || isLoadingProfile) {
     return (
       <div className="max-w-[800px] mx-auto">
         <div className="flex items-center justify-center py-20">
@@ -537,9 +532,6 @@ export default function NewInvoicePage() {
           <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">
             New Invoice
           </h1>
-          <p className="text-[14px] text-design-content-weak mt-1">
-            Create a new invoice for your customer
-          </p>
         </div>
       </div>
 
@@ -563,15 +555,6 @@ export default function NewInvoicePage() {
             />
           )}
         </div>
-
-        {/* From Section */}
-        <AuthFromSection
-          fromInfo={fromInfo}
-          onChange={setFromInfo}
-          errors={validationErrors}
-          onClearError={clearError}
-          onProfileLoaded={handleProfileLoaded}
-        />
 
         {/* To Section */}
         <AuthToSection

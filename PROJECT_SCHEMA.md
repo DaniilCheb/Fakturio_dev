@@ -264,9 +264,9 @@ Invoice records with line items and payment information.
 |--------|------|-------------|-------------|
 | `id` | UUID | PK | Invoice ID |
 | `user_id` | UUID | FK → auth.users, NOT NULL | User ID |
-| `contact_id` | UUID | FK → contacts, NOT NULL | Customer ID |
+| `contact_id` | UUID | FK → contacts, NULL | Customer ID (nullable to allow contact deletion) |
 | `project_id` | UUID | FK → projects, NULL | Project ID (optional) |
-| `bank_account_id` | UUID | FK → bank_accounts, NOT NULL | Bank account for payment |
+| `bank_account_id` | UUID | FK → bank_accounts, NULL | Bank account for payment (nullable to allow account deletion) |
 | `invoice_number` | TEXT | NOT NULL | Invoice number (YYYY-NN format) |
 | `status` | TEXT | DEFAULT 'issued', NOT NULL | 'draft', 'issued', 'paid', 'overdue', 'cancelled' |
 | `currency` | TEXT | DEFAULT 'CHF', NOT NULL | Currency code |
