@@ -1,29 +1,44 @@
-const STORAGE_KEY = 'fakturio_invoice_sequence'
+import { getAllGuestInvoices } from '../services/guestInvoiceService'
 
 /**
- * Get next invoice number starting from 1
+ * Get next invoice number in YYYY-NN format for guest invoices
+ * Always starts with current year and increments sequence (e.g., 2025-01, 2025-02)
  */
 export function getNextInvoiceNumber(): string {
-  // Get stored sequence from localStorage
-  const stored = localStorage.getItem(STORAGE_KEY)
-  let sequence = 1
-  
-  if (stored) {
-    try {
-      const data = JSON.parse(stored)
-      sequence = (data.sequence || 0) + 1
-    } catch {
-      // Invalid data, start fresh
-    }
+  if (typeof window === 'undefined') {
+    // Server-side fallback
+    const currentYear = new Date().getFullYear()
+    return `${currentYear}-01`
   }
+
+  const invoices = getAllGuestInvoices()
+  const currentYear = new Date().getFullYear()
   
-  // Save updated sequence
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    sequence: sequence
-  }))
+  // Find all invoice numbers for the current year
+  const yearInvoices = invoices
+    .map(inv => inv.invoice_number || '')
+    .filter(num => {
+      // Match YYYY-NN format
+      const match = num.match(/^(\d{4})-(\d{2})$/)
+      return match && parseInt(match[1], 10) === currentYear
+    })
   
-  // Return simple sequential number (e.g., "1", "2", "3")
-  return sequence.toString()
+  // Extract the sequence numbers
+  const sequenceNumbers = yearInvoices
+    .map(num => {
+      const parts = num.split('-')
+      return parts.length >= 2 ? parseInt(parts[1], 10) : 0
+    })
+    .filter(n => !isNaN(n) && n > 0)
+  
+  // Find the highest number
+  const maxSequence = sequenceNumbers.length > 0 ? Math.max(...sequenceNumbers) : 0
+  
+  // Generate next number with zero padding
+  const nextSequence = maxSequence + 1
+  const paddedSequence = nextSequence.toString().padStart(2, '0')
+  
+  return `${currentYear}-${paddedSequence}`
 }
 
 /**

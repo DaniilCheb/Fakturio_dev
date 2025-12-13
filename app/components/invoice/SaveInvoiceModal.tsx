@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import Modal, { ModalFooter } from '../Modal'
+import Modal, { ModalBody, ModalFooter } from '../Modal'
 import Button from '../Button'
 
 interface SaveInvoiceModalProps {
@@ -15,6 +15,12 @@ interface SaveInvoiceModalProps {
   isSaving?: boolean
 }
 
+const CheckIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="10" fill="#F5C842" />
+    <path d="M9 12l2 2 4-4" stroke="#141414" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
 
 const LoadingSpinner = () => (
   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
@@ -64,6 +70,41 @@ export default function SaveInvoiceModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Keep your invoices in one place" maxWidth="md">
+      <ModalBody>
+        <p className="text-[14px] text-[#141414] dark:text-white mb-3">
+          Create a free account to access your invoices anytime.
+        </p>
+        
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-start gap-2">
+            <div className="mt-0.5">
+              <CheckIcon />
+            </div>
+            <p className="text-[14px] text-[#141414] dark:text-white">
+              Generate Swiss QR-bills in seconds
+            </p>
+          </div>
+          
+          <div className="flex items-start gap-2">
+            <div className="mt-0.5">
+              <CheckIcon />
+            </div>
+            <p className="text-[14px] text-[#141414] dark:text-white">
+              Track expenses and stay tax-ready
+            </p>
+          </div>
+          
+          <div className="flex items-start gap-2">
+            <div className="mt-0.5">
+              <CheckIcon />
+            </div>
+            <p className="text-[14px] text-[#141414] dark:text-white">
+              Manage clients and project budgets
+            </p>
+          </div>
+        </div>
+      </ModalBody>
+      
       <ModalFooter className="flex-col sm:flex-col gap-3">
         <Button variant="primary" className="w-full" onClick={handleCreateAccount}>
           Create free account
