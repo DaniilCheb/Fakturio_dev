@@ -220,6 +220,7 @@ export async function updateBankAccount(
   accountId: string,
   updates: UpdateBankAccountInput
 ): Promise<BankAccount> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
