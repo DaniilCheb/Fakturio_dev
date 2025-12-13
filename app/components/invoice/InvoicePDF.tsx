@@ -458,6 +458,7 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
         <View style={styles.qrSection}>
           {includeQRCode && qrCodeDataUrl ? (
             <>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
               <Image style={styles.qrImage} src={qrCodeDataUrl} />
               <Text style={styles.qrText}>Swiss QR Payment</Text>
             </>

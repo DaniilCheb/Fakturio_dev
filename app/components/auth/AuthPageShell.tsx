@@ -67,7 +67,7 @@ export default function AuthPageShell({
         </div>
 
         <p className="mt-6 text-center text-[12px] text-design-content-weak">
-          By continuing, you agree to Fakturio's terms and privacy policy.
+          By continuing, you agree to Fakturio&apos;s terms and privacy policy.
         </p>
       </div>
     </div>

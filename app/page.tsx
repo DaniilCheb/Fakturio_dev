@@ -17,6 +17,23 @@ import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
 import PreviewModal from './components/invoice/PreviewModal'
 import GuestSidebar from './components/GuestSidebar'
 
+// Priority order for error fields (top to bottom in form)
+const ERROR_FIELD_PRIORITY = [
+  'invoice_number',
+  'issued_on', 
+  'due_date',
+  'fromName',
+  'fromStreet',
+  'fromZip',
+  'toName',
+  'toAddress',
+  'toZip',
+  'currency',
+  'payment_method',
+  'fromIban',
+  'items'
+]
+
 export default function Home() {
   // Invoice storage hook (handles localStorage for guests)
   const { saveInvoice: saveToStorage, invoices } = useInvoiceStorage()
@@ -137,23 +154,6 @@ export default function Home() {
       total: totals.total
     }
   }
-
-  // Priority order for error fields (top to bottom in form)
-  const ERROR_FIELD_PRIORITY = [
-    'invoice_number',
-    'issued_on', 
-    'due_date',
-    'fromName',
-    'fromStreet',
-    'fromZip',
-    'toName',
-    'toAddress',
-    'toZip',
-    'currency',
-    'payment_method',
-    'fromIban',
-    'items'
-  ]
 
   // Scroll to first error field when validation fails
   const scrollToFirstError = useCallback((errors: ValidationErrors) => {

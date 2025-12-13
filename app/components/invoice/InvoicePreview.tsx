@@ -278,6 +278,7 @@ export default function InvoicePreview({
           </div>
         ) : qrCodeDataUrl && !qrError ? (
           <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={qrCodeDataUrl} 
               alt="Payment QR Code" 
