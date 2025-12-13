@@ -2,6 +2,7 @@ import { getUserProfile } from '@/lib/services/settingsService'
 import { getBankAccounts } from '@/lib/services/bankAccountService'
 import AccountForm from './AccountForm'
 import BankAccountsSection from './BankAccountsSection'
+import LogoutButton from '@/app/components/LogoutButton'
 
 export default async function AccountPage() {
   let profile = null
@@ -43,12 +44,15 @@ export default async function AccountPage() {
       </div>
 
       {/* Bank Accounts */}
-      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6">
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
         <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
           Bank Accounts
         </h2>
         <BankAccountsSection initialBankAccounts={bankAccounts} />
       </div>
+
+      {/* Logout Button */}
+      <LogoutButton />
     </div>
   )
 }

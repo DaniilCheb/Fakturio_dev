@@ -8,6 +8,7 @@ type AuthPageShellProps = {
   children: React.ReactNode;
   backHref?: string;
   backLabel?: string;
+  topRightButton?: React.ReactNode;
 };
 
 /**
@@ -20,10 +21,24 @@ export default function AuthPageShell({
   children,
   backHref = "/",
   backLabel = "Back",
+  topRightButton,
 }: AuthPageShellProps) {
   return (
-    <div className="min-h-screen bg-design-background overflow-visible relative">
-      {/* Logo in top-left corner */}
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        button[data-localization-key*="continue"]::after,
+        button[class*="cl-formButtonPrimary"]::after,
+        button[class*="formButtonPrimary"]::after {
+          content: none !important;
+          display: none !important;
+        }
+        button[class*="cl-formButtonPrimary"] svg,
+        button[class*="formButtonPrimary"] svg {
+          display: none !important;
+        }
+      `}} />
+      <div className="min-h-screen bg-design-background overflow-visible relative">
+        {/* Logo in top-left corner */}
       <div className="absolute top-4 left-4 z-10">
         <Link href="/">
           <Image
@@ -45,15 +60,25 @@ export default function AuthPageShell({
         </Link>
       </div>
 
+      {/* Top-right button */}
+      {topRightButton && (
+        <div className="absolute top-4 right-4 z-10">
+          {topRightButton}
+        </div>
+      )}
+
       <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col px-4 pt-36 pb-10 sm:pb-14 overflow-visible">
         <div className="mb-8 px-5">
           <div className="flex flex-col items-start text-left">
-            <h1 className="text-[24px] leading-[30px] font-semibold text-design-content-default tracking-[-0.4px]">
+            <h1 
+              className="text-[24px] font-semibold text-design-content-default tracking-[-0.4px] m-0 p-0 block"
+              style={{ lineHeight: '24px', margin: 0, padding: 0 }}
+            >
               {title}
             </h1>
             <p
-              className="mt-4 text-[15px] text-design-content-weak leading-relaxed"
-              style={{ fontWeight: 400 }}
+              className="text-[15px] text-design-content-weak m-0 p-0 block"
+              style={{ fontWeight: 400, lineHeight: '15px', margin: 0, padding: 0, marginTop: '12px' }}
             >
               {subtitle}
             </p>
@@ -71,6 +96,7 @@ export default function AuthPageShell({
         </p>
       </div>
     </div>
+    </>
   );
 }
 
@@ -93,7 +119,7 @@ export const clerkAppearance = {
     page: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0 overflow-visible !overflow-visible",
     form: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 overflow-visible !overflow-visible",
     // Remove any internal grouping containers - make them transparent and remove spacing
-    formButtonRow: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0 gap-0",
+    formButtonRow: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 !p-0 m-0 !m-0 gap-0 !gap-0 mt-0 !mt-0 mb-0 !mb-0",
     formField: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
     formFieldRow: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0 gap-0",
     otpCodeField: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
@@ -126,7 +152,7 @@ export const clerkAppearance = {
 
     dividerLine: "bg-design-border-default",
     dividerText: "text-[12px] text-design-content-weak",
-    dividerRow: "mt-1 -mb-2 !mt-1 !-mb-2",
+    dividerRow: "mt-1 -mb-6 !mt-1 !-mb-6",
 
     formFieldLabel: "text-[13px] font-medium text-design-content-weak",
     formFields: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 !p-0 m-0 !m-0 gap-0 !gap-0 mt-0 !mt-0",
@@ -136,7 +162,7 @@ export const clerkAppearance = {
       "h-[44px] rounded-xl bg-design-surface-default border border-design-border-default px-4 text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:ring-2 focus:ring-design-content-default/20 focus:border-design-content-default/30",
 
     formButtonPrimary:
-      "h-[44px] rounded-full bg-design-button-primary text-design-on-button-content hover:opacity-90 active:opacity-80 transition-opacity",
+      "h-[44px] rounded-full bg-design-button-primary text-design-on-button-content hover:opacity-90 active:opacity-80 transition-opacity m-0 !m-0 p-0 !p-0 gap-0 !gap-0 [&>svg]:hidden [&>svg]:!hidden [&_svg]:hidden [&_svg]:!hidden [&::after]:content-none [&::after]:!content-none [&::after]:hidden [&::after]:!hidden",
 
     formFieldAction:
       "text-[12px] text-design-content-weak hover:text-design-content-default transition-colors",

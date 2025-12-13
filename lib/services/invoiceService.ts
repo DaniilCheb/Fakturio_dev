@@ -152,6 +152,7 @@ export async function getInvoiceByIdWithClient(
 
 /**
  * Generate next invoice number in format YYYY-NN (server-side)
+ * Always starts with year-01 and increments based on invoice count for the user
  */
 export async function getNextInvoiceNumber(): Promise<string> {
   const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
@@ -159,31 +160,20 @@ export async function getNextInvoiceNumber(): Promise<string> {
   const supabase = await createServerSupabaseClient();
   const currentYear = new Date().getFullYear();
   
-  // Find all invoice numbers for the current year
-  const { data, error } = await supabase
+  // Count all invoices for this user in the current year
+  const { count, error } = await supabase
     .from("invoices")
-    .select("invoice_number")
+    .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
     .like("invoice_number", `${currentYear}-%`);
   
   if (error) {
-    console.error("Error fetching invoice numbers:", error);
+    console.error("Error fetching invoice count:", error);
     throw new Error("Failed to generate invoice number");
   }
   
-  // Extract the sequence numbers
-  const sequenceNumbers = (data || [])
-    .map((inv) => {
-      const parts = inv.invoice_number.split("-");
-      return parts.length >= 2 ? parseInt(parts[1], 10) : 0;
-    })
-    .filter((n) => !isNaN(n));
-  
-  // Find the highest number
-  const maxSequence = sequenceNumbers.length > 0 ? Math.max(...sequenceNumbers) : 0;
-  
-  // Generate next number with zero padding
-  const nextSequence = maxSequence + 1;
+  // Next number is count + 1 (first invoice is 01, second is 02, etc.)
+  const nextSequence = (count || 0) + 1;
   const paddedSequence = nextSequence.toString().padStart(2, "0");
   
   return `${currentYear}-${paddedSequence}`;
@@ -191,6 +181,7 @@ export async function getNextInvoiceNumber(): Promise<string> {
 
 /**
  * Generate next invoice number (with explicit client)
+ * Always starts with year-01 and increments based on invoice count for the user
  */
 export async function getNextInvoiceNumberWithClient(
   supabase: SupabaseClient,
@@ -198,31 +189,20 @@ export async function getNextInvoiceNumberWithClient(
 ): Promise<string> {
   const currentYear = new Date().getFullYear();
   
-  // Find all invoice numbers for the current year
-  const { data, error } = await supabase
+  // Count all invoices for this user in the current year
+  const { count, error } = await supabase
     .from("invoices")
-    .select("invoice_number")
+    .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
     .like("invoice_number", `${currentYear}-%`);
   
   if (error) {
-    console.error("Error fetching invoice numbers:", error);
+    console.error("Error fetching invoice count:", error);
     throw new Error("Failed to generate invoice number");
   }
   
-  // Extract the sequence numbers
-  const sequenceNumbers = (data || [])
-    .map((inv) => {
-      const parts = inv.invoice_number.split("-");
-      return parts.length >= 2 ? parseInt(parts[1], 10) : 0;
-    })
-    .filter((n) => !isNaN(n));
-  
-  // Find the highest number
-  const maxSequence = sequenceNumbers.length > 0 ? Math.max(...sequenceNumbers) : 0;
-  
-  // Generate next number with zero padding
-  const nextSequence = maxSequence + 1;
+  // Next number is count + 1 (first invoice is 01, second is 02, etc.)
+  const nextSequence = (count || 0) + 1;
   const paddedSequence = nextSequence.toString().padStart(2, "0");
   
   return `${currentYear}-${paddedSequence}`;

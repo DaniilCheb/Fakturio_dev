@@ -104,6 +104,7 @@ export async function getInvoiceByIdWithClient(
 
 /**
  * Generate the next invoice number (with explicit client)
+ * Always starts with year-01 and increments based on invoice count for the user
  */
 async function generateInvoiceNumber(
   supabase: SupabaseClient,
@@ -111,25 +112,23 @@ async function generateInvoiceNumber(
 ): Promise<string> {
   const currentYear = new Date().getFullYear();
   
-  // Get the latest invoice number for this year
-  const { data } = await supabase
+  // Count all invoices for this user in the current year
+  const { count, error } = await supabase
     .from("invoices")
-    .select("invoice_number")
+    .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
-    .like("invoice_number", `${currentYear}-%`)
-    .order("invoice_number", { ascending: false })
-    .limit(1);
+    .like("invoice_number", `${currentYear}-%`);
   
-  let nextNumber = 1;
-  if (data && data.length > 0) {
-    const lastNumber = data[0].invoice_number;
-    const parts = lastNumber.split("-");
-    if (parts.length >= 2) {
-      nextNumber = parseInt(parts[1], 10) + 1;
-    }
+  if (error) {
+    console.error("Error fetching invoice count:", error);
+    throw new Error("Failed to generate invoice number");
   }
   
-  return `${currentYear}-${String(nextNumber).padStart(4, "0")}`;
+  // Next number is count + 1 (first invoice is 01, second is 02, etc.)
+  const nextSequence = (count || 0) + 1;
+  const paddedSequence = nextSequence.toString().padStart(2, "0");
+  
+  return `${currentYear}-${paddedSequence}`;
 }
 
 /**

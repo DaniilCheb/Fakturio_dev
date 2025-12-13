@@ -78,3 +78,45 @@ export function StatsSkeleton() {
   )
 }
 
+export function AuthFormSkeleton() {
+  return (
+    <div className="w-full space-y-4">
+      {/* Social buttons skeleton */}
+      <div className="space-y-3">
+        <Skeleton className="h-[44px] w-full rounded-full" />
+        <Skeleton className="h-[44px] w-full rounded-full" />
+      </div>
+
+      {/* Divider skeleton */}
+      <div className="flex items-center gap-3 my-4">
+        <Skeleton className="h-px flex-1" />
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-px flex-1" />
+      </div>
+
+      {/* Form fields skeleton */}
+      <div className="space-y-4">
+        {/* Email field */}
+        <div className="space-y-2">
+          <Skeleton className="h-[13px] w-12" />
+          <Skeleton className="h-[44px] w-full rounded-xl" />
+        </div>
+
+        {/* Password field */}
+        <div className="space-y-2">
+          <Skeleton className="h-[13px] w-16" />
+          <Skeleton className="h-[44px] w-full rounded-xl" />
+        </div>
+
+        {/* Submit button */}
+        <Skeleton className="h-[44px] w-full rounded-full mt-2" />
+      </div>
+
+      {/* Footer link skeleton */}
+      <div className="mt-5 text-center">
+        <Skeleton className="h-[14px] w-48 mx-auto" />
+      </div>
+    </div>
+  )
+}
+

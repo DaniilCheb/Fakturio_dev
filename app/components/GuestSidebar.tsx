@@ -36,10 +36,7 @@ export default function GuestSidebar() {
               priority
             />
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/sign-in" className="text-[13px] text-design-content-weak hover:text-design-content-default transition-colors">
-              Sign in
-            </Link>
+          <div className="flex items-center gap-2">
             <Link href="/sign-up">
               <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Create free account</Button>
             </Link>
@@ -87,12 +84,6 @@ export default function GuestSidebar() {
                   <Button variant="primary" className="w-full justify-center">
                     Create free account
                   </Button>
-                </Link>
-                <Link 
-                  href="/sign-in" 
-                  className="text-[14px] text-design-content-weak hover:text-design-content-default text-center transition-colors"
-                >
-                  Already have an account? Sign in
                 </Link>
               </div>
             </div>
