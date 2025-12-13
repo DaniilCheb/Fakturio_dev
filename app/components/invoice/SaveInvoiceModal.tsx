@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import Modal, { ModalBody, ModalFooter } from '../Modal'
 import Button from '../Button'
@@ -37,20 +36,12 @@ export default function SaveInvoiceModal({
   isLoading = false,
   isSaving = false,
 }: SaveInvoiceModalProps) {
-  const clerk = useClerk()
   const router = useRouter()
 
-  const handleContinueWithGoogle = async () => {
-    try {
-      await clerk.authenticateWithRedirect({
-        strategy: 'oauth_google',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: '/dashboard',
-      })
-    } catch (e) {
-      console.error('Failed to start Google sign-in:', e)
-      router.push('/sign-up')
-    }
+  const handleContinueWithGoogle = () => {
+    onClose()
+    // Redirect to sign-up page which has Google OAuth option
+    router.push('/sign-up')
   }
 
   const handleContinueWithEmail = () => {
