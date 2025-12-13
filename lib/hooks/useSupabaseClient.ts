@@ -16,7 +16,8 @@ export function useSupabaseClient() {
   const { session } = useSession();
 
   const supabase = useMemo(() => {
-    return createClientSupabaseClient(session);
+    // Convert undefined to null for type compatibility
+    return createClientSupabaseClient(session ?? null);
   }, [session]);
 
   return supabase;
