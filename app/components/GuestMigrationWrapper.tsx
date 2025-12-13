@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from '@clerk/nextjs'
+import { useSession, useUser } from '@clerk/nextjs'
+import { useQueryClient } from '@tanstack/react-query'
 import { migrateGuestData, hasGuestData, clearGuestData } from '@/lib/services/guestMigrationService'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 
@@ -11,6 +12,8 @@ interface GuestMigrationWrapperProps {
 
 export default function GuestMigrationWrapper({ children }: GuestMigrationWrapperProps) {
   const { session, isLoaded } = useSession()
+  const { user } = useUser()
+  const queryClient = useQueryClient()
   const [isMigrating, setIsMigrating] = useState(false)
   const [migrationComplete, setMigrationComplete] = useState(false)
 
@@ -72,6 +75,16 @@ export default function GuestMigrationWrapper({ children }: GuestMigrationWrappe
         // Clear guest data
         clearGuestData()
         
+        // Invalidate React Query cache to refresh the dashboard with migrated data
+        if (user?.id) {
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['invoices', user.id] }),
+            queryClient.invalidateQueries({ queryKey: ['contacts', user.id] }),
+            queryClient.invalidateQueries({ queryKey: ['bankAccounts', user.id] }),
+          ])
+          console.log('[Migration] React Query cache invalidated, dashboard will refresh')
+        }
+        
       } catch (error) {
         console.error('[Migration] Error migrating guest data:', error)
         // Don't block the user on migration failure
@@ -82,7 +95,7 @@ export default function GuestMigrationWrapper({ children }: GuestMigrationWrappe
     }
 
     handleMigration()
-  }, [isLoaded, session])
+  }, [isLoaded, session, user, queryClient])
 
   // Show loading state during migration
   if (isMigrating) {
