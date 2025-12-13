@@ -1,10 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { GuestInvoice } from '@/lib/types/invoice'
-import { formatSwissCurrency } from '@/lib/utils/formatters'
-import { formatDate } from '@/lib/utils/dateUtils'
-import { calculateItemTotal, calculateItemVAT, calculateItemTotalWithVAT } from '@/lib/utils/invoiceCalculations'
+import { calculateItemTotal } from '@/lib/utils/invoiceCalculations'
+import { format, parseISO } from 'date-fns'
 
 interface InvoicePreviewProps {
   invoice: GuestInvoice
@@ -13,168 +12,250 @@ interface InvoicePreviewProps {
   isLoadingQR?: boolean
 }
 
+// Format date to Figma style: "15 Aug, 2023"
+function formatDateFigma(date: string | Date | null | undefined): string {
+  if (!date) return ''
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date
+    return format(dateObj, 'd MMM, yyyy')
+  } catch {
+    return ''
+  }
+}
+
+// Format currency with proper symbol
+function formatCurrencyDisplay(value: number | string | undefined | null, currency: string = 'USD'): string {
+  if (value === undefined || value === null || value === '') return '$0.00'
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  if (isNaN(num)) return '$0.00'
+  
+  const formatted = num.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+  
+  if (currency === 'USD' || currency === 'US$') {
+    return `$${formatted}`
+  } else if (currency === 'CHF') {
+    return `CHF ${formatted}`
+  } else if (currency === 'EUR') {
+    return `€${formatted}`
+  }
+  return `${currency} ${formatted}`
+}
+
 export default function InvoicePreview({ 
   invoice, 
   qrCodeDataUrl, 
   qrCodeType = 'none',
   isLoadingQR = false 
 }: InvoicePreviewProps) {
+  const [qrError, setQrError] = useState(false)
+  
+  // Calculate tax rate from first item or use default
+  const taxRate = invoice.items.length > 0 
+    ? (parseFloat(String(invoice.items[0].vat)) || 10) 
+    : 10
+
   return (
-    <div className="bg-white dark:bg-[#252525] p-8 w-full">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-8 pb-6 border-b border-[#e0e0e0] dark:border-[#333]">
-        <div>
-          <h1 className="text-[24px] font-semibold text-[#141414] dark:text-white mb-2">INVOICE</h1>
-          <p className="text-[14px] text-[#666666] dark:text-[#999]">#{invoice.invoice_number}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-[14px] text-[#141414] dark:text-white mb-1">
-            Date: {formatDate(invoice.issued_on)}
-          </p>
-          <p className="text-[14px] text-[#141414] dark:text-white">
-            Due: {formatDate(invoice.due_date)}
-          </p>
-        </div>
-      </div>
-
-      {/* From / To */}
+    <div className="bg-white w-full max-w-[656px] mx-auto p-8 font-['Inter',sans-serif] text-[#1a1c21]">
+      {/* Billed from / Billed to - Two columns */}
       <div className="grid grid-cols-2 gap-8 mb-8">
-        <div>
-          <h3 className="text-[13px] font-medium text-[#474743] dark:text-[#999] mb-3">From</h3>
-          <div className="text-[14px] text-[#141414] dark:text-white space-y-1">
-            <p>{invoice.from_info.name}</p>
-            <p>{invoice.from_info.street}</p>
-            <p>{invoice.from_info.zip}</p>
-            {invoice.from_info.iban && (
-              <p className="mt-2">IBAN: {invoice.from_info.iban}</p>
-            )}
+        {/* Billed from */}
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Billed from</p>
+          <div className="flex flex-col gap-0.5 text-[10px] leading-[14px]">
+            <p className="font-semibold text-[#1a1c21]">{invoice.from_info.name || 'Company Name'}</p>
+            <p className="font-normal text-[#5e6470]">{invoice.from_info.street || 'Address'}</p>
+            <p className="font-normal text-[#5e6470]">{invoice.from_info.zip || 'Zip/City'}</p>
+            <p className="font-normal text-[#5e6470]">Telephone</p>
+            <p className="font-normal text-[#5e6470]">Email</p>
           </div>
         </div>
-        <div>
-          <h3 className="text-[13px] font-medium text-[#474743] dark:text-[#999] mb-3">To</h3>
-          <div className="text-[14px] text-[#141414] dark:text-white space-y-1">
-            {invoice.to_info.uid && <p>UID: {invoice.to_info.uid}</p>}
-            <p>{invoice.to_info.name}</p>
-            <p>{invoice.to_info.address}</p>
-            <p>{invoice.to_info.zip}</p>
+        
+        {/* Billed to */}
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Billed to</p>
+          <div className="flex flex-col gap-0.5 text-[10px] leading-[14px]">
+            <p className="font-semibold text-[#1a1c21]">{invoice.to_info.name || 'Company Name'}</p>
+            <p className="font-normal text-[#5e6470]">{invoice.to_info.address || 'Address'}</p>
+            <p className="font-normal text-[#5e6470]">{invoice.to_info.zip || 'Zip/City'}</p>
+            <p className="font-normal text-[#5e6470]">Telephone</p>
+            <p className="font-normal text-[#5e6470]">Email</p>
           </div>
         </div>
       </div>
 
-      {/* Description */}
-      {invoice.description && (
-        <div className="mb-8">
-          <p className="text-[14px] text-[#141414] dark:text-white whitespace-pre-wrap">
-            {invoice.description}
-          </p>
+      {/* Date info row */}
+      <div className="flex mb-6">
+        {/* Beige box with Due date and Issued */}
+        <div className="bg-[#f7f5f3] rounded-l-xl px-5 py-3 flex-1 max-w-[300px]">
+          <div className="flex justify-between">
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Due date</p>
+              <p className="text-[10px] font-semibold text-[#1a1c21] leading-[14px]">
+                {formatDateFigma(invoice.due_date) || '15 Aug, 2023'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1 items-end">
+              <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Issued</p>
+              <p className="text-[10px] font-semibold text-[#1a1c21] leading-[14px]">
+                {formatDateFigma(invoice.issued_on) || '1 Aug, 2023'}
+              </p>
+            </div>
+          </div>
         </div>
-      )}
+        
+        {/* Invoice number */}
+        <div className="px-5 py-3">
+          <div className="flex flex-col gap-1">
+            <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Invoice number</p>
+            <p className="text-[10px] font-semibold text-[#1a1c21] leading-[14px]">
+              #{invoice.invoice_number || 'AB2324-01'}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Items Table */}
-      <div className="mb-8">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[#e0e0e0] dark:border-[#333]">
-              <th className="text-left py-3 px-4 text-[13px] font-medium text-[#474743] dark:text-[#999]">Description</th>
-              <th className="text-right py-3 px-4 text-[13px] font-medium text-[#474743] dark:text-[#999]">Qty</th>
-              <th className="text-right py-3 px-4 text-[13px] font-medium text-[#474743] dark:text-[#999]">Price</th>
-              <th className="text-right py-3 px-4 text-[13px] font-medium text-[#474743] dark:text-[#999]">VAT</th>
-              <th className="text-right py-3 px-4 text-[13px] font-medium text-[#474743] dark:text-[#999]">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoice.items.map((item) => {
-              const total = calculateItemTotalWithVAT(item)
-              return (
-                <tr key={item.id} className="border-b border-[#f0f0f0] dark:border-[#333]">
-                  <td className="py-3 px-4 text-[14px] text-[#141414] dark:text-white">{item.description}</td>
-                  <td className="py-3 px-4 text-[14px] text-[#141414] dark:text-white text-right">
-                    {item.quantity} × {item.um}
-                  </td>
-                  <td className="py-3 px-4 text-[14px] text-[#141414] dark:text-white text-right">
-                    {formatSwissCurrency(item.pricePerUm, invoice.currency)}
-                  </td>
-                  <td className="py-3 px-4 text-[14px] text-[#141414] dark:text-white text-right">
-                    {item.vat}%
-                  </td>
-                  <td className="py-3 px-4 text-[14px] font-medium text-[#141414] dark:text-white text-right">
-                    {formatSwissCurrency(total, invoice.currency)}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Totals */}
-      <div className="flex justify-end">
-        <div className="w-[300px] space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-[13px] text-[#474743] dark:text-[#999]">Subtotal</span>
-            <span className="text-[14px] text-[#141414] dark:text-white">
-              {formatSwissCurrency(invoice.subtotal, invoice.currency)}
-            </span>
+      <div className="mb-6">
+        {/* Header */}
+        <div className="flex border-b border-[#e0e0e0] py-3">
+          <div className="flex-1 text-[10px] font-medium text-[#5e6470] leading-[14px]">
+            Item description
           </div>
-          {invoice.discount && parseFloat(String(invoice.discount)) > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-[13px] text-[#474743] dark:text-[#999]">
-                Discount ({invoice.discount}%)
-              </span>
-              <span className="text-[14px] text-[#141414] dark:text-white">
-                - {formatSwissCurrency(
-                  invoice.subtotal * (parseFloat(String(invoice.discount)) / 100),
-                  invoice.currency
-                )}
+          <div className="w-[60px] text-[10px] font-medium text-[#5e6470] leading-[14px] bg-[#f7f5f3] px-2">
+            Qty
+          </div>
+          <div className="w-[100px] text-right text-[10px] font-medium text-[#5e6470] leading-[14px] bg-[#f7f5f3] px-2">
+            Rate
+          </div>
+          <div className="w-[100px] text-right text-[10px] font-medium text-[#5e6470] leading-[14px] bg-[#f7f5f3] px-2">
+            Amount
+          </div>
+        </div>
+
+        {/* Item rows */}
+        {invoice.items.length > 0 ? (
+          invoice.items.map((item, index) => {
+            const itemTotal = calculateItemTotal(item)
+            const rate = parseFloat(String(item.pricePerUm)) || 0
+            const qty = parseFloat(String(item.quantity)) || 0
+            
+            return (
+              <div key={item.id || index} className="flex border-b border-[#e0e0e0] py-3">
+                <div className="flex-1 text-[10px] font-medium text-[#1a1c21] leading-[14px]">
+                  {item.description || 'Item Name'}
+                </div>
+                <div className="w-[60px] text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">
+                  {qty}
+                </div>
+                <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">
+                  {formatCurrencyDisplay(rate, invoice.currency)}
+                </div>
+                <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">
+                  {formatCurrencyDisplay(itemTotal, invoice.currency)}
+                </div>
+              </div>
+            )
+          })
+        ) : (
+          <>
+            <div className="flex border-b border-[#e0e0e0] py-3">
+              <div className="flex-1 text-[10px] font-medium text-[#1a1c21] leading-[14px]">Item Name</div>
+              <div className="w-[60px] text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">1</div>
+              <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">$3,000.00</div>
+              <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">$3,000.00</div>
+            </div>
+            <div className="flex border-b border-[#e0e0e0] py-3">
+              <div className="flex-1 text-[10px] font-medium text-[#1a1c21] leading-[14px]">Item Name</div>
+              <div className="w-[60px] text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">1</div>
+              <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">$1,500.00</div>
+              <div className="w-[100px] text-right text-[10px] font-medium text-[#1a1c21] leading-[14px] bg-[#f7f5f3] px-2">$1,500.00</div>
+            </div>
+          </>
+        )}
+
+        {/* Totals section - in beige area */}
+        <div className="flex">
+          <div className="flex-1" />
+          <div className="w-[260px] bg-[#f7f5f3]">
+            {/* Subtotal */}
+            <div className="flex justify-between py-2 px-2">
+              <span className="text-[10px] font-medium text-[#1a1c21] leading-[14px]">Subtotal</span>
+              <span className="text-[10px] font-medium text-[#1a1c21] leading-[14px]">
+                {formatCurrencyDisplay(invoice.subtotal, invoice.currency)}
               </span>
             </div>
-          )}
-          <div className="flex justify-between items-center">
-            <span className="text-[13px] text-[#474743] dark:text-[#999]">VAT</span>
-            <span className="text-[14px] text-[#141414] dark:text-white">
-              {formatSwissCurrency(invoice.vat_amount, invoice.currency)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center pt-2 border-t border-[#e0e0e0] dark:border-[#333]">
-            <span className="text-[14px] font-medium text-[#141414] dark:text-white">Total (incl. VAT)</span>
-            <span className="text-[20px] font-semibold text-[#141414] dark:text-white">
-              {formatSwissCurrency(invoice.total, invoice.currency)}
-            </span>
+            
+            {/* Tax */}
+            <div className="flex justify-between py-2 px-2">
+              <span className="text-[10px] font-medium text-[#1a1c21] leading-[14px]">Tax ({taxRate}%)</span>
+              <span className="text-[10px] font-medium text-[#1a1c21] leading-[14px]">
+                {formatCurrencyDisplay(invoice.vat_amount, invoice.currency)}
+              </span>
+            </div>
+            
+            {/* Divider */}
+            <div className="mx-2 h-[1px] bg-[#e0e0e0]" />
+            
+            {/* Total */}
+            <div className="flex justify-between py-2 px-2">
+              <span className="text-[10px] font-medium text-[#1a1c21] leading-[14px]">Total</span>
+              <span className="text-[10px] font-medium text-[#1a1c21] leading-[14px]">
+                {formatCurrencyDisplay(invoice.total, invoice.currency)}
+              </span>
+            </div>
+            
+            {/* Total Due bar */}
+            <div className="bg-[#151514] rounded-b-xl px-4 py-2.5 flex justify-between items-center">
+              <span className="text-[10px] font-medium text-white leading-[14px]">Total Due</span>
+              <span className="text-[12px] font-extrabold text-white leading-[20px] tracking-[0.24px]">
+                {invoice.currency === 'USD' || invoice.currency === 'US$' ? 'US$' : invoice.currency}{' '}
+                {invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Payment Info */}
-      <div className="mt-8 pt-6 border-t border-[#e0e0e0] dark:border-[#333]">
-        <div className="flex justify-between items-start gap-8">
-          <div className="flex-1">
-            <p className="text-[13px] font-medium text-[#474743] dark:text-[#999] mb-2">Payment Information</p>
-            <p className="text-[14px] text-[#141414] dark:text-white">Payment Method: {invoice.payment_method}</p>
-            {invoice.from_info.iban && (
-              <p className="text-[14px] text-[#141414] dark:text-white">IBAN: {invoice.from_info.iban}</p>
-            )}
-            <p className="text-[14px] text-[#141414] dark:text-white">Reference: {invoice.invoice_number}</p>
+      {/* Footer */}
+      <p className="text-[10px] font-normal text-[#5e6470] leading-[14px] mb-8">
+        Created with Fakturio.ch
+      </p>
+
+      {/* Bottom section: Payment info + QR Code */}
+      <div className="flex justify-between items-start">
+        {/* Payment information */}
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-medium text-[#5e6470] leading-[14px]">Payment information</p>
+          <div className="flex flex-col gap-0.5 text-[10px] leading-[14px]">
+            <p className="font-semibold text-[#1a1c21]">{invoice.from_info.iban || 'IBAN'}</p>
+            <p className="font-normal text-[#5e6470]">Payment method: {invoice.payment_method}</p>
           </div>
-          
-          {/* QR Code Section */}
-          {(isLoadingQR || qrCodeDataUrl) && (
-            <div className="flex flex-col items-center">
-              {isLoadingQR ? (
-                <div className="w-[120px] h-[120px] bg-[#f0f0f0] dark:bg-[#333] rounded-lg animate-pulse flex items-center justify-center">
-                  <span className="text-[12px] text-[#999]">Loading...</span>
-                </div>
-              ) : qrCodeDataUrl ? (
-                <>
-                  <img 
-                    src={qrCodeDataUrl} 
-                    alt="Payment QR Code" 
-                    className="w-[120px] h-[120px] rounded-lg"
-                  />
-                  <p className="text-[10px] text-[#999] mt-2 text-center">
-                    {qrCodeType === 'swiss' ? 'Swiss QR Payment' : 'Scan to pay'}
-                  </p>
-                </>
-              ) : null}
+        </div>
+
+        {/* QR Code */}
+        <div className="flex flex-col items-center">
+          {isLoadingQR ? (
+            <div className="w-[100px] h-[100px] bg-[#f0f0f0] rounded-lg animate-pulse flex items-center justify-center">
+              <span className="text-[10px] text-[#999]">Loading QR...</span>
+            </div>
+          ) : qrCodeDataUrl && !qrError ? (
+            <>
+              <img 
+                src={qrCodeDataUrl} 
+                alt="Payment QR Code" 
+                className="w-[100px] h-[100px]"
+                onError={() => setQrError(true)}
+              />
+              <p className="text-[8px] text-[#5e6470] mt-1 text-center">
+                {qrCodeType === 'swiss' ? 'Swiss QR Payment' : 'Scan to pay'}
+              </p>
+            </>
+          ) : (
+            <div className="w-[100px] h-[100px] bg-[#f0f0f0] rounded-lg flex items-center justify-center border border-dashed border-[#ccc]">
+              <span className="text-[10px] text-[#999] text-center px-2">QR Code</span>
             </div>
           )}
         </div>
@@ -182,4 +263,3 @@ export default function InvoicePreview({
     </div>
   )
 }
-

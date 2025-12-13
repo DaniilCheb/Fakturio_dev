@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { GuestInvoice, FromInfo, ToInfo, InvoiceItem } from '@/lib/types/invoice'
 import { getNextInvoiceNumber, generateInvoiceId } from '@/lib/utils/invoiceNumber'
 import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
@@ -138,12 +138,58 @@ export default function Home() {
     }
   }
 
+  // Priority order for error fields (top to bottom in form)
+  const ERROR_FIELD_PRIORITY = [
+    'invoice_number',
+    'issued_on', 
+    'due_date',
+    'fromName',
+    'fromStreet',
+    'fromZip',
+    'toName',
+    'toAddress',
+    'toZip',
+    'currency',
+    'payment_method',
+    'fromIban',
+    'items'
+  ]
+
+  // Scroll to first error field when validation fails
+  const scrollToFirstError = useCallback((errors: ValidationErrors) => {
+    // Find first error field in priority order
+    const firstErrorField = ERROR_FIELD_PRIORITY.find(field => errors[field])
+    
+    if (firstErrorField) {
+      // Find element with data-field attribute
+      const element = document.querySelector(`[data-field="${firstErrorField}"]`)
+      if (element) {
+        // Scroll to element with offset for header
+        const offset = 100
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY
+        window.scrollTo({
+          top: elementPosition - offset,
+          behavior: 'smooth'
+        })
+        
+        // Focus the input within the element after scroll
+        setTimeout(() => {
+          const input = element.querySelector('input, button, select')
+          if (input && 'focus' in input) {
+            (input as HTMLElement).focus()
+          }
+        }, 500)
+      }
+    }
+  }, [])
+
   const handlePreview = () => {
     const invoice = buildInvoice()
     const validation = validateInvoice(invoice)
     
     if (!validation.isValid) {
       setValidationErrors(validation.errors)
+      scrollToFirstError(validation.errors)
       return
     }
     
@@ -165,6 +211,7 @@ export default function Home() {
     
     if (!validation.isValid) {
       setValidationErrors(validation.errors)
+      scrollToFirstError(validation.errors)
       return
     }
     
@@ -188,6 +235,7 @@ export default function Home() {
     if (!validation.isValid) {
       setValidationErrors(validation.errors)
       setShowSaveModal(false)
+      scrollToFirstError(validation.errors)
       return
     }
     

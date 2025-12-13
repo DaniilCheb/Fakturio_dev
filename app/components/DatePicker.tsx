@@ -20,6 +20,7 @@ interface DatePickerProps {
   noLabel?: boolean
   disabled?: boolean
   onErrorClear?: () => void // Callback to clear error when user selects a date
+  fieldName?: string // Used for scroll-to-error functionality
 }
 
 export default function DatePicker({
@@ -32,9 +33,11 @@ export default function DatePicker({
   required,
   noLabel = false,
   disabled = false,
-  onErrorClear
+  onErrorClear,
+  fieldName
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
+  const dataFieldAttr = fieldName ? { 'data-field': fieldName } : {}
   
   // Parse the ISO date string to a Date object
   const date = React.useMemo(() => {
@@ -101,14 +104,14 @@ export default function DatePicker({
   // If noLabel is true, return date picker with optional error message below
   if (noLabel) {
     return (
-      <div className="flex flex-col gap-1 w-full">
+      <div className="flex flex-col gap-1 w-full" {...dataFieldAttr}>
         {datePickerElement}
       </div>
     )
   }
 
   return (
-    <div className={cn("flex flex-col gap-1 w-full", className)}>
+    <div className={cn("flex flex-col gap-1 w-full", className)} {...dataFieldAttr}>
       {label && (
         <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
           {label}

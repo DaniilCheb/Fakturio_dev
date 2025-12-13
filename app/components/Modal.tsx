@@ -47,7 +47,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
       : { maxWidth: `${maxWidth}px` }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -55,7 +55,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
       />
       
       <div 
-        className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClass || ''} mx-0 sm:mx-4 overflow-hidden`}
+        className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClass || ''} overflow-hidden`}
         style={customMaxWidth}
       >
         {/* Header */}

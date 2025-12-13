@@ -47,6 +47,13 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
   const [showFields, setShowFields] = useState(false)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Show fields automatically when there are validation errors
+  useEffect(() => {
+    if (errors.toName || errors.toAddress || errors.toZip) {
+      setShowFields(true)
+    }
+  }, [errors.toName, errors.toAddress, errors.toZip])
+
   const handleChange = (field: keyof ToInfo) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({
       ...toInfo,
@@ -163,6 +170,14 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
     setShowResults(false)
     setSearchResults([])
     setIsCompanySelected(false)
+    // Clear the form fields but keep them visible
+    onChange({
+      ...toInfo,
+      uid: '',
+      name: '',
+      address: '',
+      zip: '',
+    })
   }
 
   const fillFormWithCompany = (company: CompanyInfo) => {
@@ -173,6 +188,10 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
       address: company.address,
       zip: `${company.zip} ${company.city}`.trim(),
     })
+    // Clear validation errors for pre-filled fields
+    onClearError?.('toName')
+    onClearError?.('toAddress')
+    onClearError?.('toZip')
   }
 
   return (
@@ -185,7 +204,7 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
           {/* Company search */}
           <div className="flex flex-col gap-1">
             <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
-              Company name (optional)
+              Company name
             </label>
             <div className="relative">
               <Input
@@ -282,6 +301,7 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
                 error={errors.toName}
                 required
                 onErrorClear={() => onClearError?.('toName')}
+                fieldName="toName"
               />
               <Input
                 label="Address"
@@ -291,6 +311,7 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
                 error={errors.toAddress}
                 required
                 onErrorClear={() => onClearError?.('toAddress')}
+                fieldName="toAddress"
               />
               <Input
                 label="ZIP / City"
@@ -300,6 +321,7 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
                 error={errors.toZip}
                 required
                 onErrorClear={() => onClearError?.('toZip')}
+                fieldName="toZip"
               />
             </>
           )}

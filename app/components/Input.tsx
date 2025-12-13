@@ -16,6 +16,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   required?: boolean
   noLabel?: boolean // When true, renders just the input without label wrapper
   onErrorClear?: () => void // Callback to clear error when user types
+  fieldName?: string // Used for scroll-to-error functionality
 }
 
 export default function Input({ 
@@ -29,9 +30,11 @@ export default function Input({
   required,
   noLabel = false,
   onErrorClear,
+  fieldName,
   ...props 
 }: InputProps) {
   const hasError = !!error
+  const dataFieldAttr = fieldName ? { 'data-field': fieldName } : {}
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Clear error when user starts typing
@@ -59,7 +62,7 @@ export default function Input({
   // If noLabel is true, return input with optional error message below
   if (noLabel) {
     return (
-      <div className="flex flex-col gap-1 w-full">
+      <div className="flex flex-col gap-1 w-full" {...dataFieldAttr}>
         {inputElement}
         {hasError && (
           <span className="text-destructive text-[12px] mt-[1px] m-0 block">
@@ -71,7 +74,7 @@ export default function Input({
   }
 
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className="flex flex-col gap-1 w-full" {...dataFieldAttr}>
       {label && (
         <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
           {label}

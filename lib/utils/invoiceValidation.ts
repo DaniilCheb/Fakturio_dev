@@ -18,6 +18,53 @@ export interface ValidationErrors {
 }
 
 /**
+ * Validate IBAN format
+ * Supports international IBANs with mod-97 checksum validation
+ * Format: 2 letter country code + 2 check digits + bank account number (up to 30 chars)
+ */
+export function validateIBAN(iban: string): { valid: boolean; error?: string } {
+  if (!iban) return { valid: false, error: 'IBAN is required' }
+  
+  // Remove spaces and convert to uppercase
+  const cleanIBAN = iban.replace(/\s/g, '').toUpperCase()
+  
+  // Check minimum length (smallest IBANs are 15 chars, e.g. Norway)
+  if (cleanIBAN.length < 15) {
+    return { valid: false, error: 'IBAN is too short' }
+  }
+  
+  // Check maximum length (34 characters max)
+  if (cleanIBAN.length > 34) {
+    return { valid: false, error: 'IBAN is too long' }
+  }
+  
+  // Check format: 2 letters + 2 digits + alphanumeric
+  const formatRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/
+  if (!formatRegex.test(cleanIBAN)) {
+    return { valid: false, error: 'Invalid IBAN format. Must start with country code (e.g., CH, DE) followed by digits' }
+  }
+  
+  // IBAN checksum validation (mod 97)
+  // Move first 4 chars to end and convert letters to numbers (A=10, B=11, etc.)
+  const rearranged = cleanIBAN.slice(4) + cleanIBAN.slice(0, 4)
+  const numericIBAN = rearranged.replace(/[A-Z]/g, (char) => 
+    (char.charCodeAt(0) - 55).toString()
+  )
+  
+  // Calculate mod 97 for large number (handle as string to avoid integer overflow)
+  let remainder = 0
+  for (let i = 0; i < numericIBAN.length; i++) {
+    remainder = (remainder * 10 + parseInt(numericIBAN[i], 10)) % 97
+  }
+  
+  if (remainder !== 1) {
+    return { valid: false, error: 'Invalid IBAN checksum. Please verify your IBAN number' }
+  }
+  
+  return { valid: true }
+}
+
+/**
  * Validate a single invoice item
  * Note: um (unit of measure) is now optional - it's a label, not a multiplier
  */
@@ -75,8 +122,10 @@ export function validateInvoice(invoice: Partial<GuestInvoice>): {
     errors.fromZip = 'ZIP / City is required'
   }
 
-  if (!invoice.from_info?.iban || !invoice.from_info.iban.trim()) {
-    errors.fromIban = 'IBAN is required'
+  // IBAN validation with format checking
+  const ibanValidation = validateIBAN(invoice.from_info?.iban || '')
+  if (!ibanValidation.valid) {
+    errors.fromIban = ibanValidation.error
   }
 
   // To section (UID is optional, others required)

@@ -87,6 +87,7 @@ export default function InvoiceHeader({
             error={errors.invoice_number}
             required
             onErrorClear={() => onClearError?.('invoice_number')}
+            fieldName="invoice_number"
           />
         </div>
         <div className="flex-1">
@@ -96,6 +97,7 @@ export default function InvoiceHeader({
             onChange={handleIssuedDateChange}
             error={errors.issued_on}
             onErrorClear={() => onClearError?.('issued_on')}
+            fieldName="issued_on"
           />
         </div>
       </div>
@@ -103,7 +105,7 @@ export default function InvoiceHeader({
       {/* Second Row: Due */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1" data-field="due_date">
             <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
               Due
             </Label>

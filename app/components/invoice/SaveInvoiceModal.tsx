@@ -8,9 +8,7 @@ interface SaveInvoiceModalProps {
   isOpen: boolean
   onClose: () => void
   onDownload: () => void
-  onSaveOnly?: () => void
   isLoading?: boolean
-  isSaving?: boolean
 }
 
 const CheckIcon = () => (
@@ -31,19 +29,17 @@ export default function SaveInvoiceModal({
   isOpen, 
   onClose, 
   onDownload,
-  onSaveOnly,
-  isLoading = false,
-  isSaving = false
+  isLoading = false
 }: SaveInvoiceModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Save your invoice" maxWidth="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Keep your invoices in one place" maxWidth="md">
       <ModalBody>
-        <p className="text-[14px] text-[#141414] dark:text-white mb-6">
-          Create a free account to access your invoices anytime
+        <p className="text-[14px] text-[#141414] dark:text-white mb-3">
+          Create a free account to access your invoices anytime.
         </p>
         
-        <div className="flex flex-col gap-4">
-          <div className="flex items-start gap-3">
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-start gap-2">
             <div className="mt-0.5">
               <CheckIcon />
             </div>
@@ -52,7 +48,7 @@ export default function SaveInvoiceModal({
             </p>
           </div>
           
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2">
             <div className="mt-0.5">
               <CheckIcon />
             </div>
@@ -61,7 +57,7 @@ export default function SaveInvoiceModal({
             </p>
           </div>
           
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-2">
             <div className="mt-0.5">
               <CheckIcon />
             </div>
@@ -81,7 +77,7 @@ export default function SaveInvoiceModal({
           variant="secondary" 
           onClick={onDownload} 
           className="w-full"
-          disabled={isLoading || isSaving}
+          disabled={isLoading}
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
@@ -92,24 +88,6 @@ export default function SaveInvoiceModal({
             'Save & Download PDF'
           )}
         </Button>
-        
-        {onSaveOnly && (
-          <Button 
-            variant="secondary" 
-            onClick={onSaveOnly} 
-            className="w-full"
-            disabled={isLoading || isSaving}
-          >
-            {isSaving ? (
-              <span className="flex items-center justify-center gap-2">
-                <LoadingSpinner />
-                Saving...
-              </span>
-            ) : (
-              'Save to browser only'
-            )}
-          </Button>
-        )}
         
         <div className="text-center mt-2">
           <p className="text-[13px] text-[#666666] dark:text-[#999]">

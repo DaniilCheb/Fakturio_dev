@@ -107,18 +107,18 @@ function parseZipCity(combined: string): { zip: string; city: string } {
 export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
   // Validate required fields
   if (!invoice.from_info.iban) {
-    console.warn('Cannot generate QR code: IBAN is required')
+    console.warn('Cannot generate Swiss QR code: IBAN is required')
     return null
   }
   
   if (!validateSwissIBAN(invoice.from_info.iban)) {
-    console.warn('Cannot generate QR code: Invalid Swiss IBAN')
+    console.warn('Cannot generate Swiss QR code: Invalid Swiss IBAN')
     return null
   }
   
   const currency = invoice.currency as 'CHF' | 'EUR'
   if (currency !== 'CHF' && currency !== 'EUR') {
-    console.warn('Cannot generate QR code: Currency must be CHF or EUR')
+    console.warn('Cannot generate Swiss QR code: Currency must be CHF or EUR')
     return null
   }
   
@@ -130,10 +130,10 @@ export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
   
   const data: SwissQRData = {
     creditor: {
-      name: invoice.from_info.name || '',
+      name: invoice.from_info.name || 'Unknown',
       address: invoice.from_info.street || '',
-      zip: fromZipCity.zip,
-      city: fromZipCity.city,
+      zip: fromZipCity.zip || '0000',
+      city: fromZipCity.city || 'Unknown',
       country: 'CH', // Default to Switzerland
       account: invoice.from_info.iban.replace(/\s/g, '').toUpperCase()
     },
@@ -147,8 +147,8 @@ export function buildSwissQRData(invoice: GuestInvoice): SwissQRData | null {
     data.debtor = {
       name: invoice.to_info.name,
       address: invoice.to_info.address || '',
-      zip: toZipCity.zip,
-      city: toZipCity.city,
+      zip: toZipCity.zip || '0000',
+      city: toZipCity.city || 'Unknown',
       country: 'CH'
     }
   }
@@ -191,7 +191,10 @@ export async function generateSwissQRCode(invoice: GuestInvoice): Promise<string
  */
 export async function generateSimpleQRCode(text: string): Promise<string | null> {
   try {
-    const QRCode = await import('qrcode')
+    // Dynamic import
+    const QRCodeModule = await import('qrcode')
+    const QRCode = QRCodeModule.default || QRCodeModule
+    
     const dataUrl = await QRCode.toDataURL(text, {
       width: 200,
       margin: 2,
@@ -202,7 +205,7 @@ export async function generateSimpleQRCode(text: string): Promise<string | null>
     })
     return dataUrl
   } catch (error) {
-    console.error('Error generating QR code:', error)
+    console.error('Error generating simple QR code:', error)
     return null
   }
 }
@@ -216,29 +219,36 @@ export async function generateInvoiceQRCode(invoice: GuestInvoice): Promise<{
   type: 'swiss' | 'simple' | 'none'
   error?: string
 }> {
-  // Check if Swiss QR is possible
+  // Try Swiss QR first if conditions are met
   if (invoice.from_info.iban && validateSwissIBAN(invoice.from_info.iban)) {
     if (invoice.currency === 'CHF' || invoice.currency === 'EUR') {
-      const dataUrl = await generateSwissQRCode(invoice)
-      if (dataUrl) {
-        return { dataUrl, type: 'swiss' }
+      try {
+        const dataUrl = await generateSwissQRCode(invoice)
+        if (dataUrl) {
+          return { dataUrl, type: 'swiss' }
+        }
+      } catch (error) {
+        console.error('Swiss QR generation failed, falling back to simple:', error)
       }
     }
   }
   
-  // Fallback to simple QR with payment info
-  const paymentInfo = [
-    `Invoice: ${invoice.invoice_number}`,
-    `Amount: ${invoice.currency} ${invoice.total.toFixed(2)}`,
-    invoice.from_info.iban ? `IBAN: ${invoice.from_info.iban}` : '',
-    `Due: ${invoice.due_date}`
-  ].filter(Boolean).join('\n')
-  
-  const dataUrl = await generateSimpleQRCode(paymentInfo)
-  if (dataUrl) {
-    return { dataUrl, type: 'simple' }
+  // Always try simple QR as fallback
+  try {
+    const paymentInfo = [
+      `Invoice: ${invoice.invoice_number || 'N/A'}`,
+      `Amount: ${invoice.currency || 'CHF'} ${(invoice.total || 0).toFixed(2)}`,
+      invoice.from_info.iban ? `IBAN: ${invoice.from_info.iban}` : '',
+      invoice.due_date ? `Due: ${invoice.due_date}` : ''
+    ].filter(Boolean).join('\n')
+    
+    const dataUrl = await generateSimpleQRCode(paymentInfo)
+    if (dataUrl) {
+      return { dataUrl, type: 'simple' }
+    }
+  } catch (error) {
+    console.error('Simple QR generation failed:', error)
   }
   
   return { dataUrl: null, type: 'none', error: 'Failed to generate QR code' }
 }
-

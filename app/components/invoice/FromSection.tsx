@@ -170,6 +170,9 @@ export default function FromSection({ fromInfo, onChange, errors = {}, onClearEr
       street: company.address,
       zip: `${company.zip} ${company.city}`.trim(),
     })
+    // Clear validation errors for pre-filled fields
+    onClearError?.('fromStreet')
+    onClearError?.('fromZip')
   }
 
   return (
@@ -257,6 +260,7 @@ export default function FromSection({ fromInfo, onChange, errors = {}, onClearEr
             error={errors.fromName}
             required
             onErrorClear={() => onClearError?.('fromName')}
+            fieldName="fromName"
           />
           <Input
             label="Street"
@@ -266,6 +270,7 @@ export default function FromSection({ fromInfo, onChange, errors = {}, onClearEr
             error={errors.fromStreet}
             required
             onErrorClear={() => onClearError?.('fromStreet')}
+            fieldName="fromStreet"
           />
           <Input
             label="ZIP / City"
@@ -275,6 +280,7 @@ export default function FromSection({ fromInfo, onChange, errors = {}, onClearEr
             error={errors.fromZip}
             required
             onErrorClear={() => onClearError?.('fromZip')}
+            fieldName="fromZip"
           />
         </div>
       </div>

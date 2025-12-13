@@ -87,6 +87,22 @@ export default function ProductsSection({
     return qty > 0 && price > 0 && description.length > 0
   }
 
+  // Field-specific validation for showing errors on the correct fields
+  const isQtyValid = (item: InvoiceItem): boolean => {
+    const qty = parseFloat(String(item.quantity)) || 0
+    return qty > 0
+  }
+
+  const isPriceValid = (item: InvoiceItem): boolean => {
+    const price = parseFloat(String(item.pricePerUm)) || 0
+    return price > 0
+  }
+
+  const isDescriptionValid = (item: InvoiceItem): boolean => {
+    const description = String(item.description || '').trim()
+    return description.length > 0
+  }
+
   // Clear error when at least one item becomes valid
   React.useEffect(() => {
     if (errors.items && items.some(item => isItemValid(item)) && onClearError) {
@@ -108,8 +124,7 @@ export default function ProductsSection({
           <div className="flex flex-col gap-5">
             {/* Product Items */}
             <div className="flex flex-col gap-[26px]">
-              {items.map((item, index) => {
-                const isFirstInvalidItem = hasInvalidItems && !isItemValid(item) && index === items.findIndex(i => !isItemValid(i))
+              {items.map((item) => {
                 const lineTotal = calculateItemTotal(item)
                 
                 return (
@@ -126,7 +141,7 @@ export default function ProductsSection({
                           value={String(item.quantity)}
                           onChange={(e) => updateItem(item.id, 'quantity', e.target.value)}
                           placeholder="0"
-                          error={isFirstInvalidItem ? 'Required' : undefined}
+                          error={hasInvalidItems && !isItemValid(item) && !isQtyValid(item) ? 'Required' : undefined}
                           className="h-[40px] text-left"
                         />
                       </div>
@@ -141,7 +156,7 @@ export default function ProductsSection({
                           value={String(item.pricePerUm)}
                           onChange={(e) => updateItem(item.id, 'pricePerUm', e.target.value)}
                           placeholder="0.00"
-                          error={hasInvalidItems && !isItemValid(item) && !isFirstInvalidItem ? 'Required' : undefined}
+                          error={hasInvalidItems && !isItemValid(item) && !isPriceValid(item) ? 'Required' : undefined}
                           className="h-[40px] text-left"
                         />
                       </div>
@@ -154,7 +169,7 @@ export default function ProductsSection({
                           value={item.description}
                           onChange={(e) => updateItem(item.id, 'description', e.target.value)}
                           placeholder="Enter description"
-                          error={hasInvalidItems && !isItemValid(item) && !isFirstInvalidItem ? 'Required' : undefined}
+                          error={hasInvalidItems && !isItemValid(item) && !isDescriptionValid(item) ? 'Required' : undefined}
                           className="h-[40px]"
                         />
                       </div>
@@ -221,7 +236,7 @@ export default function ProductsSection({
                         value={item.description}
                         onChange={(e) => updateItem(item.id, 'description', e.target.value)}
                         placeholder="Enter description"
-                        error={hasInvalidItems && !isItemValid(item) && !isFirstInvalidItem ? 'Required' : undefined}
+                        error={hasInvalidItems && !isItemValid(item) && !isDescriptionValid(item) ? 'Required' : undefined}
                         className="h-[40px]"
                       />
                     </div>

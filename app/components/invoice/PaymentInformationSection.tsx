@@ -124,9 +124,10 @@ export default function PaymentInformationSection({
               label="Your IBAN"
               value={iban || ''}
               onChange={handleIbanChange}
-              placeholder="Enter your IBAN"
+              placeholder="CH93 0076 2011 6238 5295 7"
               error={errors.fromIban}
               onErrorClear={() => onClearError?.('fromIban')}
+              fieldName="fromIban"
             />
           </div>
         </div>
