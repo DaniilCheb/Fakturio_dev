@@ -2,6 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
+  "/",              // Guest invoice form (landing page)
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/api/zefix(.*)", // Zefix API is public for now

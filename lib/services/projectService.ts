@@ -3,7 +3,7 @@
  * CRUD operations for projects using Supabase
  */
 
-import { createServerSupabaseClient, getCurrentUserId } from "../supabase";
+import { createServerSupabaseClient, getCurrentUserId } from "../supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface Project {
@@ -41,7 +41,7 @@ export interface UpdateProjectInput extends Partial<CreateProjectInput> {}
  */
 export async function getProjects(): Promise<Project[]> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("projects")
@@ -83,7 +83,7 @@ export async function getProjectsWithClient(
  */
 export async function getProjectById(projectId: string): Promise<Project | null> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("projects")
@@ -134,7 +134,7 @@ export async function getProjectByIdWithClient(
  */
 export async function getProjectsByCustomer(contactId: string): Promise<Project[]> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("projects")
@@ -179,7 +179,7 @@ export async function getProjectsByCustomerWithClient(
  */
 export async function saveProject(projectData: CreateProjectInput): Promise<Project> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("projects")
@@ -247,7 +247,7 @@ export async function updateProject(
   updates: UpdateProjectInput
 ): Promise<Project> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("projects")
@@ -303,7 +303,7 @@ export async function updateProjectWithClient(
  */
 export async function deleteProject(projectId: string): Promise<boolean> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { error } = await supabase
     .from("projects")

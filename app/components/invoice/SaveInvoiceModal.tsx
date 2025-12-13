@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react'
+import { useClerk } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 import Modal, { ModalBody, ModalFooter } from '../Modal'
 import Button from '../Button'
 
@@ -8,7 +10,9 @@ interface SaveInvoiceModalProps {
   isOpen: boolean
   onClose: () => void
   onDownload: () => void
+  onSaveOnly?: () => void
   isLoading?: boolean
+  isSaving?: boolean
 }
 
 const CheckIcon = () => (
@@ -29,8 +33,36 @@ export default function SaveInvoiceModal({
   isOpen, 
   onClose, 
   onDownload,
-  isLoading = false
+  onSaveOnly,
+  isLoading = false,
+  isSaving = false,
 }: SaveInvoiceModalProps) {
+  const clerk = useClerk()
+  const router = useRouter()
+
+  const handleContinueWithGoogle = async () => {
+    try {
+      await clerk.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/sso-callback',
+        redirectUrlComplete: '/dashboard',
+      })
+    } catch (e) {
+      console.error('Failed to start Google sign-in:', e)
+      router.push('/sign-up')
+    }
+  }
+
+  const handleContinueWithEmail = () => {
+    onClose()
+    router.push('/sign-up')
+  }
+
+  const handleLogin = () => {
+    onClose()
+    router.push('/sign-in')
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Keep your invoices in one place" maxWidth="md">
       <ModalBody>
@@ -69,30 +101,54 @@ export default function SaveInvoiceModal({
       </ModalBody>
       
       <ModalFooter className="flex-col sm:flex-col gap-3">
-        <Button variant="primary" className="w-full">
-          Create free account
+        <Button variant="primary" className="w-full" onClick={handleContinueWithGoogle}>
+          Continue with Google
+        </Button>
+
+        <Button variant="secondary" className="w-full" onClick={handleContinueWithEmail}>
+          Sign up with email
         </Button>
         
         <Button 
           variant="secondary" 
           onClick={onDownload} 
           className="w-full"
-          disabled={isLoading}
+          disabled={isLoading || isSaving}
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
               <LoadingSpinner />
               Generating PDF...
             </span>
+          ) : isSaving ? (
+            <span className="flex items-center justify-center gap-2">
+              <LoadingSpinner />
+              Saving...
+            </span>
           ) : (
             'Save & Download PDF'
           )}
         </Button>
+
+        {onSaveOnly && (
+          <Button
+            variant="ghost"
+            onClick={onSaveOnly}
+            className="w-full"
+            disabled={isLoading || isSaving}
+          >
+            Save without downloading
+          </Button>
+        )}
         
         <div className="text-center mt-2">
           <p className="text-[13px] text-[#666666] dark:text-[#999]">
             Already have an account?{' '}
-            <button className="text-[#141414] dark:text-white font-medium hover:underline">
+            <button
+              className="text-[#141414] dark:text-white font-medium hover:underline"
+              onClick={handleLogin}
+              type="button"
+            >
               Log in
             </button>
           </p>

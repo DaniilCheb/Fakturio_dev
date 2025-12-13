@@ -3,7 +3,6 @@
  * CRUD operations for bank accounts using Supabase
  */
 
-import { createServerSupabaseClient, getCurrentUserId } from "../supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface BankAccount {
@@ -32,8 +31,9 @@ export interface UpdateBankAccountInput extends Partial<CreateBankAccountInput> 
  * Get all bank accounts for the current user (server-side)
  */
 export async function getBankAccounts(): Promise<BankAccount[]> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("bank_accounts")
@@ -74,8 +74,9 @@ export async function getBankAccountsWithClient(
  * Get the default bank account for the current user (server-side)
  */
 export async function getDefaultBankAccount(): Promise<BankAccount | null> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("bank_accounts")
@@ -130,8 +131,9 @@ export async function getDefaultBankAccountWithClient(
  * Save a new bank account (server-side)
  */
 export async function saveBankAccount(accountData: CreateBankAccountInput): Promise<BankAccount> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // If this is marked as default or it's the first account, unset other defaults
   if (accountData.is_default) {
@@ -219,7 +221,7 @@ export async function updateBankAccount(
   updates: UpdateBankAccountInput
 ): Promise<BankAccount> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // If setting as default, unset others
   if (updates.is_default) {
@@ -292,8 +294,9 @@ export async function updateBankAccountWithClient(
  * Delete a bank account (server-side)
  */
 export async function deleteBankAccount(accountId: string): Promise<boolean> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // Check if this is the default account
   const account = await supabase
@@ -373,8 +376,9 @@ export async function deleteBankAccountWithClient(
  * Set a bank account as default (server-side)
  */
 export async function setDefaultBankAccount(accountId: string): Promise<boolean> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // Unset all other defaults
   await supabase

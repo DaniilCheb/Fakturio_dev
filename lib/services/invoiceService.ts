@@ -3,7 +3,6 @@
  * CRUD operations for invoices using Supabase
  */
 
-import { createServerSupabaseClient, getCurrentUserId } from "../supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface Invoice {
@@ -60,8 +59,9 @@ export interface UpdateInvoiceInput extends Partial<CreateInvoiceInput> {
  * Get all invoices for the current user (server-side)
  */
 export async function getInvoices(): Promise<Invoice[]> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("invoices")
@@ -102,8 +102,9 @@ export async function getInvoicesWithClient(
  * Get a single invoice by ID (server-side)
  */
 export async function getInvoiceById(invoiceId: string): Promise<Invoice | null> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("invoices")
@@ -153,8 +154,9 @@ export async function getInvoiceByIdWithClient(
  * Generate next invoice number in format YYYY-NN (server-side)
  */
 export async function getNextInvoiceNumber(): Promise<string> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const currentYear = new Date().getFullYear();
   
   // Find all invoice numbers for the current year
@@ -230,8 +232,9 @@ export async function getNextInvoiceNumberWithClient(
  * Save a new invoice (server-side)
  */
 export async function saveInvoice(invoiceData: CreateInvoiceInput): Promise<Invoice> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // Generate invoice number if not provided
   const invoiceNumber = invoiceData.invoice_number || (await getNextInvoiceNumber());
@@ -322,8 +325,9 @@ export async function updateInvoice(
   invoiceId: string,
   updates: UpdateInvoiceInput
 ): Promise<Invoice> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("invoices")
@@ -416,8 +420,9 @@ export async function updateInvoiceStatusWithClient(
  * Delete an invoice (server-side)
  */
 export async function deleteInvoice(invoiceId: string): Promise<boolean> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { error } = await supabase
     .from("invoices")
@@ -464,8 +469,9 @@ export async function duplicateInvoice(invoiceId: string): Promise<Invoice> {
     throw new Error("Invoice not found");
   }
   
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const nextInvoiceNumber = await getNextInvoiceNumber();
   
   const { data, error } = await supabase

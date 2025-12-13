@@ -164,3 +164,40 @@
     text-align: left;
   }
 }
+
+/* Force Clerk card containers to be transparent - remove white background, border, and shadow */
+@layer utilities {
+  [data-clerk-element="card"],
+  [data-clerk-element="main"],
+  [data-clerk-element="page"],
+  [data-clerk-element="rootBox"],
+  [data-clerk-element="cardBox"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    shadow: none !important;
+  }
+  
+  /* Hide firstName and lastName fields in sign-up */
+  [data-clerk-element="formFieldFirstName"],
+  [data-clerk-element="formFieldLastName"],
+  input[name="firstName"],
+  input[name="lastName"],
+  label[for*="firstName"],
+  label[for*="lastName"] {
+    display: none !important;
+  }
+  
+  /* Prevent content from being cut off on the left */
+  [data-clerk-element="rootBox"],
+  [data-clerk-element="cardBox"],
+  [data-clerk-element="card"],
+  [data-clerk-element="main"],
+  [data-clerk-element="page"],
+  [data-clerk-element="form"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+}

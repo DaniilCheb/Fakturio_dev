@@ -1,21 +1,19 @@
 import { SignUp } from "@clerk/nextjs";
+import AuthPageShell, { clerkAppearance } from "@/app/components/auth/AuthPageShell";
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <div className="w-full max-w-md p-4">
-        <SignUp
-          appearance={{
-            elements: {
-              formButtonPrimary:
-                "bg-orange-500 hover:bg-orange-600 text-white",
-              footerActionLink: "text-orange-500 hover:text-orange-600",
-              card: "shadow-xl",
-            },
-          }}
-        />
-      </div>
-    </div>
+    <AuthPageShell
+      title="Create your account"
+      subtitle="Get started with Fakturio in under a minute."
+      backHref="/"
+      backLabel="Back to invoice editor"
+    >
+      <SignUp 
+        appearance={clerkAppearance}
+        forceRedirectUrl="/dashboard"
+      />
+    </AuthPageShell>
   );
 }
 

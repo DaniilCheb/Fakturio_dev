@@ -2,8 +2,35 @@
 
 import { GuestInvoice } from '../types/invoice'
 import InvoicePDF from '@/app/components/invoice/InvoicePDF'
-import { pdf } from '@react-pdf/renderer'
+import { pdf, Font } from '@react-pdf/renderer'
 import { generateInvoiceQRCode } from './qrCodeService'
+
+// Register Radio Canada Big font for PDF generation
+Font.register({
+  family: 'Radio Canada Big',
+  fonts: [
+    {
+      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjsdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpGC_l7mMfqJq8.woff2',
+      fontWeight: 400,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjhdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpnDBJ0bHxXauLPQ.woff2',
+      fontWeight: 500,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjhdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpkDNJ0bHxXauLPQ.woff2',
+      fontWeight: 600,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjhdZvomlJ0BKQ6SI9Mq2-N0JbsEFkp7DRJ0bHxXauLPQ.woff2',
+      fontWeight: 700,
+    },
+    {
+      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjhdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpgDdJ0bHxXauLPQ.woff2',
+      fontWeight: 800,
+    },
+  ],
+})
 
 /**
  * Generate and download invoice PDF using react-pdf/renderer

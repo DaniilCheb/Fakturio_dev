@@ -3,7 +3,6 @@
  * User settings, VAT, logo, preferences using Supabase
  */
 
-import { createServerSupabaseClient, getCurrentUserId } from "../supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // ============ User Profile ============
@@ -45,8 +44,9 @@ export interface UpdateProfileInput {
  * Get user profile (server-side)
  */
 export async function getUserProfile(): Promise<Profile | null> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("profiles")
@@ -87,8 +87,9 @@ export async function getUserProfileWithClient(
  * Update user profile (server-side)
  */
 export async function updateUserProfile(updates: UpdateProfileInput): Promise<Profile> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // Check if profile exists
   const existing = await getUserProfile();
@@ -225,8 +226,9 @@ export interface UpdateVatSettingsInput {
  * Get VAT settings (server-side)
  */
 export async function getVatSettings(): Promise<VatSettings> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("vat_settings")
@@ -295,8 +297,9 @@ export async function getVatSettingsWithClient(
  * Update VAT settings (server-side)
  */
 export async function updateVatSettings(updates: UpdateVatSettingsInput): Promise<VatSettings> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   // Check if settings exist
   const existing = await getVatSettings();
@@ -437,8 +440,9 @@ export interface DescriptionSuggestion {
  * Get description suggestions (server-side)
  */
 export async function getDescriptionSuggestions(): Promise<DescriptionSuggestion[]> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("description_suggestions")
@@ -483,8 +487,9 @@ export async function getDescriptionSuggestionsWithClient(
 export async function saveDescriptionSuggestion(description: string): Promise<void> {
   if (!description || description.trim().length < 3) return;
   
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const trimmed = description.trim();
   
   // Check if suggestion already exists

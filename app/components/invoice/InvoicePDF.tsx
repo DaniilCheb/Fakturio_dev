@@ -41,17 +41,85 @@ function formatCurrencyDisplay(value: number | string | undefined | null, curren
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
-    fontFamily: 'Helvetica',
-    padding: 32,
+    fontFamily: 'Radio Canada Big',
+    position: 'relative',
+    width: 595,
+    height: 842,
+  },
+  // Beige backgrounds
+  tableBeigeBg: {
+    position: 'absolute',
+    left: 297,
+    top: 294,
+    width: 282,
+    height: 194,
+    backgroundColor: '#f7f5f3',
+  },
+  dateInfoBox: {
+    position: 'absolute',
+    left: 16,
+    top: 242,
+    width: 281,
+    height: 52,
+    backgroundColor: '#f7f5f3',
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  // Due date
+  dueDateSection: {
+    position: 'absolute',
+    right: 499,
+    top: 252,
+  },
+  // Issued
+  issuedSection: {
+    position: 'absolute',
+    right: 314,
+    top: 252,
+    alignItems: 'flex-end',
+  },
+  // Invoice number
+  invoiceNumberSection: {
+    position: 'absolute',
+    left: 313,
+    top: 252,
+  },
+  // Labels and values
+  label: {
     fontSize: 10,
+    fontWeight: 500,
+    color: '#5e6470',
+    marginBottom: 4,
   },
-  // Two column layout for Billed from / Billed to
-  billingRow: {
-    flexDirection: 'row',
-    marginBottom: 24,
+  labelRight: {
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#5e6470',
+    marginBottom: 4,
+    textAlign: 'right',
   },
-  billingColumn: {
-    width: '50%',
+  value: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#1a1c21',
+  },
+  valueRight: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#1a1c21',
+    textAlign: 'right',
+  },
+  // Billed from
+  billedFromSection: {
+    position: 'absolute',
+    left: 32,
+    top: 103,
+  },
+  // Billed to
+  billedToSection: {
+    position: 'absolute',
+    left: 313,
+    top: 103,
   },
   sectionLabel: {
     fontSize: 10,
@@ -70,176 +138,155 @@ const styles = StyleSheet.create({
     color: '#5e6470',
     marginBottom: 2,
   },
-  // Date info row
-  dateInfoRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
+  // Payment information
+  paymentSection: {
+    position: 'absolute',
+    left: 32,
+    top: 603,
   },
-  dateInfoBox: {
-    backgroundColor: '#f7f5f3',
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-    padding: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: 280,
-  },
-  dateColumn: {
-    flexDirection: 'column',
-    gap: 4,
-  },
-  dateColumnRight: {
-    flexDirection: 'column',
-    gap: 4,
-    alignItems: 'flex-end',
-  },
-  invoiceNumberBox: {
-    padding: 12,
-    flex: 1,
-  },
-  dateLabel: {
-    fontSize: 10,
-    fontWeight: 500,
-    color: '#5e6470',
-    marginBottom: 4,
-  },
-  dateValue: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#1a1c21',
-  },
-  // Table
-  tableContainer: {
-    marginBottom: 16,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingVertical: 8,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingVertical: 8,
-  },
-  colDescription: {
-    flex: 1,
-  },
-  colQty: {
-    width: 60,
-    backgroundColor: '#f7f5f3',
-    paddingHorizontal: 8,
-  },
-  colRate: {
-    width: 100,
-    backgroundColor: '#f7f5f3',
-    paddingHorizontal: 8,
-    textAlign: 'right',
-  },
-  colAmount: {
-    width: 100,
-    backgroundColor: '#f7f5f3',
-    paddingHorizontal: 8,
-    textAlign: 'right',
-  },
-  headerText: {
+  // Table headers
+  headerItemDesc: {
+    position: 'absolute',
+    left: 32,
+    top: 304,
     fontSize: 10,
     fontWeight: 500,
     color: '#5e6470',
   },
-  cellText: {
+  headerQty: {
+    position: 'absolute',
+    left: 313,
+    top: 304,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#5e6470',
+  },
+  headerRate: {
+    position: 'absolute',
+    left: 412,
+    top: 304,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#5e6470',
+    textAlign: 'right',
+    width: 36,
+  },
+  headerAmount: {
+    position: 'absolute',
+    left: 512,
+    top: 304,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#5e6470',
+    textAlign: 'right',
+    width: 51,
+  },
+  // Divider lines
+  dividerFull: {
+    position: 'absolute',
+    left: 32,
+    width: 531,
+    height: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  dividerShort: {
+    position: 'absolute',
+    left: 313,
+    width: 250,
+    height: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  // Item text styles
+  itemDesc: {
+    position: 'absolute',
+    left: 32,
     fontSize: 10,
     fontWeight: 500,
     color: '#1a1c21',
   },
-  // Totals section
-  totalsContainer: {
-    flexDirection: 'row',
+  itemQty: {
+    position: 'absolute',
+    left: 313,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#1a1c21',
   },
-  totalsLeftSpace: {
-    flex: 1,
+  itemRate: {
+    position: 'absolute',
+    left: 412,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#1a1c21',
+    textAlign: 'right',
+    width: 36,
   },
-  totalsRightColumn: {
-    width: 260,
-    backgroundColor: '#f7f5f3',
+  itemAmount: {
+    position: 'absolute',
+    right: 32,
+    fontSize: 10,
+    fontWeight: 500,
+    color: '#1a1c21',
+    textAlign: 'right',
   },
-  totalsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
+  // Totals
   totalsLabel: {
+    position: 'absolute',
+    left: 313,
     fontSize: 10,
     fontWeight: 500,
     color: '#1a1c21',
   },
   totalsValue: {
+    position: 'absolute',
+    left: 512,
     fontSize: 10,
     fontWeight: 500,
     color: '#1a1c21',
-  },
-  totalsDivider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginHorizontal: 8,
+    textAlign: 'right',
+    width: 51,
   },
   // Total Due bar
   totalDueBar: {
+    position: 'absolute',
+    left: 297,
+    top: 488,
+    width: 282,
+    height: 40,
     backgroundColor: '#151514',
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
   },
   totalDueLabel: {
+    position: 'absolute',
+    left: 313,
+    top: 501,
     fontSize: 10,
     fontWeight: 500,
     color: '#ffffff',
   },
   totalDueValue: {
+    position: 'absolute',
+    right: 32,
+    top: 498,
     fontSize: 12,
     fontWeight: 'bold',
     color: '#ffffff',
+    textAlign: 'right',
     letterSpacing: 0.24,
   },
   // Footer
   footerText: {
-    fontSize: 10,
-    color: '#5e6470',
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  // Bottom section
-  bottomSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  paymentSection: {},
-  paymentLabel: {
-    fontSize: 10,
-    fontWeight: 500,
-    color: '#5e6470',
-    marginBottom: 4,
-  },
-  paymentIban: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#1a1c21',
-    marginBottom: 2,
-  },
-  paymentMethod: {
+    position: 'absolute',
+    left: 32,
+    top: 521,
     fontSize: 10,
     color: '#5e6470',
   },
-  // QR Code
+  // QR Code section
   qrSection: {
+    position: 'absolute',
+    right: 32,
+    top: 580,
     alignItems: 'center',
   },
   qrImage: {
@@ -280,157 +327,145 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
     ? (parseFloat(String(invoice.items[0].vat)) || 10) 
     : 10
 
+  const itemRowHeight = 34
+  const items = invoice.items.length > 0 ? invoice.items : []
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Billed from / Billed to */}
-        <View style={styles.billingRow}>
-          <View style={styles.billingColumn}>
-            <Text style={styles.sectionLabel}>Billed from</Text>
-            <Text style={styles.sectionName}>{invoice.from_info.name || 'Company Name'}</Text>
-            <Text style={styles.sectionText}>{invoice.from_info.street || 'Address'}</Text>
-            <Text style={styles.sectionText}>{invoice.from_info.zip || 'Zip/City'}</Text>
-            <Text style={styles.sectionText}>Telephone</Text>
-            <Text style={styles.sectionText}>Email</Text>
-          </View>
-          <View style={styles.billingColumn}>
-            <Text style={styles.sectionLabel}>Billed to</Text>
-            <Text style={styles.sectionName}>{invoice.to_info.name || 'Company Name'}</Text>
-            <Text style={styles.sectionText}>{invoice.to_info.address || 'Address'}</Text>
-            <Text style={styles.sectionText}>{invoice.to_info.zip || 'Zip/City'}</Text>
-            <Text style={styles.sectionText}>Telephone</Text>
-            <Text style={styles.sectionText}>Email</Text>
-          </View>
+        {/* Beige background for table values area */}
+        <View style={styles.tableBeigeBg} />
+
+        {/* Date info beige box */}
+        <View style={styles.dateInfoBox} />
+
+        {/* Due date */}
+        <View style={styles.dueDateSection}>
+          <Text style={styles.label}>Due date</Text>
+          <Text style={styles.value}>{formatDateFigma(invoice.due_date) || '15 Aug, 2023'}</Text>
         </View>
 
-        {/* Date info row */}
-        <View style={styles.dateInfoRow}>
-          <View style={styles.dateInfoBox}>
-            <View style={styles.dateColumn}>
-              <Text style={styles.dateLabel}>Due date</Text>
-              <Text style={styles.dateValue}>{formatDateFigma(invoice.due_date) || '15 Aug, 2023'}</Text>
-            </View>
-            <View style={styles.dateColumnRight}>
-              <Text style={styles.dateLabel}>Issued</Text>
-              <Text style={styles.dateValue}>{formatDateFigma(invoice.issued_on) || '1 Aug, 2023'}</Text>
-            </View>
-          </View>
-          <View style={styles.invoiceNumberBox}>
-            <Text style={styles.dateLabel}>Invoice number</Text>
-            <Text style={styles.dateValue}>#{invoice.invoice_number || 'AB2324-01'}</Text>
-          </View>
+        {/* Issued */}
+        <View style={styles.issuedSection}>
+          <Text style={styles.labelRight}>Issued</Text>
+          <Text style={styles.valueRight}>{formatDateFigma(invoice.issued_on) || '1 Aug, 2023'}</Text>
         </View>
 
-        {/* Table */}
-        <View style={styles.tableContainer}>
-          {/* Header */}
-          <View style={styles.tableHeader}>
-            <View style={styles.colDescription}>
-              <Text style={styles.headerText}>Item description</Text>
-            </View>
-            <View style={styles.colQty}>
-              <Text style={styles.headerText}>Qty</Text>
-            </View>
-            <View style={styles.colRate}>
-              <Text style={[styles.headerText, { textAlign: 'right' }]}>Rate</Text>
-            </View>
-            <View style={styles.colAmount}>
-              <Text style={[styles.headerText, { textAlign: 'right' }]}>Amount</Text>
-            </View>
-          </View>
-
-          {/* Item rows */}
-          {invoice.items.length > 0 ? (
-            invoice.items.map((item, index) => {
-              const itemTotal = calculateItemTotal(item)
-              const rate = parseFloat(String(item.pricePerUm)) || 0
-              const qty = parseFloat(String(item.quantity)) || 0
-              
-              return (
-                <View key={index} style={styles.tableRow}>
-                  <View style={styles.colDescription}>
-                    <Text style={styles.cellText}>{item.description || 'Item Name'}</Text>
-                  </View>
-                  <View style={styles.colQty}>
-                    <Text style={styles.cellText}>{qty}</Text>
-                  </View>
-                  <View style={styles.colRate}>
-                    <Text style={[styles.cellText, { textAlign: 'right' }]}>{formatCurrencyDisplay(rate, invoice.currency)}</Text>
-                  </View>
-                  <View style={styles.colAmount}>
-                    <Text style={[styles.cellText, { textAlign: 'right' }]}>{formatCurrencyDisplay(itemTotal, invoice.currency)}</Text>
-                  </View>
-                </View>
-              )
-            })
-          ) : (
-            <>
-              <View style={styles.tableRow}>
-                <View style={styles.colDescription}><Text style={styles.cellText}>Item Name</Text></View>
-                <View style={styles.colQty}><Text style={styles.cellText}>1</Text></View>
-                <View style={styles.colRate}><Text style={[styles.cellText, { textAlign: 'right' }]}>$3,000.00</Text></View>
-                <View style={styles.colAmount}><Text style={[styles.cellText, { textAlign: 'right' }]}>$3,000.00</Text></View>
-              </View>
-              <View style={styles.tableRow}>
-                <View style={styles.colDescription}><Text style={styles.cellText}>Item Name</Text></View>
-                <View style={styles.colQty}><Text style={styles.cellText}>1</Text></View>
-                <View style={styles.colRate}><Text style={[styles.cellText, { textAlign: 'right' }]}>$1,500.00</Text></View>
-                <View style={styles.colAmount}><Text style={[styles.cellText, { textAlign: 'right' }]}>$1,500.00</Text></View>
-              </View>
-            </>
-          )}
+        {/* Invoice number */}
+        <View style={styles.invoiceNumberSection}>
+          <Text style={styles.label}>Invoice number</Text>
+          <Text style={styles.value}>#{invoice.invoice_number || 'AB2324-01'}</Text>
         </View>
 
-        {/* Totals */}
-        <View style={styles.totalsContainer}>
-          <View style={styles.totalsLeftSpace} />
-          <View style={styles.totalsRightColumn}>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Subtotal</Text>
-              <Text style={styles.totalsValue}>{formatCurrencyDisplay(invoice.subtotal, invoice.currency)}</Text>
-            </View>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Tax ({taxRate}%)</Text>
-              <Text style={styles.totalsValue}>{formatCurrencyDisplay(invoice.vat_amount, invoice.currency)}</Text>
-            </View>
-            <View style={styles.totalsDivider} />
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Total</Text>
-              <Text style={styles.totalsValue}>{formatCurrencyDisplay(invoice.total, invoice.currency)}</Text>
-            </View>
-            <View style={styles.totalDueBar}>
-              <Text style={styles.totalDueLabel}>Total Due</Text>
-              <Text style={styles.totalDueValue}>
-                {invoice.currency === 'USD' || invoice.currency === 'US$' ? 'US$' : invoice.currency}{' '}
-                {invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </Text>
-            </View>
-          </View>
+        {/* Billed to */}
+        <View style={styles.billedToSection}>
+          <Text style={styles.sectionLabel}>Billed to</Text>
+          <Text style={styles.sectionName}>{invoice.to_info.name || 'To Company Name'}</Text>
+          <Text style={styles.sectionText}>{invoice.to_info.address || 'Address'}</Text>
+          <Text style={styles.sectionText}>{invoice.to_info.zip || 'Zip/City'}</Text>
+          <Text style={styles.sectionText}>Telephone</Text>
+          <Text style={styles.sectionText}>Email</Text>
         </View>
 
-        {/* Footer */}
+        {/* Billed from */}
+        <View style={styles.billedFromSection}>
+          <Text style={styles.sectionLabel}>Billed from</Text>
+          <Text style={styles.sectionName}>{invoice.from_info.name || 'From Company Name'}</Text>
+          <Text style={styles.sectionText}>{invoice.from_info.street || 'Address'}</Text>
+          <Text style={styles.sectionText}>{invoice.from_info.zip || 'Zip/City'}</Text>
+          <Text style={styles.sectionText}>Telephone</Text>
+          <Text style={styles.sectionText}>Email</Text>
+        </View>
+
+        {/* Payment information */}
+        <View style={styles.paymentSection}>
+          <Text style={styles.sectionLabel}>Payment information</Text>
+          <Text style={styles.sectionName}>{invoice.from_info.iban || 'IBAN'}</Text>
+          <Text style={styles.sectionText}>Payment method: {invoice.payment_method}</Text>
+        </View>
+
+        {/* Table headers */}
+        <Text style={styles.headerItemDesc}>Item description</Text>
+        <Text style={styles.headerQty}>Qty</Text>
+        <Text style={styles.headerRate}>Rate</Text>
+        <Text style={styles.headerAmount}>Amount</Text>
+
+        {/* Divider after header */}
+        <View style={[styles.dividerFull, { top: 328 }]} />
+
+        {/* Item rows */}
+        {items.length > 0 ? (
+          items.map((item, index) => {
+            const itemTotal = calculateItemTotal(item)
+            const rate = parseFloat(String(item.pricePerUm)) || 0
+            const qty = parseFloat(String(item.quantity)) || 0
+            const rowTop = 338 + (index * itemRowHeight)
+            const dividerTop = 362 + (index * itemRowHeight)
+            
+            return (
+              <React.Fragment key={index}>
+                <Text style={[styles.itemDesc, { top: rowTop }]}>{item.description || 'Item Name'}</Text>
+                <Text style={[styles.itemQty, { top: rowTop }]}>{qty}</Text>
+                <Text style={[styles.itemRate, { top: rowTop }]}>{formatCurrencyDisplay(rate, invoice.currency)}</Text>
+                <Text style={[styles.itemAmount, { top: rowTop }]}>{formatCurrencyDisplay(itemTotal, invoice.currency)}</Text>
+                <View style={[styles.dividerFull, { top: dividerTop }]} />
+              </React.Fragment>
+            )
+          })
+        ) : (
+          <>
+            <Text style={[styles.itemDesc, { top: 338 }]}>Item Name</Text>
+            <Text style={[styles.itemQty, { top: 338 }]}>1</Text>
+            <Text style={[styles.itemRate, { top: 338 }]}>$3,000.00</Text>
+            <Text style={[styles.itemAmount, { top: 338 }]}>$3,000.00</Text>
+            <View style={[styles.dividerFull, { top: 362 }]} />
+            
+            <Text style={[styles.itemDesc, { top: 372 }]}>Item Name</Text>
+            <Text style={[styles.itemQty, { top: 372 }]}>1</Text>
+            <Text style={[styles.itemRate, { top: 372 }]}>$1,500.00</Text>
+            <Text style={[styles.itemAmount, { top: 372 }]}>$1,500.00</Text>
+            <View style={[styles.dividerFull, { top: 396 }]} />
+          </>
+        )}
+
+        {/* Subtotal */}
+        <Text style={[styles.totalsLabel, { top: 406 }]}>Subtotal</Text>
+        <Text style={[styles.totalsValue, { top: 406 }]}>{formatCurrencyDisplay(invoice.subtotal, invoice.currency)}</Text>
+
+        {/* Tax */}
+        <Text style={[styles.totalsLabel, { top: 430 }]}>Tax ({taxRate}%)</Text>
+        <Text style={[styles.totalsValue, { top: 430 }]}>{formatCurrencyDisplay(invoice.vat_amount, invoice.currency)}</Text>
+
+        {/* Divider before total */}
+        <View style={[styles.dividerShort, { top: 454 }]} />
+
+        {/* Total */}
+        <Text style={[styles.totalsLabel, { top: 464 }]}>Total</Text>
+        <Text style={[styles.totalsValue, { top: 464 }]}>{formatCurrencyDisplay(invoice.total, invoice.currency)}</Text>
+
+        {/* Total Due bar */}
+        <View style={styles.totalDueBar} />
+        <Text style={styles.totalDueLabel}>Total Due</Text>
+        <Text style={styles.totalDueValue}>
+          {invoice.currency === 'USD' || invoice.currency === 'US$' ? 'US$' : invoice.currency}{' '}
+          {invoice.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </Text>
+
+        {/* Created with Fakturio.ch */}
         <Text style={styles.footerText}>Created with Fakturio.ch</Text>
 
-        {/* Bottom section: Payment info + QR Code */}
-        <View style={styles.bottomSection}>
-          <View style={styles.paymentSection}>
-            <Text style={styles.paymentLabel}>Payment information</Text>
-            <Text style={styles.paymentIban}>{invoice.from_info.iban || 'IBAN'}</Text>
-            <Text style={styles.paymentMethod}>Payment method: {invoice.payment_method}</Text>
-          </View>
-
-          <View style={styles.qrSection}>
-            {includeQRCode && qrCodeDataUrl ? (
-              <>
-                <Image style={styles.qrImage} src={qrCodeDataUrl} />
-                <Text style={styles.qrText}>Swiss QR Payment</Text>
-              </>
-            ) : (
-              <View style={styles.qrPlaceholder}>
-                <Text style={styles.qrPlaceholderText}>QR Code</Text>
-              </View>
-            )}
-          </View>
+        {/* QR Code */}
+        <View style={styles.qrSection}>
+          {includeQRCode && qrCodeDataUrl ? (
+            <>
+              <Image style={styles.qrImage} src={qrCodeDataUrl} />
+              <Text style={styles.qrText}>Swiss QR Payment</Text>
+            </>
+          ) : (
+            <View style={styles.qrPlaceholder}>
+              <Text style={styles.qrPlaceholderText}>QR Code</Text>
+            </View>
+          )}
         </View>
       </Page>
     </Document>

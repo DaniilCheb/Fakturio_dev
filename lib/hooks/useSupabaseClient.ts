@@ -2,7 +2,7 @@
 
 import { useSession } from "@clerk/nextjs";
 import { useMemo } from "react";
-import { createClientSupabaseClient } from "@/lib/supabase";
+import { createClientSupabaseClient } from "@/lib/supabase-client";
 
 /**
  * Hook to get a Supabase client authenticated with Clerk

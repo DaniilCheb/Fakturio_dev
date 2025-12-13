@@ -3,7 +3,7 @@
  * CRUD operations for expenses using Supabase
  */
 
-import { createServerSupabaseClient, getCurrentUserId } from "../supabase";
+import { createServerSupabaseClient, getCurrentUserId } from "../supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface Expense {
@@ -49,7 +49,7 @@ export interface UpdateExpenseInput extends Partial<CreateExpenseInput> {}
  */
 export async function getExpenses(): Promise<Expense[]> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("expenses")
@@ -91,7 +91,7 @@ export async function getExpensesWithClient(
  */
 export async function getExpenseById(expenseId: string): Promise<Expense | null> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("expenses")
@@ -142,7 +142,7 @@ export async function getExpenseByIdWithClient(
  */
 export async function saveExpense(expenseData: CreateExpenseInput): Promise<Expense> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("expenses")
@@ -218,7 +218,7 @@ export async function updateExpense(
   updates: UpdateExpenseInput
 ): Promise<Expense> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("expenses")
@@ -274,7 +274,7 @@ export async function updateExpenseWithClient(
  */
 export async function deleteExpense(expenseId: string): Promise<boolean> {
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { error } = await supabase
     .from("expenses")
@@ -322,7 +322,7 @@ export async function duplicateExpense(expenseId: string): Promise<Expense> {
   }
   
   const userId = await getCurrentUserId();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
     .from("expenses")
