@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, createContext, ReactNode } from 'react'
+import { useState, useContext } from 'react'
 import { useSession } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { 
@@ -26,17 +26,19 @@ import {
 import SectionHeader from '@/app/components/SectionHeader'
 import { Button } from '@/app/components/ui/button'
 import { FileText } from 'lucide-react'
+import { AddModalContext } from './CustomersPageContent'
 import type { CustomerWithStats } from './page'
 
 interface CustomersListProps {
   initialCustomers: CustomerWithStats[]
+  showAddModal: boolean
+  onCloseAddModal: () => void
 }
 
-// Context for triggering add modal
-export const AddModalContext = createContext<(() => void) | null>(null)
-
 // Empty state component
-function EmptyState({ onAddClick }: { onAddClick: () => void }) {
+function EmptyState() {
+  const openModal = useContext(AddModalContext)
+  
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="w-16 h-16 mb-6 rounded-full bg-muted flex items-center justify-center">
@@ -48,7 +50,7 @@ function EmptyState({ onAddClick }: { onAddClick: () => void }) {
       <p className="text-[14px] text-muted-foreground text-center max-w-sm mb-6">
         Add your first customer to start tracking projects and invoices.
       </p>
-      <Button variant="default" onClick={onAddClick}>
+      <Button variant="default" onClick={openModal || undefined} disabled={!openModal}>
         <CustomersIcon size={16} className="mr-2" />
         New Customer
       </Button>
@@ -113,10 +115,13 @@ function CustomerRow({
   )
 }
 
-export default function CustomersList({ initialCustomers }: CustomersListProps) {
+export default function CustomersList({ 
+  initialCustomers, 
+  showAddModal, 
+  onCloseAddModal 
+}: CustomersListProps) {
   const { session } = useSession()
   const [customers, setCustomers] = useState<CustomerWithStats[]>(initialCustomers)
-  const [showAddModal, setShowAddModal] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<CustomerWithStats | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -146,7 +151,7 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
       }
 
       setCustomers(prev => [customerWithStats, ...prev])
-      setShowAddModal(false)
+      onCloseAddModal()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to add customer')
     } finally {
@@ -213,7 +218,7 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
   }
 
   return (
-    <AddModalContext.Provider value={() => setShowAddModal(true)}>
+    <>
       {DialogComponent}
       
       {/* Error */}
@@ -232,7 +237,7 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
         </SectionHeader>
         <CardContent className="p-0">
           {customers.length === 0 ? (
-            <EmptyState onAddClick={() => setShowAddModal(true)} />
+            <EmptyState />
           ) : (
             <Table>
               <TableHeader>
@@ -263,7 +268,7 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
       {/* Add Customer Modal */}
       <AddCustomerModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={onCloseAddModal}
         onSave={handleAddCustomer}
         isLoading={isLoading}
       />
@@ -277,6 +282,6 @@ export default function CustomersList({ initialCustomers }: CustomersListProps) 
         initialData={editingCustomer || undefined}
         isEditing
       />
-    </AddModalContext.Provider>
+    </>
   )
 }

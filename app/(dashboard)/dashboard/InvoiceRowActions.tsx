@@ -10,7 +10,7 @@ import { generateInvoicePDF } from "@/lib/services/pdfService"
 import { createClientSupabaseClient } from "@/lib/supabase-client"
 import { getBankAccountsWithClient } from "@/lib/services/bankAccountService.client"
 import type { SupabaseClient } from "@supabase/supabase-js"
-import type { Invoice } from "@/lib/services/invoiceService"
+import type { Invoice } from "@/lib/services/invoiceService.client"
 import type { GuestInvoice } from "@/lib/types/invoice"
 
 interface InvoiceRowActionsProps {

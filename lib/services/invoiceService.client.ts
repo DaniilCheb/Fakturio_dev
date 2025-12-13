@@ -223,3 +223,21 @@ export async function deleteInvoiceWithClient(
   return true;
 }
 
+/**
+ * Get invoice status based on dates and payment
+ * This is a pure function that can be used in client components
+ */
+export function getInvoiceStatus(invoice: Invoice): "paid" | "overdue" | "pending" {
+  if (invoice.status === "paid") return "paid";
+  
+  const dueDate = invoice.due_date;
+  if (dueDate) {
+    const due = new Date(dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (due < today) return "overdue";
+  }
+  
+  return "pending";
+}
+

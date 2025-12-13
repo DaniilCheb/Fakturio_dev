@@ -5,19 +5,9 @@ import { useRouter } from "next/navigation"
 import { useSession } from "@clerk/nextjs"
 import Link from "next/link"
 import { Card, CardContent } from "@/app/components/ui/card"
-import { Badge } from "@/app/components/ui/badge"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/app/components/ui/table"
-import { Button } from "@/app/components/ui/button"
 import StatusBadge from "@/app/components/StatusBadge"
 import { EditIcon, CopyIcon, PreviewIcon, DownloadIcon } from "@/app/components/Icons"
-import { getInvoiceStatus, type Invoice } from "@/lib/services/invoiceService"
+import { getInvoiceStatus, type Invoice } from "@/lib/services/invoiceService.client"
 import { type Project } from "@/lib/services/projectService"
 import { formatDate } from "@/lib/utils/dateUtils"
 import { formatCurrency } from "@/lib/utils/formatters"
@@ -272,62 +262,68 @@ export default function InvoiceDetailClient({ invoice, project }: InvoiceDetailC
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
+        <div className="flex items-center gap-6">
+          <button
             onClick={() => setIsEditModalOpen(true)}
-            title="Edit"
+            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors"
           >
-            <EditIcon size={18} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+              <EditIcon size={18} />
+            </div>
+            <span className="text-[11px] font-medium">Edit</span>
+          </button>
+          <button
             onClick={handlePreviewPDF}
             disabled={isPreviewing}
-            title="Preview"
+            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <PreviewIcon size={18} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+              <PreviewIcon size={18} />
+            </div>
+            <span className="text-[11px] font-medium">Preview</span>
+          </button>
+          <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            title="Download"
+            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <DownloadIcon size={18} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+              <DownloadIcon size={18} />
+            </div>
+            <span className="text-[11px] font-medium">Download</span>
+          </button>
+          <button
             onClick={handleDuplicate}
             disabled={isDuplicating}
-            title="Duplicate"
+            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <CopyIcon size={18} />
-          </Button>
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+              <CopyIcon size={18} />
+            </div>
+            <span className="text-[11px] font-medium">Duplicate</span>
+          </button>
           {currentStatus !== "paid" ? (
-            <Button
-              variant="default"
-              size="icon"
+            <button
               onClick={handleMarkAsPaid}
               disabled={isUpdatingStatus}
-              title="Mark Paid"
+              className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <CheckIcon />
-            </Button>
+              <div className="w-10 h-10 rounded-full bg-[#141414] dark:bg-white text-white dark:text-[#141414] flex items-center justify-center">
+                <CheckIcon />
+              </div>
+              <span className="text-[11px] font-medium text-[#141414] dark:text-white">Mark Paid</span>
+            </button>
           ) : (
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={handleMarkAsIssued}
               disabled={isUpdatingStatus}
-              title="Mark Issued"
+              className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <CheckIcon />
-            </Button>
+              <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+                <CheckIcon />
+              </div>
+              <span className="text-[11px] font-medium">Mark Issued</span>
+            </button>
           )}
         </div>
       </div>

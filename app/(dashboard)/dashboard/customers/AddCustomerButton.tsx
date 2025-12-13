@@ -3,7 +3,7 @@
 import { Button } from '@/app/components/ui/button'
 import { Plus } from 'lucide-react'
 import { useContext } from 'react'
-import { AddModalContext } from './CustomersList'
+import { AddModalContext } from './CustomersPageContent'
 
 export default function AddCustomerButton() {
   const openModal = useContext(AddModalContext)
@@ -19,4 +19,3 @@ export default function AddCustomerButton() {
     </Button>
   )
 }
-

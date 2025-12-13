@@ -13,7 +13,7 @@ import { Button } from "@/app/components/ui/button"
 import Input from "@/app/components/Input"
 import DatePicker from "@/app/components/DatePicker"
 import TextArea from "@/app/components/TextArea"
-import { type Invoice } from "@/lib/services/invoiceService"
+import { type Invoice } from "@/lib/services/invoiceService.client"
 import { formatDateISO } from "@/lib/utils/dateUtils"
 
 interface EditInvoiceModalProps {
