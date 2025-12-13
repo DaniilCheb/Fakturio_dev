@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Radio_Canada_Big, Inter } from "next/font/google";
 import "./globals.css";
+import QueryProvider from "@/lib/providers/QueryProvider";
 
 const radioCanadaBig = Radio_Canada_Big({
   subsets: ["latin"],
@@ -23,11 +24,13 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
-          <main>{children}</main>
-        </body>
-      </html>
+      <QueryProvider>
+        <html lang="en">
+          <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
+            <main>{children}</main>
+          </body>
+        </html>
+      </QueryProvider>
     </ClerkProvider>
   );
 }

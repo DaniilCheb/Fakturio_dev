@@ -3,7 +3,6 @@
  * CRUD operations for projects using Supabase
  */
 
-import { createServerSupabaseClient, getCurrentUserId } from "../supabase-server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface Project {
@@ -40,6 +39,7 @@ export interface UpdateProjectInput extends Partial<CreateProjectInput> {}
  * Get all projects for the current user (server-side)
  */
 export async function getProjects(): Promise<Project[]> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
@@ -82,6 +82,7 @@ export async function getProjectsWithClient(
  * Get a single project by ID (server-side)
  */
 export async function getProjectById(projectId: string): Promise<Project | null> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
@@ -133,6 +134,7 @@ export async function getProjectByIdWithClient(
  * Get projects by customer ID (server-side)
  */
 export async function getProjectsByCustomer(contactId: string): Promise<Project[]> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
@@ -178,6 +180,7 @@ export async function getProjectsByCustomerWithClient(
  * Save a new project (server-side)
  */
 export async function saveProject(projectData: CreateProjectInput): Promise<Project> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
@@ -246,6 +249,7 @@ export async function updateProject(
   projectId: string,
   updates: UpdateProjectInput
 ): Promise<Project> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
@@ -302,6 +306,7 @@ export async function updateProjectWithClient(
  * Delete a project (server-side)
  */
 export async function deleteProject(projectId: string): Promise<boolean> {
+  const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   

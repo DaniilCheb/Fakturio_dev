@@ -1,4 +1,7 @@
-import { getInvoices, getInvoiceStatus, type Invoice } from "@/lib/services/invoiceService"
+'use client'
+
+import { getInvoiceStatus, type Invoice } from "@/lib/services/invoiceService.client"
+import { useInvoices } from "@/lib/hooks/queries"
 import Link from "next/link"
 import { Plus, FileText } from "lucide-react"
 
@@ -13,6 +16,7 @@ import {
   TableRow,
 } from "@/app/components/ui/table"
 import { Button } from "@/app/components/ui/button"
+import { Skeleton } from "@/app/components/ui/skeleton"
 import Header from "@/app/components/Header"
 import SectionHeader from "@/app/components/SectionHeader"
 import DashboardChart from "./DashboardChart"
@@ -95,6 +99,33 @@ function EmptyState() {
   )
 }
 
+// Loading skeleton component
+function DashboardSkeleton() {
+  return (
+    <div className="max-w-[800px] mx-auto space-y-8">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-64 w-full" />
+      </div>
+      <Card className="overflow-hidden">
+        <SectionHeader>
+          <Skeleton className="h-4 w-32" />
+        </SectionHeader>
+        <CardContent className="p-0">
+          <div className="space-y-2 p-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 // Invoice row component
 function InvoiceRow({ invoice }: { invoice: Invoice }) {
   const displayStatus = getInvoiceStatus(invoice)
@@ -126,24 +157,22 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
   )
 }
 
-export default async function DashboardPage() {
-  let invoices: Invoice[] = []
+export default function DashboardPage() {
+  const { data: invoices = [], isLoading } = useInvoices()
 
-  try {
-    invoices = await getInvoices()
-    // Sort by issued date, newest first
-    invoices.sort((a, b) => {
-      const dateA = new Date(a.issued_on || 0)
-      const dateB = new Date(b.issued_on || 0)
-      return dateB.getTime() - dateA.getTime()
-    })
-  } catch (e) {
-    console.error("Error fetching invoices (showing empty state):", e)
-    invoices = []
+  if (isLoading) {
+    return <DashboardSkeleton />
   }
 
+  // Sort by issued date, newest first
+  const sortedInvoices = [...invoices].sort((a, b) => {
+    const dateA = new Date(a.issued_on || 0)
+    const dateB = new Date(b.issued_on || 0)
+    return dateB.getTime() - dateA.getTime()
+  })
+
   // Prepare invoice data for chart (only pass what's needed)
-  const chartInvoices = invoices.map((inv) => ({
+  const chartInvoices = sortedInvoices.map((inv) => ({
     id: inv.id,
     issued_on: inv.issued_on,
     total: inv.total,
@@ -151,7 +180,7 @@ export default async function DashboardPage() {
   }))
 
   // Get the most common currency
-  const currencyCount = invoices.reduce((acc, inv) => {
+  const currencyCount = sortedInvoices.reduce((acc, inv) => {
     acc[inv.currency] = (acc[inv.currency] || 0) + 1
     return acc
   }, {} as Record<string, number>)
@@ -173,7 +202,7 @@ export default async function DashboardPage() {
       />
 
       {/* Stats & Chart */}
-      {invoices.length > 0 && (
+      {sortedInvoices.length > 0 && (
         <DashboardChart invoices={chartInvoices} defaultCurrency={defaultCurrency} />
       )}
 
@@ -185,7 +214,7 @@ export default async function DashboardPage() {
           </h2>
         </SectionHeader>
         <CardContent className="p-0">
-          {invoices.length === 0 ? (
+          {sortedInvoices.length === 0 ? (
             <EmptyState />
           ) : (
             <Table>
@@ -199,7 +228,7 @@ export default async function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoices.map((invoice) => (
+                {sortedInvoices.map((invoice) => (
                   <InvoiceRow key={invoice.id} invoice={invoice} />
                 ))}
               </TableBody>

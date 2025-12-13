@@ -1,7 +1,10 @@
-import { getContacts, type Contact } from '@/lib/services/contactService'
-import { getInvoices } from '@/lib/services/invoiceService'
-import { getProjects } from '@/lib/services/projectService'
+'use client'
+
+import { useMemo } from 'react'
+import { useContacts, useInvoices, useProjects } from '@/lib/hooks/queries'
+import { type Contact } from '@/lib/services/contactService'
 import CustomersPageContent from './CustomersPageContent'
+import { Skeleton } from '@/app/components/ui/skeleton'
 
 export interface CustomerWithStats extends Contact {
   invoiceCount: number
@@ -9,23 +12,33 @@ export interface CustomerWithStats extends Contact {
   totalAmount: number
 }
 
-export default async function CustomersPage() {
-  let customersWithStats: CustomerWithStats[] = []
-  let error: string | null = null
+function CustomersPageSkeleton() {
+  return (
+    <div className="max-w-[800px] mx-auto space-y-8">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-64 w-full" />
+      </div>
+    </div>
+  )
+}
 
-  try {
-    // Fetch all data in parallel
-    const [allContacts, allInvoices, allProjects] = await Promise.all([
-      getContacts(),
-      getInvoices(),
-      getProjects()
-    ])
+export default function CustomersPage() {
+  const { data: allContacts = [], isLoading: isLoadingContacts } = useContacts()
+  const { data: allInvoices = [], isLoading: isLoadingInvoices } = useInvoices()
+  const { data: allProjects = [], isLoading: isLoadingProjects } = useProjects()
 
+  const isLoading = isLoadingContacts || isLoadingInvoices || isLoadingProjects
+
+  // Compute stats for each customer
+  const customersWithStats = useMemo(() => {
     // Filter to only show customers (not suppliers)
     const customers = allContacts.filter(contact => contact.type === 'customer')
 
-    // Compute stats for each customer
-    customersWithStats = customers.map(customer => {
+    return customers.map(customer => {
       const customerInvoices = allInvoices.filter(inv => inv.contact_id === customer.id)
       const customerProjects = allProjects.filter(proj => proj.contact_id === customer.id)
       const totalAmount = customerInvoices.reduce((sum, inv) => sum + (inv.total || 0), 0)
@@ -37,17 +50,16 @@ export default async function CustomersPage() {
         totalAmount
       }
     })
-  } catch (e) {
-    // For new users who haven't created customers yet, treat as empty state rather than error
-    console.error('Error fetching customers (showing empty state):', e)
-    error = null
-    customersWithStats = []
+  }, [allContacts, allInvoices, allProjects])
+
+  if (isLoading) {
+    return <CustomersPageSkeleton />
   }
 
   return (
     <CustomersPageContent 
       initialCustomers={customersWithStats} 
-      error={error}
+      error={null}
     />
   )
 }

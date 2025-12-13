@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import AuthenticatedSidebar from '../components/AuthenticatedSidebar'
 import GuestMigrationWrapper from '../components/GuestMigrationWrapper'
+import DataPrefetcher from '../components/DataPrefetcher'
 
 export default async function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-design-background flex">
+      <DataPrefetcher />
       {/* Sidebar */}
       <AuthenticatedSidebar />
       
