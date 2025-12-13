@@ -7,9 +7,10 @@ import InvoiceDetailClient from "./InvoiceDetailClient"
 export default async function InvoiceDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const invoice = await getInvoiceById(params.id)
+  const { id } = await params
+  const invoice = await getInvoiceById(id)
 
   if (!invoice) {
     notFound()
