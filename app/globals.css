@@ -187,6 +187,18 @@
   label[for*="lastName"] {
     display: none !important;
   }
+
+  /* If Clerk still renders the wrapper row (and its "Optional" indicator), hide the whole form field. */
+  @supports selector(:has(*)) {
+    .cl-formField:has(input[name="firstName"]),
+    .cl-formField:has(input[name="lastName"]),
+    [data-clerk-element="formField"]:has(input[name="firstName"]),
+    [data-clerk-element="formField"]:has(input[name="lastName"]),
+    [data-clerk-element="formFieldRow"]:has(input[name="firstName"]),
+    [data-clerk-element="formFieldRow"]:has(input[name="lastName"]) {
+      display: none !important;
+    }
+  }
   
   /* Prevent content from being cut off on the left */
   [data-clerk-element="rootBox"],
@@ -199,5 +211,48 @@
     max-width: 100% !important;
     margin-left: 0 !important;
     padding-left: 0 !important;
+  }
+  
+  /* Hide "Optional" labels in Clerk forms */
+  [data-clerk-element="formFieldOptionalIndicator"],
+  [data-clerk-element="formFieldHintText"],
+  .cl-formFieldOptionalIndicator,
+  .cl-formFieldHintText,
+  [class*="optional"],
+  [class*="Optional"] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  /* Hide optional text using attribute selectors */
+  [aria-label*="Optional"],
+  [aria-label*="optional"] {
+    display: none !important;
+  }
+  
+  /* Ensure divider has the exact spacing requested */
+  [data-clerk-element="dividerRow"] {
+    margin-top: 4px !important;
+    margin-bottom: -8px !important;
+  }
+  
+  /* Remove top margin from first form field after divider */
+  [data-clerk-element="dividerRow"] + [data-clerk-element="formFields"] > [data-clerk-element="formField"]:first-child,
+  [data-clerk-element="dividerRow"] ~ [data-clerk-element="formFields"] > [data-clerk-element="formField"]:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Ensure formFields container has no top margin after divider */
+  [data-clerk-element="dividerRow"] + [data-clerk-element="formFields"],
+  [data-clerk-element="dividerRow"] ~ [data-clerk-element="formFields"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Clerk injects an invisible submit button for autofill/keyboard flows; hide it entirely. */
+  [data-clerk-element="form"] button[type="submit"][aria-hidden="true"] {
+    display: none !important;
+    pointer-events: none !important;
   }
 }

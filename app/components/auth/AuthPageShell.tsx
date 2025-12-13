@@ -2,9 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import { BackIcon } from "@/app/components/Icons";
-import GuestSidebar from "@/app/components/GuestSidebar";
-
 type AuthPageShellProps = {
   title: string;
   subtitle: string;
@@ -25,54 +22,46 @@ export default function AuthPageShell({
   backLabel = "Back",
 }: AuthPageShellProps) {
   return (
-    <div className="min-h-screen bg-design-background flex">
-      {/* Guest Sidebar */}
-      <GuestSidebar />
-      
-      {/* Main Content - Account for sidebar on large screens */}
-      <div className="flex-1 lg:ml-[292px] ml-0 pt-[104px] lg:pt-10 pb-8 px-4 lg:px-8">
-        <div className="mx-auto flex min-h-[calc(100vh-104px)] lg:min-h-[calc(100vh-80px)] w-full max-w-[480px] flex-col py-10 sm:py-14">
-        <Link
-          href={backHref}
-          className="mb-6 flex w-fit items-center gap-2 text-[14px] text-[#666666] transition-colors hover:text-[#141414] dark:text-[#999] dark:hover:text-white"
-        >
-          <BackIcon />
-          {backLabel}
+    <div className="min-h-screen bg-design-background overflow-visible relative">
+      {/* Logo in top-left corner */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link href="/">
+          <Image
+            src="/logo-dark.svg"
+            alt="Fakturio"
+            width={120}
+            height={34}
+            className="h-8 w-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/logo-dark-mode.svg"
+            alt="Fakturio"
+            width={120}
+            height={34}
+            className="hidden h-8 w-auto dark:block"
+            priority
+          />
         </Link>
+      </div>
 
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-6">
-            <Image
-              src="/logo-dark.svg"
-              alt="Fakturio"
-              width={120}
-              height={34}
-              className="h-8 w-auto dark:hidden"
-              priority
-            />
-            <Image
-              src="/logo-dark-mode.svg"
-              alt="Fakturio"
-              width={120}
-              height={34}
-              className="hidden h-8 w-auto dark:block"
-              priority
-            />
+      <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col px-4 pt-36 pb-10 sm:pb-14 overflow-visible">
+        <div className="mb-8 px-5">
+          <div className="flex flex-col items-start text-left">
+            <h1 className="text-[24px] leading-[30px] font-semibold text-design-content-default tracking-[-0.4px]">
+              {title}
+            </h1>
+            <p
+              className="mt-4 text-[15px] text-design-content-weak leading-relaxed"
+              style={{ fontWeight: 400 }}
+            >
+              {subtitle}
+            </p>
           </div>
-
-          <h1 className="text-[24px] leading-[30px] font-semibold text-design-content-default tracking-[-0.4px]">
-            {title}
-          </h1>
-          <p
-            className="mt-3 text-[15px] text-design-content-weak leading-relaxed"
-            style={{ fontWeight: 400 }}
-          >
-            {subtitle}
-          </p>
         </div>
 
-        <div className="px-5 py-5 w-full min-w-0">
-          <div className="w-full overflow-x-visible">
+        <div className="px-5 w-full overflow-visible">
+          <div className="w-full overflow-visible">
             {children}
           </div>
         </div>
@@ -80,7 +69,6 @@ export default function AuthPageShell({
         <p className="mt-6 text-center text-[12px] text-design-content-weak">
           By continuing, you agree to Fakturio's terms and privacy policy.
         </p>
-        </div>
       </div>
     </div>
   );
@@ -96,14 +84,14 @@ export const clerkAppearance = {
     socialButtonsVariant: "blockButton",
   },
   elements: {
-    rootBox: "w-full bg-transparent shadow-none border-0 ring-0 min-w-0 overflow-x-visible",
-    cardBox: "w-full bg-transparent shadow-none border-0 ring-0 min-w-0 overflow-x-visible",
+    rootBox: "w-full bg-transparent shadow-none border-0 ring-0 overflow-visible !overflow-visible",
+    cardBox: "w-full bg-transparent shadow-none border-0 ring-0 overflow-visible !overflow-visible",
     // Clerk renders its own nested containers (card/main) depending on step (e.g. OTP).
     // Make all of them fully transparent so form elements appear directly on the background.
-    card: "w-full bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0",
-    main: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0",
-    page: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0",
-    form: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0",
+    card: "w-full bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0 overflow-visible !overflow-visible",
+    main: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0 overflow-visible !overflow-visible",
+    page: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 p-0 overflow-visible !overflow-visible",
+    form: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 ring-0 !ring-0 overflow-visible !overflow-visible",
     // Remove any internal grouping containers - make them transparent and remove spacing
     formButtonRow: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0 gap-0",
     formField: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
@@ -116,9 +104,9 @@ export const clerkAppearance = {
     formFields: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0 gap-0",
     formFieldInputContainer: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
     // Additional container elements that might create the white card
-    content: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0",
-    container: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0",
-    wrapper: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0",
+    content: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 overflow-visible !overflow-visible",
+    container: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 overflow-visible !overflow-visible",
+    wrapper: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 overflow-visible !overflow-visible",
 
     // We provide our own page title/subtitle above; hide the Clerk header.
     header: "hidden",
@@ -139,8 +127,12 @@ export const clerkAppearance = {
 
     dividerLine: "bg-design-border-default",
     dividerText: "text-[12px] text-design-content-weak",
+    dividerRow: "mt-1 -mb-2 !mt-1 !-mb-2",
 
     formFieldLabel: "text-[13px] font-medium text-design-content-weak",
+    formFields: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 !p-0 m-0 !m-0 gap-0 !gap-0 mt-0 !mt-0",
+    formFieldOptionalIndicator: "hidden",
+    formFieldHintText: "hidden",
     formFieldInput:
       "h-[44px] rounded-xl bg-design-surface-default border border-design-border-default px-4 text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:ring-2 focus:ring-design-content-default/20 focus:border-design-content-default/30",
 
