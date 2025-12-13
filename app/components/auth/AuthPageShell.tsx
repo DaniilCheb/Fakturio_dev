@@ -101,7 +101,6 @@ export const clerkAppearance = {
     formResendCodeRow: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
     formFieldInputGroup: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
     formFieldInputShowPasswordButton: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none",
-    formFields: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0 gap-0",
     formFieldInputContainer: "bg-transparent !bg-transparent border-0 !border-0 shadow-none !shadow-none p-0 m-0",
     // Additional container elements that might create the white card
     content: "bg-transparent !bg-transparent shadow-none !shadow-none border-0 !border-0 overflow-visible !overflow-visible",
@@ -141,10 +140,6 @@ export const clerkAppearance = {
 
     formFieldAction:
       "text-[12px] text-design-content-weak hover:text-design-content-default transition-colors",
-
-    footerActionText: "text-[13px] text-design-content-weak",
-    footerActionLink:
-      "text-[13px] font-medium text-design-content-default hover:opacity-80 transition-opacity",
 
     formFieldErrorText: "text-[12px] text-red-600 dark:text-red-400",
     alertText: "text-[13px] text-design-content-weak",
