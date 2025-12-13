@@ -353,13 +353,13 @@ export default function Home() {
           <div className="flex-1 px-4 lg:px-8 max-w-[800px] mx-auto">
             {/* Header (mobile only — desktop headline lives in sidebar) */}
             <div className="mt-[64px] mb-8 px-4 lg:hidden">
-              <h1 className="text-[36px] leading-[44px] font-semibold text-design-content-default tracking-[-0.512px]">
-                Invoice simply.<br /> Get paid faster.
+              <h1 className="text-[30px] leading-[38px] font-semibold text-design-content-default tracking-[-0.512px]">
+                Simple invoicing and expense tracking for Swiss freelancers
               </h1>
-              <p className="text-[15px] text-design-content-default leading-relaxed mt-4">
-                Professional Swiss invoices (QR-bill ready). Tax-ready by default (VAT, exports, categories). Projects + time tracking that turns into invoices. Expenses, dashboards, and everything in one place.
+              <p className="text-[15px] text-design-content-weak leading-relaxed mt-4" style={{ fontWeight: 400 }}>
+                Create beautiful QR invoices, collect deductible expenses, have an overview of what your taxes will look like, and share everything easily with your accountant.
               </p>
-              <p className="text-[15px] text-design-content-default leading-relaxed mt-2">
+              <p className="text-[15px] text-design-content-weak leading-relaxed mt-2" style={{ fontWeight: 400 }}>
                 Try it now for free.
               </p>
             </div>

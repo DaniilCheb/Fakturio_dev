@@ -255,10 +255,13 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Logo */}
-        <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>Customer logo</Text>
-        </View>
+        {/* Logo (only shown if uploaded) */}
+        {invoice.from_info.logo_url && (
+          <Image 
+            src={invoice.from_info.logo_url} 
+            style={{ maxWidth: 160, maxHeight: 48, objectFit: 'contain', marginBottom: 24 }} 
+          />
+        )}
 
         {/* Billed from / Billed to */}
         <View style={styles.billingRow}>

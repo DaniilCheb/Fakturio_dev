@@ -274,9 +274,14 @@ export default function InvoicePDFV2({ invoice, includeQRCode, qrCodeDataUrl }: 
       <Page size="A4" style={styles.page}>
         {/* Header Section */}
         <View style={styles.headerSection}>
-          {/* Logo Placeholder */}
-          <View style={styles.logoPlaceholder}>
-            <Text style={styles.logoText}>Customer logo</Text>
+          {/* Logo (only shown if uploaded) */}
+          <View>
+            {invoice.from_info.logo_url && (
+              <Image 
+                src={invoice.from_info.logo_url} 
+                style={{ maxWidth: 160, maxHeight: 48, objectFit: 'contain' }} 
+              />
+            )}
           </View>
           
           {/* Company Info on Right */}

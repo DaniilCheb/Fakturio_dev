@@ -3,6 +3,7 @@ export interface FromInfo {
   street: string
   zip: string
   iban: string
+  logo_url?: string
 }
 
 export interface ToInfo {

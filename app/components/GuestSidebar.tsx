@@ -36,7 +36,7 @@ export default function GuestSidebar() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Sign up</Button>
+            <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Create free account</Button>
           </div>
         </div>
       </header>
@@ -70,15 +70,12 @@ export default function GuestSidebar() {
           <div className="flex-1 flex flex-col justify-center">
             <div className="flex flex-col gap-6">
               {/* Desktop hero */}
-              <h1 className="text-[28px] leading-[34px] font-semibold text-design-content-default tracking-[-0.4px]">
-                Invoice simply. Get paid faster.
+              <h1 className="text-[24px] leading-[30px] font-semibold text-design-content-default tracking-[-0.4px]">
+                Simple invoicing and expense tracking for Swiss freelancers
               </h1>
-              <ul className="text-[15px] text-design-content-default leading-relaxed list-disc pl-5 space-y-2">
-                <li>Invoices with QR code.</li>
-                <li>Tax-ready (VAT, exports).</li>
-                <li>Projects + time tracking.</li>
-                <li>Everything in one place.</li>
-              </ul>
+              <p className="text-[15px] text-design-content-weak leading-relaxed" style={{ fontWeight: 400 }}>
+                Create beautiful QR invoices, collect deductible expenses, have an overview of what your taxes will look like, and share everything easily with your accountant.
+              </p>
               <div className="flex flex-col gap-3">
                 <Button variant="primary" className="w-full justify-center">
                   Create free account

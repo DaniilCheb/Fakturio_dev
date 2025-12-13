@@ -61,13 +61,15 @@ export default function InvoicePreviewV2({
       {/* Header Section */}
       <div className="px-8 pt-7 pb-6">
         <div className="flex justify-between items-start">
-          {/* Left side - Logo placeholder */}
+          {/* Left side - Logo (only shown if uploaded) */}
           <div>
-            <div className="w-[160px] h-[48px] bg-[rgba(21,21,20,0.4)] flex items-center justify-center">
-              <span className="text-[12px] font-bold text-[#151514] leading-4">
-                Customer logo
-              </span>
-            </div>
+            {invoice.from_info.logo_url && (
+              <img 
+                src={invoice.from_info.logo_url} 
+                alt="Company logo" 
+                className="max-w-[160px] max-h-[48px] object-contain"
+              />
+            )}
           </div>
           
           {/* Right side - Company info */}
