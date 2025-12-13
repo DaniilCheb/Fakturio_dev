@@ -399,6 +399,37 @@ export default function Home() {
     }
   }
 
+  // Handle save before auth redirect (no UI feedback, just save)
+  const handleSaveBeforeAuth = async () => {
+    const invoice = buildInvoice()
+    const validation = validateInvoice(invoice)
+    
+    // Even if validation fails, try to save what we have
+    // The user is going to sign up, so we want to preserve their work
+    if (!validation.isValid) {
+      console.warn('[SaveBeforeAuth] Invoice validation failed, saving anyway:', validation.errors)
+    }
+    
+    // Save to localStorage silently
+    await saveToStorage({
+      invoice_number: invoice.invoice_number || '',
+      issued_on: invoice.issued_on || '',
+      due_date: invoice.due_date || '',
+      currency: invoice.currency || 'CHF',
+      payment_method: invoice.payment_method || 'Bank',
+      from_info: invoice.from_info || { name: '', street: '', zip: '', iban: '' },
+      to_info: invoice.to_info || { name: '', address: '', zip: '' },
+      description: invoice.description,
+      items: invoice.items || [],
+      discount: invoice.discount || 0,
+      subtotal: invoice.subtotal || 0,
+      vat_amount: invoice.vat_amount || 0,
+      total: invoice.total || 0
+    })
+    
+    console.log('[SaveBeforeAuth] Invoice saved to localStorage before auth redirect')
+  }
+
   return (
     <div className="min-h-screen bg-design-background flex">
       {/* Sidebar */}
@@ -525,6 +556,7 @@ export default function Home() {
         onClose={() => setShowSaveModal(false)}
         onDownload={handleDownload}
         onSaveOnly={handleSaveOnly}
+        onSaveBeforeAuth={handleSaveBeforeAuth}
         isLoading={isGeneratingPDF}
         isSaving={isSaving}
       />

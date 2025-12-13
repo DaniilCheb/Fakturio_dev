@@ -5,7 +5,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { GuestInvoice } from '../types/invoice'
-import { saveContactWithClient, type CreateContactInput } from './contactService.client'
+import { saveContactWithClient, getContactsWithClient, type CreateContactInput } from './contactService.client'
 import { saveBankAccountWithClient, getBankAccountsWithClient, type CreateBankAccountInput } from './bankAccountService.client'
 import { saveInvoiceWithClient, type CreateInvoiceInput } from './invoiceService.client'
 import { updateUserProfileWithClient, getUserProfileWithClient } from './settingsService.client'
@@ -81,9 +81,18 @@ export async function migrateGuestData(
 ): Promise<{ invoiceCount: number; contactCount: number; bankAccountCount: number }> {
   const guestInvoices = getGuestInvoices()
   
+  console.log('[Migration] Found', guestInvoices.length, 'guest invoices to migrate')
+  
   if (guestInvoices.length === 0) {
     return { invoiceCount: 0, contactCount: 0, bankAccountCount: 0 }
   }
+  
+  console.log('[Migration] First invoice preview:', {
+    id: guestInvoices[0].id,
+    invoice_number: guestInvoices[0].invoice_number,
+    from: guestInvoices[0].from_info.name,
+    to: guestInvoices[0].to_info.name,
+  })
 
   // Track created entities to avoid duplicates
   const contactMap = new Map<string, string>() // key -> contact_id
@@ -93,7 +102,17 @@ export async function migrateGuestData(
   let bankAccountCount = 0
   let invoiceCount = 0
 
-  // Get existing bank accounts
+  // Get existing contacts and bank accounts to avoid duplicates
+  const existingContacts = await getContactsWithClient(supabase, userId)
+  for (const contact of existingContacts) {
+    const key = getContactKey({
+      name: contact.name,
+      address: contact.address || '',
+      zip: contact.postal_code || ''
+    })
+    contactMap.set(key, contact.id)
+  }
+
   const existingBankAccounts = await getBankAccountsWithClient(supabase, userId)
   for (const account of existingBankAccounts) {
     bankAccountMap.set(getBankAccountKey(account.iban), account.id)

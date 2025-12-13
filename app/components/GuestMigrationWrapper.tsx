@@ -16,30 +16,46 @@ export default function GuestMigrationWrapper({ children }: GuestMigrationWrappe
 
   useEffect(() => {
     async function handleMigration() {
-      if (!isLoaded || !session) return
+      if (!isLoaded || !session) {
+        console.log('[Migration] Session not ready yet. isLoaded:', isLoaded, 'session:', !!session)
+        return
+      }
+      
+      console.log('[Migration] Checking for guest data...')
+      const guestDataExists = hasGuestData()
+      console.log('[Migration] Guest data exists:', guestDataExists)
       
       // Check if there's guest data to migrate
-      if (!hasGuestData()) {
+      if (!guestDataExists) {
+        console.log('[Migration] No guest data found, skipping migration')
         setMigrationComplete(true)
         return
       }
 
       // Check if we've already migrated (prevent duplicate migrations)
       const migrationKey = `fakturio_migrated_${session.user.id}`
-      if (typeof window !== 'undefined' && localStorage.getItem(migrationKey)) {
+      const alreadyMigrated = typeof window !== 'undefined' && localStorage.getItem(migrationKey)
+      console.log('[Migration] Already migrated for this user:', alreadyMigrated)
+      
+      if (alreadyMigrated) {
         clearGuestData()
         setMigrationComplete(true)
         return
       }
 
+      console.log('[Migration] Starting migration process...')
       setIsMigrating(true)
 
       try {
+        console.log('[Migration] Starting migration for user:', session.user.id)
+        console.log('[Migration] Guest data found:', hasGuestData())
+        
         const supabase = createClientSupabaseClient(session)
         const userId = session.user.id
         const userEmail = session.user.primaryEmailAddress?.emailAddress || ''
 
-        await migrateGuestData(supabase, userId, userEmail)
+        const result = await migrateGuestData(supabase, userId, userEmail)
+        console.log('[Migration] Migration complete:', result)
         
         // Mark migration as complete
         if (typeof window !== 'undefined') {
@@ -50,7 +66,7 @@ export default function GuestMigrationWrapper({ children }: GuestMigrationWrappe
         clearGuestData()
         
       } catch (error) {
-        console.error('Error migrating guest data:', error)
+        console.error('[Migration] Error migrating guest data:', error)
         // Don't block the user on migration failure
       } finally {
         setIsMigrating(false)

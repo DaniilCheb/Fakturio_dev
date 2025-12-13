@@ -20,7 +20,15 @@ export async function createServerSupabaseClient(): Promise<SupabaseClient> {
     global: {
       fetch: async (url, options = {}) => {
         // Get the Clerk token for Supabase
-        const clerkToken = await getToken({ template: "supabase" });
+        let clerkToken: string | null = null;
+        try {
+          clerkToken = await getToken({ template: "supabase" });
+          if (!clerkToken) {
+            console.warn('[Supabase Server] No token returned from Clerk - JWT template "supabase" may not exist');
+          }
+        } catch (tokenError) {
+          console.error('[Supabase Server] Error getting Clerk token:', tokenError);
+        }
 
         // Construct fetch headers
         const headers = new Headers(options?.headers);

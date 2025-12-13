@@ -16,6 +16,15 @@ const InvoicesIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const CustomersIcon = ({ className }: { className?: string }) => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="7" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
+    <circle cx="13" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M2 16C2 13.7909 3.79086 12 6 12H8C9.5 12 10.5 12.5 11 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M18 16C18 13.7909 16.2091 12 14 12H12C10.5 12 9.5 12.5 9 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>
+)
+
 const AccountIcon = ({ className }: { className?: string }) => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="1.5"/>
@@ -68,6 +77,7 @@ export default function AuthenticatedSidebar() {
 
   const navItems = [
     { href: '/dashboard', icon: <InvoicesIcon />, label: 'Invoices' },
+    { href: '/dashboard/customers', icon: <CustomersIcon />, label: 'Customers' },
     { href: '/dashboard/account', icon: <AccountIcon />, label: 'Account' },
   ]
 

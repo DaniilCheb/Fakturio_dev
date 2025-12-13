@@ -10,6 +10,7 @@ interface SaveInvoiceModalProps {
   onClose: () => void
   onDownload: () => void
   onSaveOnly?: () => void
+  onSaveBeforeAuth?: () => Promise<void> // Save invoice before redirecting to auth
   isLoading?: boolean
   isSaving?: boolean
 }
@@ -33,23 +34,51 @@ export default function SaveInvoiceModal({
   onClose, 
   onDownload,
   onSaveOnly,
+  onSaveBeforeAuth,
   isLoading = false,
   isSaving = false,
 }: SaveInvoiceModalProps) {
   const router = useRouter()
 
-  const handleContinueWithGoogle = () => {
+  const handleContinueWithGoogle = async () => {
+    // Save invoice to localStorage before redirecting so it can be migrated
+    if (onSaveBeforeAuth) {
+      try {
+        await onSaveBeforeAuth()
+        console.log('[SaveInvoiceModal] Invoice saved before Google auth redirect')
+      } catch (e) {
+        console.warn('[SaveInvoiceModal] Failed to save invoice before auth:', e)
+      }
+    }
     onClose()
     // Redirect to sign-up page which has Google OAuth option
     router.push('/sign-up')
   }
 
-  const handleContinueWithEmail = () => {
+  const handleContinueWithEmail = async () => {
+    // Save invoice to localStorage before redirecting so it can be migrated
+    if (onSaveBeforeAuth) {
+      try {
+        await onSaveBeforeAuth()
+        console.log('[SaveInvoiceModal] Invoice saved before email auth redirect')
+      } catch (e) {
+        console.warn('[SaveInvoiceModal] Failed to save invoice before auth:', e)
+      }
+    }
     onClose()
     router.push('/sign-up')
   }
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    // Save invoice to localStorage before redirecting so it can be migrated
+    if (onSaveBeforeAuth) {
+      try {
+        await onSaveBeforeAuth()
+        console.log('[SaveInvoiceModal] Invoice saved before login redirect')
+      } catch (e) {
+        console.warn('[SaveInvoiceModal] Failed to save invoice before auth:', e)
+      }
+    }
     onClose()
     router.push('/sign-in')
   }

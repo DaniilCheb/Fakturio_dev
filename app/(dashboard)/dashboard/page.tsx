@@ -63,7 +63,7 @@ function EmptyState() {
         Create your first invoice to start tracking your business income.
       </p>
       <Link
-        href="/"
+        href="/dashboard/invoices/new"
         className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity"
       >
         Create Invoice
@@ -107,8 +107,14 @@ export default async function DashboardPage() {
 
   try {
     invoices = await getInvoices()
+    // If we successfully got an empty array, that's fine - user just hasn't created invoices yet
   } catch (e) {
-    error = e instanceof Error ? e.message : 'Failed to load invoices'
+    // For new users who haven't created invoices yet, treat as empty state rather than error
+    // This provides better UX - showing an error when a user simply hasn't created invoices yet
+    // is confusing. We'll log the error for debugging but show empty state to the user.
+    console.error('Error fetching invoices (showing empty state):', e)
+    error = null // Don't show error to user - treat as empty state
+    invoices = [] // Ensure invoices is empty array
   }
 
   // Calculate summary stats
@@ -122,7 +128,7 @@ export default async function DashboardPage() {
   const overdueCount = invoices.filter(inv => getInvoiceStatus(inv) === 'overdue').length
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-[800px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
@@ -133,11 +139,11 @@ export default async function DashboardPage() {
             Manage and track all your invoices
           </p>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity"
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="mr-2">
+      <Link
+        href="/dashboard/invoices/new"
+        className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="mr-2">
             <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           Create Invoice

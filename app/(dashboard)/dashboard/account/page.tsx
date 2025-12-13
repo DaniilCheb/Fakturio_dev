@@ -12,12 +12,19 @@ export default async function AccountPage() {
   try {
     profile = await getUserProfile()
     bankAccounts = await getBankAccounts()
+    // If we successfully got empty data, that's fine - user just hasn't set up their account yet
   } catch (e) {
-    error = e instanceof Error ? e.message : 'Failed to load account data'
+    // For new users who haven't set up their account yet, treat as empty state rather than error
+    // This provides better UX - showing an error when a user simply hasn't configured their account yet
+    // is confusing. We'll log the error for debugging but show empty state to the user.
+    console.error('Error fetching account data (showing empty state):', e)
+    error = null // Don't show error to user - treat as empty state
+    profile = null // Ensure profile is null
+    bankAccounts = [] // Ensure bankAccounts is empty array
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-[800px] mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">

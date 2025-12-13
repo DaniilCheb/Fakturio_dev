@@ -15,6 +15,10 @@ export function createClientSupabaseClient(
       fetch: async (url, options = {}) => {
         const clerkToken = await session?.getToken({ template: "supabase" });
 
+        if (!clerkToken) {
+          console.warn('[Supabase Client] No Clerk token available - JWT template "supabase" may not be configured')
+        }
+
         const headers = new Headers(options?.headers);
         if (clerkToken) {
           headers.set("Authorization", `Bearer ${clerkToken}`);

@@ -151,61 +151,54 @@ export async function getInvoiceByIdWithClient(
 }
 
 /**
- * Generate next invoice number in format YYYY-NN (server-side)
- * Always starts with year-01 and increments based on invoice count for the user
+ * Generate next invoice number starting from 1 (server-side)
+ * Always starts with 1 and increments based on total invoice count for the user
  */
 export async function getNextInvoiceNumber(): Promise<string> {
   const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
-  const currentYear = new Date().getFullYear();
   
-  // Count all invoices for this user in the current year
+  // Count all invoices for this user
   const { count, error } = await supabase
     .from("invoices")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .like("invoice_number", `${currentYear}-%`);
+    .eq("user_id", userId);
   
   if (error) {
     console.error("Error fetching invoice count:", error);
     throw new Error("Failed to generate invoice number");
   }
   
-  // Next number is count + 1 (first invoice is 01, second is 02, etc.)
+  // Next number is count + 1 (first invoice is 1, second is 2, etc.)
   const nextSequence = (count || 0) + 1;
-  const paddedSequence = nextSequence.toString().padStart(2, "0");
   
-  return `${currentYear}-${paddedSequence}`;
+  return nextSequence.toString();
 }
 
 /**
  * Generate next invoice number (with explicit client)
- * Always starts with year-01 and increments based on invoice count for the user
+ * Always starts with 1 and increments based on total invoice count for the user
  */
 export async function getNextInvoiceNumberWithClient(
   supabase: SupabaseClient,
   userId: string
 ): Promise<string> {
-  const currentYear = new Date().getFullYear();
-  
-  // Count all invoices for this user in the current year
+  // Count all invoices for this user
   const { count, error } = await supabase
     .from("invoices")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .like("invoice_number", `${currentYear}-%`);
+    .eq("user_id", userId);
   
   if (error) {
     console.error("Error fetching invoice count:", error);
     throw new Error("Failed to generate invoice number");
   }
   
-  // Next number is count + 1 (first invoice is 01, second is 02, etc.)
+  // Next number is count + 1 (first invoice is 1, second is 2, etc.)
   const nextSequence = (count || 0) + 1;
-  const paddedSequence = nextSequence.toString().padStart(2, "0");
   
-  return `${currentYear}-${paddedSequence}`;
+  return nextSequence.toString();
 }
 
 /**
