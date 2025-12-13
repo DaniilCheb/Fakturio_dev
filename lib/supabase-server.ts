@@ -6,8 +6,37 @@ import { auth } from "@clerk/nextjs/server";
  * Do not import this file in client components - use supabase-client.ts instead.
  */
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+
+// Helper function to validate and get env vars with better error messages
+function getSupabaseConfig() {
+  if (!supabaseUrl) {
+    const error = new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL environment variable.\n" +
+      "This variable must be set BEFORE building your Next.js app.\n" +
+      "If you just added it, you need to:\n" +
+      "1. Set it in your deployment platform (Vercel/Netlify/etc.)\n" +
+      "2. Redeploy your application (the build needs to run with the variable set)"
+    );
+    console.error('[Supabase Server]', error.message);
+    throw error;
+  }
+
+  if (!supabaseAnonKey) {
+    const error = new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_KEY environment variable.\n" +
+      "This variable must be set BEFORE building your Next.js app.\n" +
+      "If you just added it, you need to:\n" +
+      "1. Set it in your deployment platform (Vercel/Netlify/etc.)\n" +
+      "2. Redeploy your application (the build needs to run with the variable set)"
+    );
+    console.error('[Supabase Server]', error.message);
+    throw error;
+  }
+
+  return { supabaseUrl, supabaseAnonKey };
+}
 
 /**
  * Create a Supabase client for server-side operations with Clerk auth
@@ -15,6 +44,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
  */
 export async function createServerSupabaseClient(): Promise<SupabaseClient> {
   const { getToken } = await auth();
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
 
   return createClient(supabaseUrl, supabaseAnonKey, {
     global: {

@@ -50,6 +50,13 @@ export default function GuestMigrationWrapper({ children }: GuestMigrationWrappe
         console.log('[Migration] Starting migration for user:', session.user.id)
         console.log('[Migration] Guest data found:', hasGuestData())
         
+        // Check if Supabase environment variables are configured
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_KEY) {
+          console.error('[Migration] Supabase environment variables not configured. Skipping migration.')
+          setMigrationComplete(true)
+          return
+        }
+        
         const supabase = createClientSupabaseClient(session)
         const userId = session.user.id
         const userEmail = session.user.primaryEmailAddress?.emailAddress || ''
