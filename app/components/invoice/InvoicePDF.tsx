@@ -15,19 +15,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 10,
   },
-  // Logo section
-  logoPlaceholder: {
-    width: 160,
-    height: 48,
-    backgroundColor: 'rgba(21, 21, 20, 0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  // Logo style (only used when logo_url exists)
+  logo: {
+    maxWidth: 160,
+    maxHeight: 48,
+    objectFit: 'contain',
     marginBottom: 24,
-  },
-  logoText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#151514',
   },
   // Two column layout for Billed from / Billed to
   billingRow: {
@@ -257,10 +250,7 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
       <Page size="A4" style={styles.page}>
         {/* Logo (only shown if uploaded) */}
         {invoice.from_info.logo_url && (
-          <Image 
-            src={invoice.from_info.logo_url} 
-            style={{ maxWidth: 160, maxHeight: 48, objectFit: 'contain', marginBottom: 24 }} 
-          />
+          <Image src={invoice.from_info.logo_url} style={styles.logo} />
         )}
 
         {/* Billed from / Billed to */}

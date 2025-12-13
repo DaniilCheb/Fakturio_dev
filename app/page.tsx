@@ -11,6 +11,7 @@ import InvoiceHeader from './components/invoice/InvoiceHeader'
 import FromSection from './components/invoice/FromSection'
 import ToSection from './components/invoice/ToSection'
 import DescriptionSection from './components/invoice/DescriptionSection'
+import PaymentInformationSection from './components/invoice/PaymentInformationSection'
 import ProductsSection from './components/invoice/ProductsSection'
 import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
 import PreviewModal from './components/invoice/PreviewModal'
@@ -169,6 +170,15 @@ export default function Home() {
     
     setValidationErrors({})
     setShowSaveModal(true)
+  }
+
+  // Clear specific validation error
+  const clearError = (field: keyof ValidationErrors) => {
+    setValidationErrors(prev => {
+      const updated = { ...prev }
+      delete updated[field]
+      return updated
+    })
   }
 
   const handleDownload = async () => {
@@ -367,7 +377,7 @@ export default function Home() {
             {/* Invoice Form Sections */}
             <div className="flex flex-col gap-6 sm:gap-8">
               {/* Try it now - Desktop only */}
-              <p className="hidden lg:block text-[20px] font-semibold text-design-content-default pt-10 mb-[3px]">
+              <p className="hidden lg:block text-[24px] leading-[30px] font-semibold text-design-content-default tracking-[-0.4px] pt-10 mb-[3px]">
                 Create an invoice in less than 2 minutes.
               </p>
 
@@ -377,35 +387,44 @@ export default function Home() {
                   invoiceNumber={invoiceNumber}
                   issuedOn={issuedOn}
                   dueDate={dueDate}
-                  currency={currency}
-                  paymentMethod={paymentMethod}
                   onChange={handleHeaderChange}
                   errors={validationErrors}
+                  onClearError={clearError}
                 />
               </div>
 
-              {/* From and To Sections */}
-              <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-                <div className="flex-1">
-                  <FromSection
-                    fromInfo={fromInfo}
-                    onChange={setFromInfo}
-                    errors={validationErrors}
-                  />
-                </div>
-                <div className="flex-1">
-                  <ToSection
-                    toInfo={toInfo}
-                    onChange={setToInfo}
-                    errors={validationErrors}
-                  />
-                </div>
-              </div>
+              {/* From Section */}
+              <FromSection
+                fromInfo={fromInfo}
+                onChange={setFromInfo}
+                errors={validationErrors}
+                onClearError={clearError}
+              />
+
+              {/* To Section */}
+              <ToSection
+                toInfo={toInfo}
+                onChange={setToInfo}
+                errors={validationErrors}
+                onClearError={clearError}
+              />
 
               {/* Description Section */}
               <DescriptionSection
                 description={description}
                 onChange={setDescription}
+              />
+
+              {/* Payment Information Section */}
+              <PaymentInformationSection
+                currency={currency}
+                paymentMethod={paymentMethod}
+                iban={fromInfo.iban}
+                onCurrencyChange={(value) => handleHeaderChange('currency', value)}
+                onPaymentMethodChange={(value) => handleHeaderChange('payment_method', value)}
+                onIbanChange={(value) => setFromInfo(prev => ({ ...prev, iban: value }))}
+                errors={validationErrors}
+                onClearError={clearError}
               />
 
               {/* Products Section */}
@@ -416,6 +435,7 @@ export default function Home() {
                 onChangeItems={setItems}
                 onChangeDiscount={setDiscount}
                 errors={validationErrors}
+                onClearError={clearError}
               />
 
               {/* Action Buttons */}

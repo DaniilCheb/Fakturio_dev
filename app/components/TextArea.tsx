@@ -14,6 +14,7 @@ interface TextAreaProps {
   error?: string
   maxLength?: number
   noLabel?: boolean
+  onErrorClear?: () => void // Callback to clear error when user types
 }
 
 /**
@@ -39,17 +40,26 @@ export default function TextArea({
   className = '',
   error,
   maxLength,
-  noLabel = false
+  noLabel = false,
+  onErrorClear
 }: TextAreaProps) {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    // Clear error when user starts typing
+    if (error && onErrorClear) {
+      onErrorClear()
+    }
+    onChange(e)
+  }
+
   const textareaElement = (
     <textarea
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       placeholder={placeholder}
       rows={rows}
       disabled={disabled}
       maxLength={maxLength}
-      className={`w-full px-2 py-2 bg-design-surface-field border rounded-lg text-sm font-normal text-design-content-default focus:outline-none focus:border-design-content-default transition-all duration-200 resize-none ${
+      className={`w-full px-2 py-2 bg-design-surface-field border rounded-lg text-[15px] font-normal text-design-content-default focus:outline-none focus:border-design-content-default transition-all duration-200 resize-none ${
         error 
           ? 'border-red-500 dark:border-red-500' 
           : 'border-design-border-default'

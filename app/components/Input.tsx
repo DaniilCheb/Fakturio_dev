@@ -15,6 +15,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string
   required?: boolean
   noLabel?: boolean // When true, renders just the input without label wrapper
+  onErrorClear?: () => void // Callback to clear error when user types
 }
 
 export default function Input({ 
@@ -27,18 +28,27 @@ export default function Input({
   error, 
   required,
   noLabel = false,
+  onErrorClear,
   ...props 
 }: InputProps) {
   const hasError = !!error
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Clear error when user starts typing
+    if (error && onErrorClear) {
+      onErrorClear()
+    }
+    onChange(e)
+  }
 
   const inputElement = (
     <ShadcnInput
       type={type}
       value={value ?? ''}
-      onChange={onChange}
+      onChange={handleChange}
       placeholder={placeholder}
       className={cn(
-        "h-auto px-2 py-2 text-sm",
+        "h-auto px-2 py-2 text-[15px]",
         hasError && "border-destructive focus-visible:ring-destructive",
         className
       )}

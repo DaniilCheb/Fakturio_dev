@@ -16,6 +16,7 @@ interface FromSectionProps {
     fromZip?: string
     fromIban?: string
   }
+  onClearError?: (field: string) => void
 }
 
 interface CompanyInfo {
@@ -37,7 +38,7 @@ interface SearchResult {
   status: string
 }
 
-export default function FromSection({ fromInfo, onChange, errors = {} }: FromSectionProps) {
+export default function FromSection({ fromInfo, onChange, errors = {}, onClearError }: FromSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [lookupError, setLookupError] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -255,6 +256,7 @@ export default function FromSection({ fromInfo, onChange, errors = {} }: FromSec
             placeholder="Name"
             error={errors.fromName}
             required
+            onErrorClear={() => onClearError?.('fromName')}
           />
           <Input
             label="Street"
@@ -263,6 +265,7 @@ export default function FromSection({ fromInfo, onChange, errors = {} }: FromSec
             placeholder="Street"
             error={errors.fromStreet}
             required
+            onErrorClear={() => onClearError?.('fromStreet')}
           />
           <Input
             label="ZIP / City"
@@ -271,14 +274,7 @@ export default function FromSection({ fromInfo, onChange, errors = {} }: FromSec
             placeholder="8037 Zurich"
             error={errors.fromZip}
             required
-          />
-          <Input
-            label="IBAN"
-            value={fromInfo.iban || ''}
-            onChange={handleChange('iban')}
-            placeholder="CH93 0076 2011 6238 5295 7"
-            error={errors.fromIban}
-            required
+            onErrorClear={() => onClearError?.('fromZip')}
           />
         </div>
       </div>

@@ -52,17 +52,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
   },
-  logoPlaceholder: {
-    width: 160,
-    height: 48,
-    backgroundColor: 'rgba(21,21,20,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#151514',
+  logo: {
+    maxWidth: 160,
+    maxHeight: 48,
+    objectFit: 'contain',
   },
   companyInfo: {
     textAlign: 'right',
@@ -277,10 +270,7 @@ export default function InvoicePDFV2({ invoice, includeQRCode, qrCodeDataUrl }: 
           {/* Logo (only shown if uploaded) */}
           <View>
             {invoice.from_info.logo_url && (
-              <Image 
-                src={invoice.from_info.logo_url} 
-                style={{ maxWidth: 160, maxHeight: 48, objectFit: 'contain' }} 
-              />
+              <Image src={invoice.from_info.logo_url} style={styles.logo} />
             )}
           </View>
           

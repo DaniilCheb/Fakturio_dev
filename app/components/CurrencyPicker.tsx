@@ -36,17 +36,26 @@ interface CurrencyPickerProps {
   error?: string
   required?: boolean
   noLabel?: boolean
+  onErrorClear?: () => void // Callback to clear error when user selects a currency
 }
 
-export default function CurrencyPicker({ label, value, onChange, error, required, noLabel = false }: CurrencyPickerProps) {
+export default function CurrencyPicker({ label, value, onChange, error, required, noLabel = false, onErrorClear }: CurrencyPickerProps) {
   // TODO: Uncomment when language context is available
   // const { t } = useLanguage()
   const hasError = !!error
 
+  const handleValueChange = (newValue: string) => {
+    // Clear error when user selects a currency
+    if (error && onErrorClear) {
+      onErrorClear()
+    }
+    onChange(newValue)
+  }
+
   const selectElement = (
     <ShadcnSelect
       value={value || undefined}
-      onValueChange={onChange}
+      onValueChange={handleValueChange}
     >
       <SelectTrigger className={cn(
         "w-full",

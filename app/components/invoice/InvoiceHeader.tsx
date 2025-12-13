@@ -11,25 +11,20 @@ import {
   SelectValue,
 } from '@/app/components/ui/select'
 import { Label } from '@/app/components/ui/label'
-import { ToggleGroup, ToggleGroupItem } from '@/app/components/ui/toggle-group'
-import CurrencyPicker from '../CurrencyPicker'
-import { formatDateISO, getCurrentDateISO, calculateDueDate, parsePaymentTerms } from '@/lib/utils/dateUtils'
+import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { cn } from '@/lib/utils'
 
 interface InvoiceHeaderProps {
   invoiceNumber: string
   issuedOn: string
   dueDate: string
-  currency: string
-  paymentMethod: 'Bank' | 'Card' | 'Cash' | 'Other'
   onChange: (field: string, value: string) => void
   errors?: {
     invoice_number?: string
     issued_on?: string
     due_date?: string
-    currency?: string
-    payment_method?: string
   }
+  onClearError?: (field: string) => void
 }
 
 const PAYMENT_TERMS_OPTIONS = [
@@ -40,35 +35,19 @@ const PAYMENT_TERMS_OPTIONS = [
   { value: 'On receipt', label: 'On receipt' }
 ]
 
-const PAYMENT_METHOD_OPTIONS = [
-  { value: 'Bank', label: 'Bank' },
-  { value: 'Card', label: 'Card' },
-  { value: 'Cash', label: 'Cash' },
-  { value: 'Other', label: 'Other' }
-]
-
 export default function InvoiceHeader({
   invoiceNumber,
   issuedOn,
   dueDate,
-  currency,
-  paymentMethod,
   onChange,
-  errors = {}
+  errors = {},
+  onClearError
 }: InvoiceHeaderProps) {
-  const handlePaymentTermsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const terms = e.target.value
-    if (terms === 'On receipt') {
-      onChange('due_date', issuedOn)
-    } else {
-      const calculatedDueDate = calculateDueDate(issuedOn, terms)
-      onChange('due_date', calculatedDueDate)
-    }
-  }
 
   const handleIssuedDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newIssuedDate = e.target.value
     onChange('issued_on', newIssuedDate)
+    onClearError?.('issued_on')
     
     // Recalculate due date if payment terms are set
     if (dueDate && issuedOn) {
@@ -80,6 +59,22 @@ export default function InvoiceHeader({
     }
   }
 
+  const handleInvoiceNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange('invoice_number', e.target.value)
+    onClearError?.('invoice_number')
+  }
+
+  const handlePaymentTermsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const terms = e.target.value
+    if (terms === 'On receipt') {
+      onChange('due_date', issuedOn)
+    } else {
+      const calculatedDueDate = calculateDueDate(issuedOn, terms)
+      onChange('due_date', calculatedDueDate)
+    }
+    onClearError?.('due_date')
+  }
+
   return (
     <div className="flex flex-col gap-5">
       {/* First Row: Invoice # and Issued on */}
@@ -88,9 +83,10 @@ export default function InvoiceHeader({
           <Input
             label="Invoice #"
             value={invoiceNumber}
-            onChange={(e) => onChange('invoice_number', e.target.value)}
+            onChange={handleInvoiceNumberChange}
             error={errors.invoice_number}
             required
+            onErrorClear={() => onClearError?.('invoice_number')}
           />
         </div>
         <div className="flex-1">
@@ -99,6 +95,7 @@ export default function InvoiceHeader({
             value={issuedOn || getCurrentDateISO()}
             onChange={handleIssuedDateChange}
             error={errors.issued_on}
+            onErrorClear={() => onClearError?.('issued_on')}
           />
         </div>
       </div>
@@ -145,66 +142,6 @@ export default function InvoiceHeader({
             </ShadcnSelect>
             {errors.due_date && (
               <p className="text-destructive text-[12px] mt-1">{errors.due_date}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Third Row: Currency and Payment Method */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <CurrencyPicker
-            label="Currency"
-            value={currency}
-            onChange={(value) => onChange('currency', value)}
-            error={errors.currency}
-          />
-        </div>
-        <div className="flex-1">
-          <div className="flex flex-col gap-1">
-            <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
-              Payment method
-            </Label>
-            <ToggleGroup
-              type="single"
-              value={paymentMethod}
-              onValueChange={(value) => {
-                if (value) onChange('payment_method', value)
-              }}
-              className={cn(
-                "inline-flex h-10 items-center justify-center rounded-md border border-input bg-muted p-1 text-muted-foreground",
-                "w-full",
-                errors.payment_method && "border-destructive"
-              )}
-            >
-              {PAYMENT_METHOD_OPTIONS.map((option, index) => (
-                <ToggleGroupItem
-                  key={option.value}
-                  value={option.value}
-                  className={cn(
-                    "flex-1 h-full px-3 text-sm font-normal transition-all border",
-                    // Override default toggle styles for selected state
-                    "data-[state=on]:!bg-white dark:data-[state=on]:!bg-design-surface-default",
-                    "data-[state=on]:!text-design-content-default",
-                    "data-[state=on]:!border-design-border-default",
-                    "data-[state=on]:shadow-sm",
-                    // Selected items always have rounded corners
-                    "data-[state=on]:rounded-md",
-                    // Unselected state: transparent border to prevent layout shift, muted text
-                    "data-[state=off]:border-transparent data-[state=off]:bg-transparent",
-                    "data-[state=off]:text-muted-foreground data-[state=off]:hover:bg-background/50",
-                    // Unselected items: rounded edges based on position
-                    "data-[state=off]:rounded-none",
-                    index === 0 && "data-[state=off]:rounded-l-md",
-                    index === PAYMENT_METHOD_OPTIONS.length - 1 && "data-[state=off]:rounded-r-md"
-                  )}
-                >
-                  {option.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-            {errors.payment_method && (
-              <p className="text-destructive text-[12px] mt-1">{errors.payment_method}</p>
             )}
           </div>
         </div>

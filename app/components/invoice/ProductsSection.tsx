@@ -38,6 +38,7 @@ interface ProductsSectionProps {
   errors?: {
     items?: string
   }
+  onClearError?: (field: string) => void
 }
 
 export default function ProductsSection({
@@ -46,7 +47,8 @@ export default function ProductsSection({
   currency,
   onChangeItems,
   onChangeDiscount,
-  errors = {}
+  errors = {},
+  onClearError
 }: ProductsSectionProps) {
   const addItem = () => {
     const newItem: InvoiceItem = {
@@ -61,6 +63,10 @@ export default function ProductsSection({
   }
 
   const updateItem = (id: string, field: keyof InvoiceItem, value: string | number) => {
+    // Clear global items error when user makes any change to an item
+    if (errors.items && onClearError) {
+      onClearError('items')
+    }
     onChangeItems(
       items.map(item =>
         item.id === id ? { ...item, [field]: value } : item
@@ -80,6 +86,13 @@ export default function ProductsSection({
     const description = String(item.description || '').trim()
     return qty > 0 && price > 0 && description.length > 0
   }
+
+  // Clear error when at least one item becomes valid
+  React.useEffect(() => {
+    if (errors.items && items.some(item => isItemValid(item)) && onClearError) {
+      onClearError('items')
+    }
+  }, [items, errors.items, onClearError])
 
   const hasInvalidItems = errors.items && items.every(item => !isItemValid(item))
 

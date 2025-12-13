@@ -19,6 +19,7 @@ interface DatePickerProps {
   required?: boolean
   noLabel?: boolean
   disabled?: boolean
+  onErrorClear?: () => void // Callback to clear error when user selects a date
 }
 
 export default function DatePicker({
@@ -30,7 +31,8 @@ export default function DatePicker({
   error,
   required,
   noLabel = false,
-  disabled = false
+  disabled = false,
+  onErrorClear
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   
@@ -52,6 +54,10 @@ export default function DatePicker({
       const syntheticEvent = {
         target: { value: isoDate }
       } as React.ChangeEvent<HTMLInputElement>
+      // Clear error when user selects a date
+      if (error && onErrorClear) {
+        onErrorClear()
+      }
       onChange(syntheticEvent)
       setOpen(false)
     }

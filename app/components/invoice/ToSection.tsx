@@ -5,7 +5,7 @@ import Input from '../Input'
 import { ToInfo } from '@/lib/types/invoice'
 import { formatUid } from '@/lib/services/zefixService'
 import { Loader2 } from 'lucide-react'
-import { CloseIcon } from '../Icons'
+import { CloseIcon, PlusIcon } from '../Icons'
 
 interface ToSectionProps {
   toInfo: ToInfo
@@ -15,6 +15,7 @@ interface ToSectionProps {
     toAddress?: string
     toZip?: string
   }
+  onClearError?: (field: string) => void
 }
 
 interface CompanyInfo {
@@ -36,13 +37,14 @@ interface SearchResult {
   status: string
 }
 
-export default function ToSection({ toInfo, onChange, errors = {} }: ToSectionProps) {
+export default function ToSection({ toInfo, onChange, errors = {}, onClearError }: ToSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [lookupError, setLookupError] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isCompanySelected, setIsCompanySelected] = useState(false)
+  const [showFields, setShowFields] = useState(false)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleChange = (field: keyof ToInfo) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,6 +150,7 @@ export default function ToSection({ toInfo, onChange, errors = {} }: ToSectionPr
         // Keep the company name in the search field
         setSearchQuery(company.name)
         setIsCompanySelected(true)
+        setShowFields(true)
       }
     } finally {
       setIsLoading(false)
@@ -249,38 +252,57 @@ export default function ToSection({ toInfo, onChange, errors = {} }: ToSectionPr
             )}
           </div>
 
-          {/* UID field */}
-          <Input
-            label="UID"
-            value={toInfo.uid || ''}
-            onChange={handleChange('uid')}
-            placeholder="CHE-123.456.789"
-          />
-          
-          <Input
-            label="Name"
-            value={toInfo.name || ''}
-            onChange={handleChange('name')}
-            placeholder="Company AG"
-            error={errors.toName}
-            required
-          />
-          <Input
-            label="Address"
-            value={toInfo.address || ''}
-            onChange={handleChange('address')}
-            placeholder="Address"
-            error={errors.toAddress}
-            required
-          />
-          <Input
-            label="ZIP / City"
-            value={toInfo.zip || ''}
-            onChange={handleChange('zip')}
-            placeholder="8037 Zurich"
-            error={errors.toZip}
-            required
-          />
+          {/* Enter manually button */}
+          {!showFields && (
+            <button
+              type="button"
+              onClick={() => setShowFields(true)}
+              className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors"
+            >
+              <PlusIcon size={12} />
+              Enter manually
+            </button>
+          )}
+
+          {/* Manual entry fields */}
+          {showFields && (
+            <>
+              <Input
+                label="UID"
+                value={toInfo.uid || ''}
+                onChange={handleChange('uid')}
+                placeholder="CHE-123.456.789"
+              />
+              
+              <Input
+                label="Name"
+                value={toInfo.name || ''}
+                onChange={handleChange('name')}
+                placeholder="Company AG"
+                error={errors.toName}
+                required
+                onErrorClear={() => onClearError?.('toName')}
+              />
+              <Input
+                label="Address"
+                value={toInfo.address || ''}
+                onChange={handleChange('address')}
+                placeholder="Address"
+                error={errors.toAddress}
+                required
+                onErrorClear={() => onClearError?.('toAddress')}
+              />
+              <Input
+                label="ZIP / City"
+                value={toInfo.zip || ''}
+                onChange={handleChange('zip')}
+                placeholder="8037 Zurich"
+                error={errors.toZip}
+                required
+                onErrorClear={() => onClearError?.('toZip')}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
