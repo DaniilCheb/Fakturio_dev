@@ -5,42 +5,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
-
-// Icons for navigation
-const InvoicesIcon = ({ className }: { className?: string }) => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M4 3C4 2.44772 4.44772 2 5 2H15C15.5523 2 16 2.44772 16 3V17C16 17.5523 15.5523 18 15 18H5C4.44772 18 4 17.5523 4 17V3Z" stroke="currentColor" strokeWidth="1.5"/>
-    <path d="M7 6H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    <path d="M7 9H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    <path d="M7 12H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
-)
-
-const CustomersIcon = ({ className }: { className?: string }) => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <circle cx="7" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
-    <circle cx="13" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
-    <path d="M2 16C2 13.7909 3.79086 12 6 12H8C9.5 12 10.5 12.5 11 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    <path d="M18 16C18 13.7909 16.2091 12 14 12H12C10.5 12 9.5 12.5 9 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
-)
-
-const AccountIcon = ({ className }: { className?: string }) => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="1.5"/>
-    <path d="M4 16C4 13.7909 5.79086 12 8 12H12C14.2091 12 16 13.7909 16 16V17H4V16Z" stroke="currentColor" strokeWidth="1.5"/>
-  </svg>
-)
+import { InvoicesIcon, ExpensesIcon, CustomersIcon, SettingsIcon, CloseIcon } from './Icons'
 
 const MenuIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-  </svg>
-)
-
-const CloseIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 )
 
@@ -58,9 +27,9 @@ function NavItem({ href, icon, label, isActive, onClick }: NavItemProps) {
       href={href}
       onClick={onClick}
       className={`
-        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200
+        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 font-normal
         ${isActive 
-          ? 'bg-design-surface-field text-design-content-default font-medium' 
+          ? 'bg-design-surface-field text-design-content-default' 
           : 'text-design-content-weak hover:bg-design-surface-field hover:text-design-content-default'
         }
       `}
@@ -76,9 +45,10 @@ export default function AuthenticatedSidebar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navItems = [
-    { href: '/dashboard', icon: <InvoicesIcon />, label: 'Invoices' },
-    { href: '/dashboard/customers', icon: <CustomersIcon />, label: 'Customers' },
-    { href: '/dashboard/account', icon: <AccountIcon />, label: 'Account' },
+    { href: '/dashboard', icon: <InvoicesIcon size={20} />, label: 'Invoices' },
+    { href: '/dashboard/expenses', icon: <ExpensesIcon size={20} />, label: 'Expenses' },
+    { href: '/dashboard/customers', icon: <CustomersIcon size={20} />, label: 'Customers' },
+    { href: '/dashboard/account', icon: <SettingsIcon size={20} />, label: 'Account' },
   ]
 
   const isActive = (href: string) => {
@@ -117,7 +87,7 @@ export default function AuthenticatedSidebar() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-design-content-default hover:bg-design-surface-field rounded-lg transition-colors"
             >
-              {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+              {mobileMenuOpen ? <CloseIcon size={24} /> : <MenuIcon />}
             </button>
           </div>
         </div>

@@ -76,6 +76,7 @@ export default {
       },
       fontFamily: {
         'sans': ['var(--font-radio-canada-big)', 'Radio Canada Big', 'sans-serif'],
+        'inter': ['var(--font-inter)', 'Inter', 'sans-serif'],
       },
     },
   },

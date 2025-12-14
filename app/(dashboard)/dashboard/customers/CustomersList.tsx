@@ -14,6 +14,7 @@ import AddCustomerModal from './AddCustomerModal'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { EditIcon, DeleteIcon, CustomersIcon } from '@/app/components/Icons'
 import { formatCurrency } from '@/lib/utils/formatters'
+import TableRowLabel from '@/app/components/TableRowLabel'
 import { Card, CardContent } from '@/app/components/ui/card'
 import {
   Table,
@@ -23,7 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/app/components/ui/table'
-import SectionHeader from '@/app/components/SectionHeader'
 import { Button } from '@/app/components/ui/button'
 import { FileText } from 'lucide-react'
 import { AddModalContext } from './CustomersPageContent'
@@ -75,12 +75,10 @@ function CustomerRow({
   return (
     <TableRow className="group hover:bg-muted/50">
       <TableCell className="font-medium px-6">
-        <div className="flex flex-col">
-          <span className="font-medium text-[14px]">{displayName}</span>
-          {customer.email && (
-            <span className="text-[13px] text-muted-foreground">{customer.email}</span>
-          )}
-        </div>
+        <TableRowLabel 
+          mainText={displayName} 
+          labelText={customer.email}
+        />
       </TableCell>
       <TableCell className="text-[14px] text-muted-foreground px-6">
         {customer.projectCount} {customer.projectCount !== 1 ? 'projects' : 'project'}
@@ -230,11 +228,6 @@ export default function CustomersList({
 
       {/* Customers Table */}
       <Card className="overflow-hidden">
-        <SectionHeader>
-          <h2 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
-            Customers
-          </h2>
-        </SectionHeader>
         <CardContent className="p-0">
           {customers.length === 0 ? (
             <EmptyState />

@@ -70,8 +70,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="John Doe"
+          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+          placeholder="e.g., John Doe"
         />
       </div>
 
@@ -85,8 +85,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           name="company_name"
           value={formData.company_name}
           onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="Acme GmbH"
+          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+          placeholder="e.g., Acme GmbH"
         />
       </div>
 
@@ -100,8 +100,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           name="address"
           value={formData.address}
           onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="Bahnhofstrasse 1"
+          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+          placeholder="e.g., Bahnhofstrasse 1"
         />
       </div>
 
@@ -116,8 +116,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
             name="postal_code"
             value={formData.postal_code}
             onChange={handleChange}
-            className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-            placeholder="8001"
+            className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+            placeholder="e.g., 8001"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -129,8 +129,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
             name="city"
             value={formData.city}
             onChange={handleChange}
-            className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-            placeholder="Zürich"
+            className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+            placeholder="e.g., Zürich"
           />
         </div>
       </div>
@@ -145,8 +145,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           name="country"
           value={formData.country}
           onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="Switzerland"
+          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+          placeholder="e.g., Switzerland"
         />
       </div>
 
@@ -160,8 +160,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="+41 44 123 45 67"
+          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+          placeholder="e.g., +41 44 123 45 67"
         />
       </div>
 
@@ -175,8 +175,8 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           name="vat_number"
           value={formData.vat_number}
           onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="CHE-123.456.789"
+          className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+          placeholder="e.g., CHE-123.456.789"
         />
       </div>
 

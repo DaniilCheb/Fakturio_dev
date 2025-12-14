@@ -21,6 +21,7 @@ import Header from "@/app/components/Header"
 import SectionHeader from "@/app/components/SectionHeader"
 import DashboardChart from "./DashboardChart"
 import InvoiceRowActions from "./InvoiceRowActions"
+import TableRowLabel from "@/app/components/TableRowLabel"
 
 // Format date for display
 function formatDate(dateString: string): string {
@@ -135,10 +136,10 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
     <TableRow className="group cursor-pointer hover:bg-muted/50">
       <TableCell className="font-medium px-6">
         <Link href={`/dashboard/invoices/${invoice.id}`} className="block">
-          <div className="flex flex-col">
-            <span className="font-medium text-[14px]">{clientName}</span>
-            <span className="text-[13px] text-muted-foreground">#{invoice.invoice_number}</span>
-          </div>
+          <TableRowLabel 
+            mainText={clientName} 
+            labelText={`#${invoice.invoice_number}`}
+          />
         </Link>
       </TableCell>
       <TableCell className="text-[14px] text-muted-foreground px-6">
@@ -208,11 +209,6 @@ export default function DashboardPage() {
 
       {/* Invoices Table */}
       <Card className="overflow-hidden">
-        <SectionHeader>
-          <h2 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
-            Recent Invoices
-          </h2>
-        </SectionHeader>
         <CardContent className="p-0">
           {sortedInvoices.length === 0 ? (
             <EmptyState />

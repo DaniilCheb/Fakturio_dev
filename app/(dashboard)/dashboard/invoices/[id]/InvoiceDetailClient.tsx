@@ -27,6 +27,7 @@ const CheckIcon = () => (
 interface InvoiceDetailClientProps {
   invoice: Invoice
   project: Project | null
+  title: string
 }
 
 // Convert Invoice to GuestInvoice format for PDF generation
@@ -105,7 +106,7 @@ async function convertInvoiceToGuestInvoice(
   }
 }
 
-export default function InvoiceDetailClient({ invoice, project }: InvoiceDetailClientProps) {
+export default function InvoiceDetailClient({ invoice, project, title }: InvoiceDetailClientProps) {
   const router = useRouter()
   const { session } = useSession()
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
@@ -243,11 +244,81 @@ export default function InvoiceDetailClient({ invoice, project }: InvoiceDetailC
 
   const currency = currentInvoice.currency || "CHF"
 
+  const actionButtons = (
+    <div className="flex items-center gap-6">
+      <button
+        onClick={() => setIsEditModalOpen(true)}
+        className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors"
+      >
+        <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+          <EditIcon size={18} />
+        </div>
+        <span className="text-[11px] font-medium">Edit</span>
+      </button>
+      <button
+        onClick={handlePreviewPDF}
+        disabled={isPreviewing}
+        className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+          <PreviewIcon size={18} />
+        </div>
+        <span className="text-[11px] font-medium">Preview</span>
+      </button>
+      <button
+        onClick={handleDownloadPDF}
+        disabled={isDownloading}
+        className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+          <DownloadIcon size={18} />
+        </div>
+        <span className="text-[11px] font-medium">Download</span>
+      </button>
+      <button
+        onClick={handleDuplicate}
+        disabled={isDuplicating}
+        className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+          <CopyIcon size={18} />
+        </div>
+        <span className="text-[11px] font-medium">Duplicate</span>
+      </button>
+      {currentStatus !== "paid" ? (
+        <button
+          onClick={handleMarkAsPaid}
+          disabled={isUpdatingStatus}
+          className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <div className="w-10 h-10 rounded-full bg-[#141414] dark:bg-white text-white dark:text-[#141414] flex items-center justify-center">
+            <CheckIcon />
+          </div>
+          <span className="text-[11px] font-medium text-[#141414] dark:text-white">Mark Paid</span>
+        </button>
+      ) : (
+        <button
+          onClick={handleMarkAsIssued}
+          disabled={isUpdatingStatus}
+          className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+            <CheckIcon />
+          </div>
+          <span className="text-[11px] font-medium">Mark Issued</span>
+        </button>
+      )}
+    </div>
+  )
+
   return (
     <>
       {/* Header with Actions */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-2">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight">
+            {title}
+          </h1>
           <div className="flex items-center gap-3">
             <StatusBadge status={currentStatus} />
             {daysUntilDue !== null && currentStatus !== "paid" && (
@@ -261,71 +332,7 @@ export default function InvoiceDetailClient({ invoice, project }: InvoiceDetailC
             )}
           </div>
         </div>
-        
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
-              <EditIcon size={18} />
-            </div>
-            <span className="text-[11px] font-medium">Edit</span>
-          </button>
-          <button
-            onClick={handlePreviewPDF}
-            disabled={isPreviewing}
-            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
-              <PreviewIcon size={18} />
-            </div>
-            <span className="text-[11px] font-medium">Preview</span>
-          </button>
-          <button
-            onClick={handleDownloadPDF}
-            disabled={isDownloading}
-            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
-              <DownloadIcon size={18} />
-            </div>
-            <span className="text-[11px] font-medium">Download</span>
-          </button>
-          <button
-            onClick={handleDuplicate}
-            disabled={isDuplicating}
-            className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
-              <CopyIcon size={18} />
-            </div>
-            <span className="text-[11px] font-medium">Duplicate</span>
-          </button>
-          {currentStatus !== "paid" ? (
-            <button
-              onClick={handleMarkAsPaid}
-              disabled={isUpdatingStatus}
-              className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="w-10 h-10 rounded-full bg-[#141414] dark:bg-white text-white dark:text-[#141414] flex items-center justify-center">
-                <CheckIcon />
-              </div>
-              <span className="text-[11px] font-medium text-[#141414] dark:text-white">Mark Paid</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleMarkAsIssued}
-              disabled={isUpdatingStatus}
-              className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
-                <CheckIcon />
-              </div>
-              <span className="text-[11px] font-medium">Mark Issued</span>
-            </button>
-          )}
-        </div>
+        {actionButtons}
       </div>
 
       {/* Invoice Info Card */}

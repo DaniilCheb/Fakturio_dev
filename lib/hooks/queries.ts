@@ -7,6 +7,7 @@ import { getInvoicesWithClient, getInvoiceByIdWithClient, type Invoice } from '@
 import { getContactsWithClient, type Contact } from '@/lib/services/contactService.client'
 import { getProjectsWithClient, type Project } from '@/lib/services/projectService.client'
 import { getBankAccountsWithClient, type BankAccount } from '@/lib/services/bankAccountService.client'
+import { getExpensesWithClient, getExpenseByIdWithClient, type Expense } from '@/lib/services/expenseService.client'
 
 /**
  * Hook to fetch all invoices for the current user
@@ -99,6 +100,44 @@ export function useBankAccounts() {
       return getBankAccountsWithClient(supabase, user.id)
     },
     enabled: !!session && !!user,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Hook to fetch all expenses for the current user
+ */
+export function useExpenses() {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['expenses', user?.id],
+    queryFn: async () => {
+      if (!session || !user) return []
+      const supabase = createClientSupabaseClient(session)
+      return getExpensesWithClient(supabase, user.id)
+    },
+    enabled: !!session && !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+
+/**
+ * Hook to fetch a single expense by ID
+ */
+export function useExpense(expenseId: string) {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['expense', expenseId],
+    queryFn: async () => {
+      if (!session || !user || !expenseId) return null
+      const supabase = createClientSupabaseClient(session)
+      return getExpenseByIdWithClient(supabase, user.id, expenseId)
+    },
+    enabled: !!session && !!user && !!expenseId,
     staleTime: 5 * 60 * 1000,
   })
 }

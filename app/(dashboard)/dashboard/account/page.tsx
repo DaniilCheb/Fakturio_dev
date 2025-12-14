@@ -30,9 +30,6 @@ export default async function AccountPage() {
         <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">
           Account
         </h1>
-        <p className="text-[14px] text-design-content-weak mt-1">
-          Manage your profile and business information
-        </p>
       </div>
 
       {/* Error State */}

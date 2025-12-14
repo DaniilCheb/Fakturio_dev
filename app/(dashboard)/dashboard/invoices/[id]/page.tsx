@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { getInvoiceById } from "@/lib/services/invoiceService"
 import { getProjectById } from "@/lib/services/projectService"
-import Header from "@/app/components/Header"
 import InvoiceDetailClient from "./InvoiceDetailClient"
 
 export default async function InvoiceDetailPage({
@@ -24,8 +23,7 @@ export default async function InvoiceDetailPage({
 
   return (
     <div className="max-w-[800px] mx-auto space-y-8">
-      <Header title={`Invoice ${invoice.invoice_number || invoice.id}`} />
-      <InvoiceDetailClient invoice={invoice} project={project} />
+      <InvoiceDetailClient invoice={invoice} project={project} title={`Invoice ${invoice.invoice_number || invoice.id}`} />
     </div>
   )
 }
