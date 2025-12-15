@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { Radio_Canada_Big, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import QueryProvider from "@/lib/providers/QueryProvider";
 
@@ -28,6 +29,7 @@ export default function RootLayout({
         <html lang="en">
           <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
             <main>{children}</main>
+            <Analytics />
           </body>
         </html>
       </QueryProvider>
