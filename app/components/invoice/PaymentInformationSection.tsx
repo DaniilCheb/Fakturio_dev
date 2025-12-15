@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState } from 'react'
 import { PlusIcon } from '../Icons'
 import { Loader2 } from 'lucide-react'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -15,6 +15,7 @@ import {
 import { Label } from '@/app/components/ui/label'
 import { cn } from '@/lib/utils'
 import AddBankAccountModal from './AddBankAccountModal'
+import { Switch } from '@/app/components/ui/switch'
 
 interface PaymentInformationSectionProps {
   selectedBankAccountId: string
@@ -28,6 +29,8 @@ interface PaymentInformationSectionProps {
   }
   onClearError?: (field: string) => void
   onAccountAdded?: (account: BankAccount) => void
+  enableQR?: boolean
+  onEnableQRChange?: (enabled: boolean) => void
 }
 
 export default function PaymentInformationSection({
@@ -39,7 +42,9 @@ export default function PaymentInformationSection({
   userId,
   errors = {},
   onClearError,
-  onAccountAdded
+  onAccountAdded,
+  enableQR = true,
+  onEnableQRChange
 }: PaymentInformationSectionProps) {
   const [showAddModal, setShowAddModal] = useState(false)
 
@@ -50,11 +55,6 @@ export default function PaymentInformationSection({
     }
     return account.name
   }
-
-  // Get the selected bank account
-  const selectedAccount = useMemo(() => {
-    return bankAccounts.find(a => a.id === selectedBankAccountId)
-  }, [bankAccounts, selectedBankAccountId])
 
   const handleBankAccountSelect = (accountId: string) => {
     onChange(accountId)
@@ -130,17 +130,19 @@ export default function PaymentInformationSection({
             Add bank account
           </button>
 
-          {/* Selected Bank Account Details */}
-          {selectedAccount && (
+          {/* QR Code Toggle */}
+          {onEnableQRChange && (
             <div className="pt-3 border-t border-[#e0e0e0] dark:border-[#333]">
-              <div className="text-[13px] text-design-content-weak space-y-1">
-                <p className="font-medium text-design-content-default">{selectedAccount.name}</p>
-                {selectedAccount.iban && (
-                  <p className="font-mono text-[12px]">{selectedAccount.iban}</p>
-                )}
-                {selectedAccount.bank_name && (
-                  <p className="text-[12px]">{selectedAccount.bank_name}</p>
-                )}
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-medium text-design-content-default">
+                    Enable QR
+                  </span>
+                  <span className="text-[13px] text-design-content-weak">
+                    Get paid 3x faster
+                  </span>
+                </div>
+                <Switch checked={enableQR} onCheckedChange={onEnableQRChange} />
               </div>
             </div>
           )}

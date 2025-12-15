@@ -71,6 +71,7 @@ export default function Home() {
     }
   ])
   const [discount, setDiscount] = useState<number | string>(0)
+  const [enableQR, setEnableQR] = useState(true)
   
   // UI state
   const [showSaveModal, setShowSaveModal] = useState(false)
@@ -266,7 +267,7 @@ export default function Home() {
       
       // Generate PDF with Swiss QR code (auto-generated)
       await generateInvoicePDF(fullInvoice, {
-        includeQRCode: true
+        includeQRCode: enableQR
       })
       
       // Try to save to localStorage after successful PDF
@@ -311,9 +312,9 @@ export default function Home() {
         // Dynamic import to avoid SSR issues with @react-pdf/renderer
         const { generateInvoicePDF } = await import('@/lib/services/pdfService')
         
-        // Generate PDF directly without QR code for now
+        // Generate PDF with QR code based on toggle
         await generateInvoicePDF(previewInvoice, {
-          includeQRCode: false,
+          includeQRCode: enableQR,
           qrCodeDataUrl: undefined
         })
         
@@ -504,6 +505,8 @@ export default function Home() {
                 onIbanChange={(value: string) => setFromInfo(prev => ({ ...prev, iban: value }))}
                 errors={validationErrors}
                 onClearError={clearError}
+                enableQR={enableQR}
+                onEnableQRChange={setEnableQR}
               />
 
               {/* Products Section */}

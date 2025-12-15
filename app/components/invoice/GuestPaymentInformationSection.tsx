@@ -12,6 +12,7 @@ import { Label } from '@/app/components/ui/label'
 import { Input } from '@/app/components/ui/input'
 import { cn } from '@/lib/utils'
 import { ValidationErrors } from '@/lib/utils/invoiceValidation'
+import { Switch } from '@/app/components/ui/switch'
 
 const CURRENCIES = ['CHF', 'EUR', 'USD', 'GBP']
 const PAYMENT_METHODS = ['Bank', 'Card', 'Cash', 'Other'] as const
@@ -25,6 +26,8 @@ interface GuestPaymentInformationSectionProps {
   onIbanChange: (value: string) => void
   errors?: ValidationErrors
   onClearError?: (field: keyof ValidationErrors) => void
+  enableQR?: boolean
+  onEnableQRChange?: (enabled: boolean) => void
 }
 
 export default function GuestPaymentInformationSection({
@@ -35,7 +38,9 @@ export default function GuestPaymentInformationSection({
   onPaymentMethodChange,
   onIbanChange,
   errors = {},
-  onClearError
+  onClearError,
+  enableQR = true,
+  onEnableQRChange
 }: GuestPaymentInformationSectionProps) {
   
   const handleCurrencyChange = (value: string) => {
@@ -148,6 +153,23 @@ export default function GuestPaymentInformationSection({
               </p>
             )}
           </div>
+
+          {/* QR Code Toggle */}
+          {onEnableQRChange && (
+            <div className="pt-3 border-t border-[#e0e0e0] dark:border-[#333]">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-medium text-design-content-default">
+                    Enable QR
+                  </span>
+                  <span className="text-[13px] text-design-content-weak">
+                    Get paid 3x faster
+                  </span>
+                </div>
+                <Switch checked={enableQR} onCheckedChange={onEnableQRChange} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

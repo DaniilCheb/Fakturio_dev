@@ -454,20 +454,14 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
         {/* Created with Fakturio.ch */}
         <Text style={styles.footerText}>Created with Fakturio.ch</Text>
 
-        {/* QR Code */}
-        <View style={styles.qrSection}>
-          {includeQRCode && qrCodeDataUrl ? (
-            <>
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <Image style={styles.qrImage} src={qrCodeDataUrl} />
-              <Text style={styles.qrText}>Swiss QR Payment</Text>
-            </>
-          ) : (
-            <View style={styles.qrPlaceholder}>
-              <Text style={styles.qrPlaceholderText}>QR Code</Text>
-            </View>
-          )}
-        </View>
+        {/* QR Code - Only show if enabled and available */}
+        {includeQRCode && qrCodeDataUrl && (
+          <View style={styles.qrSection}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <Image style={styles.qrImage} src={qrCodeDataUrl} />
+            <Text style={styles.qrText}>Swiss QR Payment</Text>
+          </View>
+        )}
       </Page>
     </Document>
   )

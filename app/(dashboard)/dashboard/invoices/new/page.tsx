@@ -87,6 +87,7 @@ export default function NewInvoicePage() {
     }
   ])
   const [discount, setDiscount] = useState<number | string>(0)
+  const [enableQR, setEnableQR] = useState(true)
 
   // Profile/Bank account state
   const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('')
@@ -487,7 +488,7 @@ export default function NewInvoicePage() {
         updated_at: new Date().toISOString()
       }
 
-      await generateInvoicePDF(fullInvoice, { includeQRCode: true })
+      await generateInvoicePDF(fullInvoice, { includeQRCode: enableQR })
       
       // Cache the invoice in React Query for instant loading on detail page
       queryClient.setQueryData(['invoice', invoice.id], invoice)
@@ -655,6 +656,8 @@ export default function NewInvoicePage() {
           errors={validationErrors}
           onClearError={clearError}
           onAccountAdded={handleBankAccountAdded}
+          enableQR={enableQR}
+          onEnableQRChange={setEnableQR}
         />
 
         {/* Products Section */}
