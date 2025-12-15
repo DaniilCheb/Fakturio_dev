@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { getInvoicesWithClient, getInvoiceByIdWithClient, type Invoice } from '@/lib/services/invoiceService.client'
-import { getContactsWithClient, type Contact } from '@/lib/services/contactService.client'
+import { getContactsWithClient, getContactByIdWithClient, type Contact } from '@/lib/services/contactService.client'
 import { getProjectsWithClient, getProjectByIdWithClient, type Project } from '@/lib/services/projectService.client'
 import { getBankAccountsWithClient, type BankAccount } from '@/lib/services/bankAccountService.client'
 import { getExpensesWithClient, getExpenseByIdWithClient, type Expense } from '@/lib/services/expenseService.client'
@@ -82,6 +82,25 @@ export function useContacts() {
       const allCached = queryClient.getQueriesData<Contact[]>({ queryKey: ['contacts'] })
       return allCached[0]?.[1] ?? undefined
     },
+  })
+}
+
+/**
+ * Hook to fetch a single contact by ID
+ */
+export function useContact(contactId: string) {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['contact', contactId],
+    queryFn: async () => {
+      if (!session || !user || !contactId) return null
+      const supabase = createClientSupabaseClient(session)
+      return getContactByIdWithClient(supabase, user.id, contactId)
+    },
+    enabled: !!session && !!user && !!contactId,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

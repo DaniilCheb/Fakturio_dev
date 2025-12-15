@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query'
@@ -9,6 +10,8 @@ import { getExpenses } from '@/lib/services/expenseService'
 import { getContacts } from '@/lib/services/contactService'
 import { getProjects } from '@/lib/services/projectService'
 import { getBankAccounts } from '@/lib/services/bankAccountService'
+import PageLoading from './dashboard/loading'
+import NavigationProgress from '../components/NavigationProgress'
 
 export default async function DashboardLayout({
   children,
@@ -58,15 +61,20 @@ export default async function DashboardLayout({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
+      <Suspense fallback={null}>
+        <NavigationProgress />
+      </Suspense>
       <div className="min-h-screen bg-design-background flex">
         {/* Sidebar */}
         <AuthenticatedSidebar />
         
         {/* Main Content */}
         <div className="flex-1 lg:ml-[292px] ml-0 pt-20 lg:pt-8 pb-8 px-4 lg:px-8">
-          <GuestMigrationWrapper>
-            {children}
-          </GuestMigrationWrapper>
+          <Suspense fallback={<PageLoading />}>
+            <GuestMigrationWrapper>
+              {children}
+            </GuestMigrationWrapper>
+          </Suspense>
         </div>
         <Toaster />
       </div>

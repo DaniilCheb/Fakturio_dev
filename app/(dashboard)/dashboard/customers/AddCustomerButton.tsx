@@ -2,17 +2,15 @@
 
 import { Button } from '@/app/components/ui/button'
 import { Plus } from 'lucide-react'
-import { useContext } from 'react'
-import { AddModalContext } from './CustomersPageContent'
+import { useRouter } from 'next/navigation'
 
 export default function AddCustomerButton() {
-  const openModal = useContext(AddModalContext)
+  const router = useRouter()
   
   return (
     <Button 
       variant="default" 
-      onClick={openModal || undefined}
-      disabled={!openModal}
+      onClick={() => router.push('/dashboard/customers/new')}
     >
       <Plus className="mr-2 h-4 w-4" />
       New Customer

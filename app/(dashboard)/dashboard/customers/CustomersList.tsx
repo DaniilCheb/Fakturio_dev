@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useContext } from 'react'
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useSession } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { 
-  saveContactWithClient, 
   deleteContactWithClient, 
   updateContactWithClient,
-  type Contact,
   type CreateContactInput
 } from '@/lib/services/contactService.client'
 import AddCustomerModal from './AddCustomerModal'
@@ -26,18 +26,15 @@ import {
 } from '@/app/components/ui/table'
 import { Button } from '@/app/components/ui/button'
 import { FileText } from 'lucide-react'
-import { AddModalContext } from './CustomersPageContent'
 import type { CustomerWithStats } from './page'
 
 interface CustomersListProps {
   initialCustomers: CustomerWithStats[]
-  showAddModal: boolean
-  onCloseAddModal: () => void
 }
 
 // Empty state component
 function EmptyState() {
-  const openModal = useContext(AddModalContext)
+  const router = useRouter()
   
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
@@ -50,7 +47,7 @@ function EmptyState() {
       <p className="text-[14px] text-muted-foreground text-center max-w-sm mb-6">
         Add your first customer to start tracking projects and invoices.
       </p>
-      <Button variant="default" onClick={openModal || undefined} disabled={!openModal}>
+      <Button variant="default" onClick={() => router.push('/dashboard/customers/new')}>
         <CustomersIcon size={16} className="mr-2" />
         New Customer
       </Button>
@@ -73,12 +70,14 @@ function CustomerRow({
   const displayName = customer.company_name || customer.name || 'N/A'
 
   return (
-    <TableRow className="group hover:bg-muted/50">
+    <TableRow className="group cursor-pointer hover:bg-muted/50">
       <TableCell className="font-medium px-6">
-        <TableRowLabel 
-          mainText={displayName} 
-          labelText={customer.email}
-        />
+        <Link href={`/dashboard/customers/${customer.id}`} className="block">
+          <TableRowLabel 
+            mainText={displayName} 
+            labelText={customer.email}
+          />
+        </Link>
       </TableCell>
       <TableCell className="text-[14px] text-muted-foreground px-6">
         {customer.projectCount} {customer.projectCount !== 1 ? 'projects' : 'project'}
@@ -90,9 +89,13 @@ function CustomerRow({
         {formatCurrency(customer.totalAmount)}
       </TableCell>
       <TableCell className="text-right px-6">
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
           <button
-            onClick={onEdit}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onEdit()
+            }}
             disabled={isLoading}
             className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors disabled:opacity-50"
             title="Edit customer"
@@ -100,7 +103,11 @@ function CustomerRow({
             <EditIcon size={16} />
           </button>
           <button
-            onClick={onDelete}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onDelete()
+            }}
             disabled={isLoading}
             className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors disabled:opacity-50"
             title="Delete customer"
@@ -114,9 +121,7 @@ function CustomerRow({
 }
 
 export default function CustomersList({ 
-  initialCustomers, 
-  showAddModal, 
-  onCloseAddModal 
+  initialCustomers
 }: CustomersListProps) {
   const { session } = useSession()
   const [customers, setCustomers] = useState<CustomerWithStats[]>(initialCustomers)
@@ -124,38 +129,6 @@ export default function CustomersList({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { confirm, DialogComponent } = useConfirmDialog()
-
-  const handleAddCustomer = async (customerData: CreateContactInput) => {
-    if (!session) return
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const supabase = createClientSupabaseClient(session)
-      const userId = session.user.id
-
-      const created = await saveContactWithClient(supabase, userId, {
-        ...customerData,
-        type: 'customer',
-      })
-
-      // New customer starts with 0 stats
-      const customerWithStats: CustomerWithStats = {
-        ...created,
-        invoiceCount: 0,
-        projectCount: 0,
-        totalAmount: 0
-      }
-
-      setCustomers(prev => [customerWithStats, ...prev])
-      onCloseAddModal()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to add customer')
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleUpdateCustomer = async (customerData: CreateContactInput) => {
     if (!session || !editingCustomer) return
@@ -257,14 +230,6 @@ export default function CustomersList({
           )}
         </CardContent>
       </Card>
-
-      {/* Add Customer Modal */}
-      <AddCustomerModal
-        isOpen={showAddModal}
-        onClose={onCloseAddModal}
-        onSave={handleAddCustomer}
-        isLoading={isLoading}
-      />
 
       {/* Edit Customer Modal */}
       <AddCustomerModal
