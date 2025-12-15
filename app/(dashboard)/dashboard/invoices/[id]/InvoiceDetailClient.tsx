@@ -143,7 +143,10 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update invoice status")
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || errorData.details || "Failed to update invoice status"
+        console.error("Error updating invoice status:", errorMessage, errorData)
+        throw new Error(errorMessage)
       }
 
       const updated = await response.json()
@@ -151,7 +154,8 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
       router.refresh()
     } catch (error) {
       console.error("Error updating invoice status:", error)
-      alert("Failed to update invoice status. Please try again.")
+      const errorMessage = error instanceof Error ? error.message : "Failed to update invoice status. Please try again."
+      alert(errorMessage)
     } finally {
       setIsUpdatingStatus(false)
     }
@@ -167,7 +171,10 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update invoice status")
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || errorData.details || "Failed to update invoice status"
+        console.error("Error updating invoice status:", errorMessage, errorData)
+        throw new Error(errorMessage)
       }
 
       const updated = await response.json()
@@ -175,7 +182,8 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
       router.refresh()
     } catch (error) {
       console.error("Error updating invoice status:", error)
-      alert("Failed to update invoice status. Please try again.")
+      const errorMessage = error instanceof Error ? error.message : "Failed to update invoice status. Please try again."
+      alert(errorMessage)
     } finally {
       setIsUpdatingStatus(false)
     }

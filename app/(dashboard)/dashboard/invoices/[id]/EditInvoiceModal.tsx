@@ -10,11 +10,30 @@ import {
   DialogFooter,
 } from "@/app/components/ui/dialog"
 import { Button } from "@/app/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select"
+import { Label } from "@/app/components/ui/label"
 import Input from "@/app/components/Input"
 import DatePicker from "@/app/components/DatePicker"
 import TextArea from "@/app/components/TextArea"
 import { type Invoice } from "@/lib/services/invoiceService.client"
-import { formatDateISO } from "@/lib/utils/dateUtils"
+import { formatDateISO, calculateDueDate, formatDate } from "@/lib/utils/dateUtils"
+import { cn } from "@/lib/utils"
+
+const PAYMENT_TERMS_OPTIONS = [
+  { value: 0, label: 'On receipt' },
+  { value: 7, label: '7 days' },
+  { value: 14, label: '14 days' },
+  { value: 30, label: '30 days' },
+  { value: 45, label: '45 days' },
+  { value: 60, label: '60 days' },
+  { value: 90, label: '90 days' },
+]
 
 interface EditInvoiceModalProps {
   invoice: Invoice
@@ -33,10 +52,22 @@ export default function EditInvoiceModal({
   const [isSaving, setIsSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Calculate initial payment terms from invoice dates
+  const getInitialPaymentDays = () => {
+    if (!invoice.issued_on || !invoice.due_date) return 14
+    const issuedDate = new Date(invoice.issued_on)
+    const dueDate = new Date(invoice.due_date)
+    const days = Math.ceil((dueDate.getTime() - issuedDate.getTime()) / (1000 * 60 * 60 * 24))
+    // Find closest matching option or default to 14
+    const matchingOption = PAYMENT_TERMS_OPTIONS.find(opt => opt.value === days)
+    return matchingOption ? matchingOption.value : (days > 0 ? days : 14)
+  }
+
   // Form state
   const [invoiceNumber, setInvoiceNumber] = useState(invoice.invoice_number)
   const [issuedOn, setIssuedOn] = useState(invoice.issued_on)
   const [dueDate, setDueDate] = useState(invoice.due_date)
+  const [paymentDays, setPaymentDays] = useState(getInitialPaymentDays())
   const [notes, setNotes] = useState(invoice.notes || "")
 
   // Reset form when invoice changes
@@ -45,10 +76,34 @@ export default function EditInvoiceModal({
       setInvoiceNumber(invoice.invoice_number)
       setIssuedOn(invoice.issued_on)
       setDueDate(invoice.due_date)
+      setPaymentDays(getInitialPaymentDays())
       setNotes(invoice.notes || "")
       setErrors({})
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, invoice])
+
+  // Recalculate due date when issued date or payment days change
+  const updateDueDate = (newIssuedOn: string, days: number) => {
+    if (newIssuedOn) {
+      const calculated = calculateDueDate(newIssuedOn, `${days} days`)
+      setDueDate(calculated)
+    }
+  }
+
+  const handleIssuedDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newIssuedDate = e.target.value
+    setIssuedOn(newIssuedDate)
+    clearError("issued_on")
+    updateDueDate(newIssuedDate, paymentDays)
+  }
+
+  const handlePaymentTermsChange = (value: string) => {
+    const days = parseInt(value, 10)
+    setPaymentDays(days)
+    clearError("due_date")
+    updateDueDate(issuedOn, days)
+  }
 
   const clearError = (field: string) => {
     setErrors((prev) => {
@@ -136,10 +191,7 @@ export default function EditInvoiceModal({
               <DatePicker
                 label="Issued On"
                 value={issuedOn}
-                onChange={(e) => {
-                  setIssuedOn(e.target.value)
-                  clearError("issued_on")
-                }}
+                onChange={handleIssuedDateChange}
                 error={errors.issued_on}
                 onErrorClear={() => clearError("issued_on")}
                 fieldName="issued_on"
@@ -147,18 +199,51 @@ export default function EditInvoiceModal({
             </div>
           </div>
 
-          <div>
-            <DatePicker
-              label="Due Date"
-              value={dueDate}
-              onChange={(e) => {
-                setDueDate(e.target.value)
-                clearError("due_date")
-              }}
-              error={errors.due_date}
-              onErrorClear={() => clearError("due_date")}
-              fieldName="due_date"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
+                Payment Terms
+              </Label>
+              <Select
+                value={paymentDays.toString()}
+                onValueChange={handlePaymentTermsChange}
+              >
+                <SelectTrigger className={cn(
+                  "w-full h-11 bg-[#f7f7f7] dark:bg-[#1a1a1a] border border-[#e5e5e5] dark:border-[#333] rounded-lg",
+                  errors.due_date && "border-destructive focus:ring-destructive"
+                )}>
+                  <SelectValue placeholder="Select payment terms" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_TERMS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value.toString()}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
+                Due Date
+              </Label>
+              <div className="flex items-center h-11 px-3 bg-[#f7f7f7] dark:bg-[#1a1a1a] border border-[#e5e5e5] dark:border-[#333] rounded-lg">
+                <svg 
+                  className="w-4 h-4 mr-2 text-[#666] dark:text-[#888]" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm text-foreground">
+                  {formatDate(dueDate) || 'Select issued date first'}
+                </span>
+              </div>
+              {errors.due_date && (
+                <p className="text-destructive text-[12px]">{errors.due_date}</p>
+              )}
+            </div>
           </div>
 
           <div>

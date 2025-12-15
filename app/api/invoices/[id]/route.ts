@@ -54,6 +54,8 @@ export async function PATCH(
     if (body.status) {
       updates.status = body.status
     }
+    
+    // Handle paid_date: include it if explicitly provided (even if null to clear it)
     if (body.paid_date !== undefined) {
       updates.paid_date = body.paid_date || null
     }
@@ -99,8 +101,9 @@ export async function PATCH(
     return NextResponse.json(updatedInvoice)
   } catch (error) {
     console.error("Error updating invoice:", error)
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     return NextResponse.json(
-      { error: "Failed to update invoice" },
+      { error: "Failed to update invoice", details: errorMessage },
       { status: 500 }
     )
   }

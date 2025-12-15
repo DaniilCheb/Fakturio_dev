@@ -263,7 +263,7 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
             />
             <YAxis hide />
             <ChartTooltip
-              cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+              cursor={{ fill: "hsl(var(--background))" }}
               content={
                 <ChartTooltipContent
                   hideIndicator
@@ -284,7 +284,7 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
             <Bar 
               dataKey="amount" 
               fill="var(--color-amount)" 
-              radius={[4, 4, 0, 0]}
+              radius={4}
             />
           </BarChart>
         </ChartContainer>

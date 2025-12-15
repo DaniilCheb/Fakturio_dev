@@ -309,17 +309,31 @@ export async function updateInvoice(
   const userId = await getCurrentUserId();
   const supabase = await createServerSupabaseClient();
   
+  // Filter out undefined values but keep null values (for clearing fields)
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([_, value]) => value !== undefined)
+  );
+  
   const { data, error } = await supabase
     .from("invoices")
-    .update(updates)
+    .update(cleanUpdates)
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .select()
     .single();
   
   if (error) {
-    console.error("Error updating invoice:", error);
-    throw new Error("Failed to update invoice");
+    console.error("Error updating invoice:", {
+      error,
+      invoiceId,
+      userId,
+      updates: cleanUpdates,
+      errorCode: error.code,
+      errorMessage: error.message,
+      errorDetails: error.details,
+      errorHint: error.hint,
+    });
+    throw new Error(`Failed to update invoice: ${error.message || error.code || 'Unknown error'}`);
   }
   
   if (!data) {
@@ -338,17 +352,31 @@ export async function updateInvoiceWithClient(
   invoiceId: string,
   updates: UpdateInvoiceInput
 ): Promise<Invoice> {
+  // Filter out undefined values but keep null values (for clearing fields)
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([_, value]) => value !== undefined)
+  );
+  
   const { data, error } = await supabase
     .from("invoices")
-    .update(updates)
+    .update(cleanUpdates)
     .eq("id", invoiceId)
     .eq("user_id", userId)
     .select()
     .single();
   
   if (error) {
-    console.error("Error updating invoice:", error);
-    throw new Error("Failed to update invoice");
+    console.error("Error updating invoice:", {
+      error,
+      invoiceId,
+      userId,
+      updates: cleanUpdates,
+      errorCode: error.code,
+      errorMessage: error.message,
+      errorDetails: error.details,
+      errorHint: error.hint,
+    });
+    throw new Error(`Failed to update invoice: ${error.message || error.code || 'Unknown error'}`);
   }
   
   if (!data) {

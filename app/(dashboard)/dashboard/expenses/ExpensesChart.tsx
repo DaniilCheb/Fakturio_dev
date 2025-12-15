@@ -272,7 +272,7 @@ export default function ExpensesChart({ expenses, accountCurrency = "CHF" }: Exp
             />
             <YAxis hide />
             <ChartTooltip
-              cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+              cursor={{ fill: "hsl(var(--background))" }}
               content={
                 <ChartTooltipContent
                   hideIndicator
@@ -287,7 +287,7 @@ export default function ExpensesChart({ expenses, accountCurrency = "CHF" }: Exp
             <Bar 
               dataKey="amount" 
               fill="var(--color-amount)" 
-              radius={[4, 4, 0, 0]}
+              radius={4}
             />
           </BarChart>
         </ChartContainer>
