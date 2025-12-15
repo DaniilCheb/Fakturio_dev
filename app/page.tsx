@@ -499,9 +499,9 @@ export default function Home() {
                 currency={currency}
                 paymentMethod={paymentMethod}
                 iban={fromInfo.iban}
-                onCurrencyChange={(value) => handleHeaderChange('currency', value)}
-                onPaymentMethodChange={(value) => handleHeaderChange('payment_method', value)}
-                onIbanChange={(value) => setFromInfo(prev => ({ ...prev, iban: value }))}
+                onCurrencyChange={(value: string) => handleHeaderChange('currency', value)}
+                onPaymentMethodChange={(value: string) => handleHeaderChange('payment_method', value)}
+                onIbanChange={(value: string) => setFromInfo(prev => ({ ...prev, iban: value }))}
                 errors={validationErrors}
                 onClearError={clearError}
               />
