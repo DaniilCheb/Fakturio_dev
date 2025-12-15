@@ -117,8 +117,15 @@ export async function getInvoiceById(invoiceId: string): Promise<Invoice | null>
     if (error.code === "PGRST116") {
       return null; // Not found
     }
-    console.error("Error fetching invoice:", error);
-    throw new Error("Failed to fetch invoice");
+    console.error("Error fetching invoice:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      invoiceId,
+      userId
+    });
+    throw new Error(`Failed to fetch invoice: ${error.message || error.code || 'Unknown error'}`);
   }
   
   return data;

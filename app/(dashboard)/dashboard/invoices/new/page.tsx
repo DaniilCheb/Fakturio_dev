@@ -8,13 +8,14 @@ import { InvoiceItem } from '@/lib/types/invoice'
 import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { saveInvoiceWithClient } from '@/lib/services/invoiceService.client'
-import { getDefaultBankAccountWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
+import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
 import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
 
 // Components
 import InvoiceHeader from '@/app/components/invoice/InvoiceHeader'
 import AuthToSection, { AuthToInfo } from '@/app/components/invoice/AuthToSection'
 import DescriptionSection from '@/app/components/invoice/DescriptionSection'
+import PaymentInformationSection from '@/app/components/invoice/PaymentInformationSection'
 import ProductsSection from '@/app/components/invoice/ProductsSection'
 import SaveInvoiceModal from '@/app/components/invoice/SaveInvoiceModal'
 import PreviewModal from '@/app/components/invoice/PreviewModal'
@@ -29,6 +30,7 @@ interface ValidationErrors {
   toAddress?: string
   toZip?: string
   contact_id?: string
+  bank_account_id?: string
   items?: string
   [key: string]: string | undefined
 }
@@ -39,6 +41,7 @@ const ERROR_FIELD_PRIORITY = [
   'issued_on',
   'due_date',
   'contact_id',
+  'bank_account_id',
   'toName',
   'toAddress',
   'toZip',
@@ -84,11 +87,13 @@ export default function NewInvoicePage() {
   const [discount, setDiscount] = useState<number | string>(0)
 
   // Profile/Bank account state
-  const [bankAccount, setBankAccount] = useState<BankAccount | null>(null)
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('')
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
 
   // UI state
+  // Note: showSaveModal is not used for authenticated users - we save directly
   const [showSaveModal, setShowSaveModal] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
@@ -136,7 +141,7 @@ export default function NewInvoicePage() {
     }
   }, [issuedOn, dueDate])
 
-  // Load profile and bank account on mount
+  // Load profile and bank accounts on mount
   useEffect(() => {
     async function loadProfileData() {
       if (!supabase || !user) {
@@ -145,14 +150,22 @@ export default function NewInvoicePage() {
       }
 
       try {
-        // Fetch profile and bank account in parallel
-        const [loadedProfile, loadedBankAccount] = await Promise.all([
+        // Fetch profile and bank accounts in parallel
+        const [loadedProfile, loadedBankAccounts] = await Promise.all([
           getUserProfileWithClient(supabase, user.id).catch(() => null),
-          getDefaultBankAccountWithClient(supabase, user.id).catch(() => null)
+          getBankAccountsWithClient(supabase, user.id).catch(() => [])
         ])
 
         setProfile(loadedProfile)
-        setBankAccount(loadedBankAccount)
+        setBankAccounts(loadedBankAccounts)
+        
+        // Set default bank account if available
+        if (loadedBankAccounts.length > 0) {
+          const defaultAccount = loadedBankAccounts.find(a => a.is_default) || loadedBankAccounts[0]
+          if (defaultAccount) {
+            setSelectedBankAccountId(defaultAccount.id)
+          }
+        }
       } catch (error) {
         console.error('Error loading profile data:', error)
       } finally {
@@ -190,6 +203,11 @@ export default function NewInvoicePage() {
     }
   }
 
+  // Get selected bank account for building invoice data
+  const selectedBankAccount = useMemo(() => {
+    return bankAccounts.find(a => a.id === selectedBankAccountId)
+  }, [bankAccounts, selectedBankAccountId])
+
   // Build invoice data for validation/saving
   const buildInvoiceData = () => {
     const totals = calculateGrandTotal(items, discount)
@@ -207,7 +225,7 @@ export default function NewInvoicePage() {
         name: profile?.name || '',
         street: profile?.address || '',
         zip: zipCity || '',
-        iban: bankAccount?.iban || '',
+        iban: selectedBankAccount?.iban || '',
         logo_url: profile?.logo_url,
         company_name: profile?.company_name
       },
@@ -245,6 +263,11 @@ export default function NewInvoicePage() {
     // To section validation - require contact selection
     if (!data.contact_id) {
       errors.contact_id = 'Please select a customer'
+    }
+
+    // Payment information validation - require bank account selection
+    if (!selectedBankAccountId) {
+      errors.bank_account_id = 'Please select a bank account'
     }
 
     // Items validation
@@ -301,6 +324,19 @@ export default function NewInvoicePage() {
     })
   }
 
+  // Handle bank account change
+  const handleBankAccountChange = (bankAccountId: string) => {
+    setSelectedBankAccountId(bankAccountId)
+    clearError('bank_account_id')
+  }
+
+  // Handle bank account added
+  const handleBankAccountAdded = (newAccount: BankAccount) => {
+    setBankAccounts(prev => [newAccount, ...prev])
+    setSelectedBankAccountId(newAccount.id)
+    clearError('bank_account_id')
+  }
+
   const handlePreview = () => {
     const validation = validateInvoice()
     
@@ -314,7 +350,7 @@ export default function NewInvoicePage() {
     setShowPreviewModal(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const validation = validateInvoice()
     
     if (!validation.isValid) {
@@ -324,13 +360,39 @@ export default function NewInvoicePage() {
     }
     
     setValidationErrors({})
-    setShowSaveModal(true)
+    setIsSaving(true)
+    
+    try {
+      const invoice = await saveInvoiceToDatabase()
+      
+      setSaveSuccess(true)
+      
+      // Small delay to ensure database transaction is committed before redirecting
+      // Use replace instead of push to avoid adding to history
+      setTimeout(() => {
+        router.replace(`/dashboard/invoices/${invoice.id}`)
+      }, 100)
+    } catch (error) {
+      console.error('Error saving invoice:', error)
+      alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // Save invoice to database
   const saveInvoiceToDatabase = async () => {
-    if (!supabase || !user || !bankAccount) {
-      throw new Error('Missing required data for saving')
+    if (!supabase || !user) {
+      throw new Error('Authentication required. Please sign in again.')
+    }
+
+    if (!selectedBankAccountId) {
+      throw new Error('Please select a bank account')
+    }
+
+    const selectedBankAccount = bankAccounts.find(a => a.id === selectedBankAccountId)
+    if (!selectedBankAccount) {
+      throw new Error('Selected bank account not found')
     }
 
     const data = buildInvoiceData()
@@ -350,7 +412,7 @@ export default function NewInvoicePage() {
 
     const invoice = await saveInvoiceWithClient(supabase, user.id, {
       contact_id: data.contact_id,
-      bank_account_id: bankAccount.id,
+      bank_account_id: selectedBankAccount.id,
       invoice_number: data.invoice_number,
       status: 'issued',
       currency: data.currency,
@@ -385,7 +447,7 @@ export default function NewInvoicePage() {
     
     try {
       // Save to database first
-      await saveInvoiceToDatabase()
+      const invoice = await saveInvoiceToDatabase()
       
       // Generate PDF
       const { generateInvoicePDF } = await import('@/lib/services/pdfService')
@@ -393,7 +455,7 @@ export default function NewInvoicePage() {
       const totals = calculateGrandTotal(items, discount)
       
       const fullInvoice = {
-        id: `inv_${Date.now()}`,
+        id: invoice.id,
         invoice_number: data.invoice_number,
         issued_on: data.issued_on,
         due_date: data.due_date,
@@ -426,9 +488,9 @@ export default function NewInvoicePage() {
       setSaveSuccess(true)
       setShowSaveModal(false)
       
-      // Redirect to dashboard after short delay
+      // Redirect to invoice detail page after short delay
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push(`/dashboard/invoices/${invoice.id}`)
       }, 1500)
     } catch (error) {
       console.error('Error saving/generating PDF:', error)
@@ -450,14 +512,14 @@ export default function NewInvoicePage() {
     setIsSaving(true)
     
     try {
-      await saveInvoiceToDatabase()
+      const invoice = await saveInvoiceToDatabase()
       
       setSaveSuccess(true)
       setShowSaveModal(false)
       
-      // Redirect to dashboard after short delay
+      // Redirect to invoice detail page after short delay
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push(`/dashboard/invoices/${invoice.id}`)
       }, 1500)
     } catch (error) {
       console.error('Error saving invoice:', error)
@@ -572,6 +634,19 @@ export default function NewInvoicePage() {
           onChange={setDescription}
         />
 
+        {/* Payment Information Section */}
+        <PaymentInformationSection
+          selectedBankAccountId={selectedBankAccountId}
+          onChange={handleBankAccountChange}
+          bankAccounts={bankAccounts}
+          isLoading={isLoadingProfile}
+          supabase={supabase}
+          userId={user.id}
+          errors={validationErrors}
+          onClearError={clearError}
+          onAccountAdded={handleBankAccountAdded}
+        />
+
         {/* Products Section */}
         <ProductsSection
           items={items}
@@ -599,9 +674,17 @@ export default function NewInvoicePage() {
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity w-full sm:w-auto"
+            disabled={isSaving}
+            className="px-6 py-3 bg-design-button-primary text-design-on-button-content rounded-full text-[16px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            Save
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
       </div>
@@ -619,15 +702,18 @@ export default function NewInvoicePage() {
         </div>
       )}
 
-      {/* Modals */}
-      <SaveInvoiceModal
-        isOpen={showSaveModal}
-        onClose={() => setShowSaveModal(false)}
-        onDownload={handleDownload}
-        onSaveOnly={handleSaveOnly}
-        isLoading={isGeneratingPDF}
-        isSaving={isSaving}
-      />
+      {/* Modals - Only show for unauthenticated users (shouldn't happen in dashboard) */}
+      {/* Modal is disabled for authenticated users - we save directly */}
+      {!session && showSaveModal && (
+        <SaveInvoiceModal
+          isOpen={showSaveModal}
+          onClose={() => setShowSaveModal(false)}
+          onDownload={handleDownload}
+          onSaveOnly={handleSaveOnly}
+          isLoading={isGeneratingPDF}
+          isSaving={isSaving}
+        />
+      )}
 
       {showPreviewModal && (
         <PreviewModal

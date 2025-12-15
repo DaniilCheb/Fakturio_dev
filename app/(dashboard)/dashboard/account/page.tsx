@@ -1,17 +1,30 @@
-import { getUserProfile } from '@/lib/services/settingsService'
-import { getBankAccounts } from '@/lib/services/bankAccountService'
+import { getUserProfileWithClient } from '@/lib/services/settingsService'
+import { getBankAccountsWithClient } from '@/lib/services/bankAccountService'
+import { createServerSupabaseClient, getCurrentUserId } from '@/lib/supabase-server'
 import AccountForm from './AccountForm'
 import BankAccountsSection from './BankAccountsSection'
 import LogoutButton from '@/app/components/LogoutButton'
 
 export default async function AccountPage() {
   let profile = null
-  let bankAccounts: Awaited<ReturnType<typeof getBankAccounts>> = []
+  let bankAccounts: Awaited<ReturnType<typeof getBankAccountsWithClient>> = []
   let error: string | null = null
 
   try {
-    profile = await getUserProfile()
-    bankAccounts = await getBankAccounts()
+    // Parallelize client creation and user ID fetch
+    const [supabase, userId] = await Promise.all([
+      createServerSupabaseClient(),
+      getCurrentUserId(),
+    ])
+
+    // Run both queries in parallel with shared client
+    const [profileResult, bankAccountsResult] = await Promise.all([
+      getUserProfileWithClient(supabase, userId).catch(() => null),
+      getBankAccountsWithClient(supabase, userId).catch(() => []),
+    ])
+
+    profile = profileResult
+    bankAccounts = bankAccountsResult
     // If we successfully got empty data, that's fine - user just hasn't set up their account yet
   } catch (e) {
     // For new users who haven't set up their account yet, treat as empty state rather than error

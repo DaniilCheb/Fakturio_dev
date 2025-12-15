@@ -1,11 +1,7 @@
 'use client'
 
-import { useExpenses } from "@/lib/hooks/queries"
-import { useUser } from "@clerk/nextjs"
-import { getUserProfileWithClient } from "@/lib/services/settingsService.client"
-import { createClientSupabaseClient } from "@/lib/supabase-client"
-import { useSession } from "@clerk/nextjs"
-import { useMemo, useEffect, useState } from "react"
+import { useExpenses, useProfile } from "@/lib/hooks/queries"
+import { useMemo } from "react"
 import Link from "next/link"
 import { Plus, Wallet } from "lucide-react"
 
@@ -150,28 +146,12 @@ function ExpenseRow({ expense, accountCurrency }: { expense: Expense; accountCur
 
 export default function ExpensesPage() {
   const { data: expenses = [], isLoading } = useExpenses()
-  const { session } = useSession()
-  const { user } = useUser()
-  const [accountCurrency, setAccountCurrency] = useState("CHF")
-
-  // Load account currency
-  useEffect(() => {
-    async function loadAccountCurrency() {
-      if (!session || !user) return
-
-      try {
-        const supabase = createClientSupabaseClient(session)
-        const profile = await getUserProfileWithClient(supabase, user.id)
-        if (profile?.account_currency) {
-          setAccountCurrency(profile.account_currency)
-        }
-      } catch (error) {
-        console.error("Error loading account currency:", error)
-      }
-    }
-
-    loadAccountCurrency()
-  }, [session, user])
+  const { data: profile } = useProfile()
+  
+  // Get account currency from profile, default to CHF
+  const accountCurrency = useMemo(() => {
+    return profile?.account_currency || "CHF"
+  }, [profile])
 
   if (isLoading) {
     return <ExpensesSkeleton />

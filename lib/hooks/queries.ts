@@ -8,6 +8,7 @@ import { getContactsWithClient, type Contact } from '@/lib/services/contactServi
 import { getProjectsWithClient, type Project } from '@/lib/services/projectService.client'
 import { getBankAccountsWithClient, type BankAccount } from '@/lib/services/bankAccountService.client'
 import { getExpensesWithClient, getExpenseByIdWithClient, type Expense } from '@/lib/services/expenseService.client'
+import { getUserProfileWithClient, type Profile } from '@/lib/services/settingsService.client'
 
 /**
  * Hook to fetch all invoices for the current user
@@ -101,6 +102,25 @@ export function useBankAccounts() {
     },
     enabled: !!session && !!user,
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Hook to fetch user profile for the current user
+ */
+export function useProfile() {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!session || !user) return null
+      const supabase = createClientSupabaseClient(session)
+      return getUserProfileWithClient(supabase, user.id)
+    },
+    enabled: !!session && !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 

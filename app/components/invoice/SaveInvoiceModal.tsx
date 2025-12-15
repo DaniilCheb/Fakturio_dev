@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from '@clerk/nextjs'
 import Modal, { ModalBody, ModalFooter } from '../Modal'
 import Button from '../Button'
 
@@ -39,6 +40,7 @@ export default function SaveInvoiceModal({
   isSaving = false,
 }: SaveInvoiceModalProps) {
   const router = useRouter()
+  const { isSignedIn } = useSession()
 
   const handleCreateAccount = async () => {
     // Save invoice to localStorage before redirecting so it can be migrated
@@ -68,6 +70,61 @@ export default function SaveInvoiceModal({
     router.push('/sign-in')
   }
 
+  // If user is authenticated, show simplified modal without signup prompts
+  if (isSignedIn) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title="Save Invoice" maxWidth="md">
+        <ModalBody>
+          <p className="text-[14px] text-[#141414] dark:text-white mb-3">
+            Choose how you want to save your invoice.
+          </p>
+        </ModalBody>
+        
+        <ModalFooter className="flex-col sm:flex-col gap-3">
+          {onSaveOnly && (
+            <Button 
+              variant="primary" 
+              className="w-full" 
+              onClick={onSaveOnly}
+              disabled={isLoading || isSaving}
+            >
+              {isSaving ? (
+                <span className="flex items-center justify-center gap-2">
+                  <LoadingSpinner />
+                  Saving...
+                </span>
+              ) : (
+                'Save Only'
+              )}
+            </Button>
+          )}
+          
+          <Button 
+            variant={onSaveOnly ? "secondary" : "primary"}
+            onClick={onDownload} 
+            className="w-full"
+            disabled={isLoading || isSaving}
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <LoadingSpinner />
+                Generating PDF...
+              </span>
+            ) : isSaving ? (
+              <span className="flex items-center justify-center gap-2">
+                <LoadingSpinner />
+                Saving...
+              </span>
+            ) : (
+              'Save & Download PDF'
+            )}
+          </Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+
+  // For unauthenticated users, show signup prompts
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Keep your invoices in one place" maxWidth="md">
       <ModalBody>
