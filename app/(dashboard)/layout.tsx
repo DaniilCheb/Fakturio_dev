@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import AuthenticatedSidebar from '../components/AuthenticatedSidebar'
 import GuestMigrationWrapper from '../components/GuestMigrationWrapper'
 import DataPrefetcher from '../components/DataPrefetcher'
+import { Toaster } from '@/app/components/ui/sonner'
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,7 @@ export default async function DashboardLayout({
           {children}
         </GuestMigrationWrapper>
       </div>
+      <Toaster />
     </div>
   )
 }

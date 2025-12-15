@@ -1,14 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useSession } from "@clerk/nextjs"
+import { useSession, useUser } from "@clerk/nextjs"
+import { useQueryClient } from "@tanstack/react-query"
 import { Download, Trash2 } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
 import { useConfirmDialog } from "@/app/components/useConfirmDialog"
 import { generateInvoicePDF } from "@/lib/services/pdfService"
 import { createClientSupabaseClient } from "@/lib/supabase-client"
 import { getBankAccountsWithClient } from "@/lib/services/bankAccountService.client"
+import { saveInvoiceWithClient } from "@/lib/services/invoiceService.client"
+import { toast } from "sonner"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Invoice } from "@/lib/services/invoiceService.client"
 import type { GuestInvoice } from "@/lib/types/invoice"
@@ -111,8 +113,9 @@ async function convertInvoiceToGuestInvoice(
 }
 
 export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
-  const router = useRouter()
   const { session } = useSession()
+  const { user } = useUser()
+  const queryClient = useQueryClient()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const { confirm, DialogComponent } = useConfirmDialog()
@@ -129,6 +132,10 @@ export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
     if (!confirmed) return
 
     setIsDeleting(true)
+    
+    // Store the invoice data for potential undo
+    const deletedInvoice = { ...invoice }
+    
     try {
       const response = await fetch(`/api/invoices/${invoice.id}`, {
         method: "DELETE",
@@ -138,13 +145,68 @@ export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
         throw new Error("Failed to delete invoice")
       }
 
-      // Refresh the page to update the invoice list
-      router.refresh()
+      // Immediately invalidate the query cache to update the UI
+      await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+
+      // Show snackbar with undo option
+      toast("Invoice deleted", {
+        description: `Invoice #${invoice.invoice_number} has been deleted.`,
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            await handleUndo(deletedInvoice)
+          },
+        },
+        duration: 5000,
+      })
     } catch (error) {
       console.error("Error deleting invoice:", error)
-      alert("Failed to delete invoice. Please try again.")
+      toast.error("Failed to delete invoice. Please try again.")
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  const handleUndo = async (deletedInvoice: Invoice) => {
+    if (!session || !user) {
+      toast.error("Authentication required to restore invoice")
+      return
+    }
+
+    try {
+      const supabase = createClientSupabaseClient(session)
+      
+      // Restore the invoice by creating it again with the same data
+      await saveInvoiceWithClient(supabase, user.id, {
+        contact_id: deletedInvoice.contact_id,
+        project_id: deletedInvoice.project_id,
+        bank_account_id: deletedInvoice.bank_account_id,
+        invoice_number: deletedInvoice.invoice_number,
+        status: deletedInvoice.status,
+        currency: deletedInvoice.currency,
+        issued_on: deletedInvoice.issued_on,
+        due_date: deletedInvoice.due_date,
+        paid_date: deletedInvoice.paid_date,
+        subtotal: deletedInvoice.subtotal,
+        vat_amount: deletedInvoice.vat_amount,
+        vat_rate: deletedInvoice.vat_rate,
+        total: deletedInvoice.total,
+        from_info: deletedInvoice.from_info,
+        to_info: deletedInvoice.to_info,
+        items: deletedInvoice.items,
+        notes: deletedInvoice.notes,
+        payment_terms: deletedInvoice.payment_terms,
+      })
+
+      // Invalidate the query cache to refresh the list
+      await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      
+      toast.success("Invoice restored", {
+        description: `Invoice #${deletedInvoice.invoice_number} has been restored.`,
+      })
+    } catch (error) {
+      console.error("Error restoring invoice:", error)
+      toast.error("Failed to restore invoice. Please try again.")
     }
   }
 
