@@ -11,7 +11,7 @@ import InvoiceHeader from './components/invoice/InvoiceHeader'
 import FromSection from './components/invoice/FromSection'
 import ToSection from './components/invoice/ToSection'
 import DescriptionSection from './components/invoice/DescriptionSection'
-import PaymentInformationSection from './components/invoice/PaymentInformationSection'
+import GuestPaymentInformationSection from './components/invoice/GuestPaymentInformationSection'
 import ProductsSection from './components/invoice/ProductsSection'
 import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
 import PreviewModal from './components/invoice/PreviewModal'
@@ -495,7 +495,7 @@ export default function Home() {
               />
 
               {/* Payment Information Section */}
-              <PaymentInformationSection
+              <GuestPaymentInformationSection
                 currency={currency}
                 paymentMethod={paymentMethod}
                 iban={fromInfo.iban}
