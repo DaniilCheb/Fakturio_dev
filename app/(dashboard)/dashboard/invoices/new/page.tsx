@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, useUser } from '@clerk/nextjs'
+import { useQueryClient } from '@tanstack/react-query'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { InvoiceItem } from '@/lib/types/invoice'
 import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
@@ -52,6 +53,7 @@ export default function NewInvoicePage() {
   const router = useRouter()
   const { session } = useSession()
   const { user } = useUser()
+  const queryClient = useQueryClient()
   
   // Create Supabase client (memoized)
   const supabase = useMemo(() => {
@@ -365,13 +367,15 @@ export default function NewInvoicePage() {
     try {
       const invoice = await saveInvoiceToDatabase()
       
+      // Cache the invoice in React Query for instant loading on detail page
+      queryClient.setQueryData(['invoice', invoice.id], invoice)
+      // Invalidate invoices list to refetch with the new invoice
+      queryClient.invalidateQueries({ queryKey: ['invoices', user?.id] })
+      
       setSaveSuccess(true)
       
-      // Small delay to ensure database transaction is committed before redirecting
-      // Use replace instead of push to avoid adding to history
-      setTimeout(() => {
-        router.replace(`/dashboard/invoices/${invoice.id}`)
-      }, 100)
+      // Navigate immediately - data is already cached
+      router.replace(`/dashboard/invoices/${invoice.id}`)
     } catch (error) {
       console.error('Error saving invoice:', error)
       alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -485,13 +489,16 @@ export default function NewInvoicePage() {
 
       await generateInvoicePDF(fullInvoice, { includeQRCode: true })
       
+      // Cache the invoice in React Query for instant loading on detail page
+      queryClient.setQueryData(['invoice', invoice.id], invoice)
+      // Invalidate invoices list to refetch with the new invoice
+      queryClient.invalidateQueries({ queryKey: ['invoices', user?.id] })
+      
       setSaveSuccess(true)
       setShowSaveModal(false)
       
-      // Redirect to invoice detail page after short delay
-      setTimeout(() => {
-        router.push(`/dashboard/invoices/${invoice.id}`)
-      }, 1500)
+      // Navigate immediately - data is already cached
+      router.push(`/dashboard/invoices/${invoice.id}`)
     } catch (error) {
       console.error('Error saving/generating PDF:', error)
       alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -514,13 +521,16 @@ export default function NewInvoicePage() {
     try {
       const invoice = await saveInvoiceToDatabase()
       
+      // Cache the invoice in React Query for instant loading on detail page
+      queryClient.setQueryData(['invoice', invoice.id], invoice)
+      // Invalidate invoices list to refetch with the new invoice
+      queryClient.invalidateQueries({ queryKey: ['invoices', user?.id] })
+      
       setSaveSuccess(true)
       setShowSaveModal(false)
       
-      // Redirect to invoice detail page after short delay
-      setTimeout(() => {
-        router.push(`/dashboard/invoices/${invoice.id}`)
-      }, 1500)
+      // Navigate immediately - data is already cached
+      router.push(`/dashboard/invoices/${invoice.id}`)
     } catch (error) {
       console.error('Error saving invoice:', error)
       alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)

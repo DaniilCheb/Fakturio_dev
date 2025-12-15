@@ -1,37 +1,38 @@
-import { notFound } from "next/navigation"
-import { getInvoiceByIdWithClient } from "@/lib/services/invoiceService"
-import { getProjectByIdWithClient } from "@/lib/services/projectService"
-import { createServerSupabaseClient, getCurrentUserId } from "@/lib/supabase-server"
-import InvoiceDetailClient from "./InvoiceDetailClient"
+'use client'
 
-export default async function InvoiceDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = await params
+import { notFound } from "next/navigation"
+import { useParams } from "next/navigation"
+import { useInvoice, useProject } from "@/lib/hooks/queries"
+import InvoiceDetailClient from "./InvoiceDetailClient"
+import InvoiceDetailSkeleton from "./InvoiceDetailSkeleton"
+
+export default function InvoiceDetailPage() {
+  const params = useParams()
+  const invoiceId = params.id as string
   
-  // Parallelize client creation and user ID fetch
-  const [supabase, userId] = await Promise.all([
-    createServerSupabaseClient(),
-    getCurrentUserId(),
-  ])
-  
-  // Reuse client for invoice query
-  const invoice = await getInvoiceByIdWithClient(supabase, userId, id)
+  const { data: invoice, isLoading: isLoadingInvoice } = useInvoice(invoiceId)
+  const { data: project, isLoading: isLoadingProject } = useProject(invoice?.project_id)
+
+  if (isLoadingInvoice) {
+    return <InvoiceDetailSkeleton />
+  }
 
   if (!invoice) {
     notFound()
   }
 
-  // Fetch project if invoice has one, reusing the same client
-  const project = invoice.project_id 
-    ? await getProjectByIdWithClient(supabase, userId, invoice.project_id)
-    : null
+  // Show skeleton while project is loading (if invoice has a project)
+  if (invoice.project_id && isLoadingProject) {
+    return <InvoiceDetailSkeleton />
+  }
 
   return (
     <div className="max-w-[800px] mx-auto space-y-8">
-      <InvoiceDetailClient invoice={invoice} project={project} title={`Invoice ${invoice.invoice_number || invoice.id}`} />
+      <InvoiceDetailClient 
+        invoice={invoice} 
+        project={project || null} 
+        title={`Invoice ${invoice.invoice_number || invoice.id}`} 
+      />
     </div>
   )
 }

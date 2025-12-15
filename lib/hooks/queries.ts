@@ -5,7 +5,7 @@ import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { getInvoicesWithClient, getInvoiceByIdWithClient, type Invoice } from '@/lib/services/invoiceService.client'
 import { getContactsWithClient, type Contact } from '@/lib/services/contactService.client'
-import { getProjectsWithClient, type Project } from '@/lib/services/projectService.client'
+import { getProjectsWithClient, getProjectByIdWithClient, type Project } from '@/lib/services/projectService.client'
 import { getBankAccountsWithClient, type BankAccount } from '@/lib/services/bankAccountService.client'
 import { getExpensesWithClient, getExpenseByIdWithClient, type Expense } from '@/lib/services/expenseService.client'
 import { getUserProfileWithClient, type Profile } from '@/lib/services/settingsService.client'
@@ -82,6 +82,25 @@ export function useProjects() {
       return getProjectsWithClient(supabase, user.id)
     },
     enabled: !!session && !!user,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Hook to fetch a single project by ID
+ */
+export function useProject(projectId: string | null | undefined) {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['project', projectId],
+    queryFn: async () => {
+      if (!session || !user || !projectId) return null
+      const supabase = createClientSupabaseClient(session)
+      return getProjectByIdWithClient(supabase, user.id, projectId)
+    },
+    enabled: !!session && !!user && !!projectId,
     staleTime: 5 * 60 * 1000,
   })
 }
