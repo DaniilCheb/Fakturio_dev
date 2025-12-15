@@ -22,7 +22,7 @@ import Input from "@/app/components/Input"
 import DatePicker from "@/app/components/DatePicker"
 import TextArea from "@/app/components/TextArea"
 import { type Invoice } from "@/lib/services/invoiceService.client"
-import { formatDateISO, calculateDueDate, formatDate } from "@/lib/utils/dateUtils"
+import { calculateDueDate, formatDate } from "@/lib/utils/dateUtils"
 import { cn } from "@/lib/utils"
 
 const PAYMENT_TERMS_OPTIONS = [

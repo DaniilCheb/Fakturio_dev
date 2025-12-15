@@ -292,4 +292,3 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
     </Card>
   )
 }
-

@@ -4,6 +4,13 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
 
+// Client cache to avoid recreating Supabase clients on every call
+// Keyed by session object reference (using WeakMap for automatic cleanup)
+const clientCache = new WeakMap<
+  { getToken: (options?: { template?: string }) => Promise<string | null> },
+  SupabaseClient
+>();
+
 // Helper function to validate and get env vars with better error messages
 function getSupabaseConfig() {
   if (!supabaseUrl) {
@@ -38,13 +45,21 @@ function getSupabaseConfig() {
 /**
  * Create a Supabase client for client-side operations
  * Requires a session object with getToken function (from useSession)
+ * 
+ * This function memoizes clients per session to avoid repeated getToken() calls.
+ * The same session object will return the same client instance.
  */
 export function createClientSupabaseClient(
   session: { getToken: (options?: { template?: string }) => Promise<string | null> } | null
 ): SupabaseClient {
+  // Return cached client if available
+  if (session && clientCache.has(session)) {
+    return clientCache.get(session)!;
+  }
+
   const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
     global: {
       fetch: async (url, options = {}) => {
         const clerkToken = await session?.getToken({ template: "supabase" });
@@ -65,6 +80,13 @@ export function createClientSupabaseClient(
       },
     },
   });
+
+  // Cache the client for this session
+  if (session) {
+    clientCache.set(session, client);
+  }
+
+  return client;
 }
 
 /**

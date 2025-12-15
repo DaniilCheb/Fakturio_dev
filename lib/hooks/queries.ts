@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { getInvoicesWithClient, getInvoiceByIdWithClient, type Invoice } from '@/lib/services/invoiceService.client'
@@ -16,6 +16,7 @@ import { getUserProfileWithClient, type Profile } from '@/lib/services/settingsS
 export function useInvoices() {
   const { session } = useSession()
   const { user } = useUser()
+  const queryClient = useQueryClient()
 
   return useQuery({
     queryKey: ['invoices', user?.id],
@@ -26,6 +27,15 @@ export function useInvoices() {
     },
     enabled: !!session && !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    // Use hydrated data from server prefetch immediately, even before session loads
+    placeholderData: () => {
+      // Try to get data from cache for any user ID (server prefetch might use different key)
+      const cachedData = queryClient.getQueryData<Invoice[]>(['invoices', user?.id])
+      if (cachedData) return cachedData
+      // Also check without user ID (fallback for server-prefetched data)
+      const allCached = queryClient.getQueriesData<Invoice[]>({ queryKey: ['invoices'] })
+      return allCached[0]?.[1] ?? undefined
+    },
   })
 }
 
@@ -54,6 +64,7 @@ export function useInvoice(invoiceId: string) {
 export function useContacts() {
   const { session } = useSession()
   const { user } = useUser()
+  const queryClient = useQueryClient()
 
   return useQuery({
     queryKey: ['contacts', user?.id],
@@ -64,6 +75,13 @@ export function useContacts() {
     },
     enabled: !!session && !!user,
     staleTime: 5 * 60 * 1000,
+    // Use hydrated data from server prefetch immediately
+    placeholderData: () => {
+      const cachedData = queryClient.getQueryData<Contact[]>(['contacts', user?.id])
+      if (cachedData) return cachedData
+      const allCached = queryClient.getQueriesData<Contact[]>({ queryKey: ['contacts'] })
+      return allCached[0]?.[1] ?? undefined
+    },
   })
 }
 
@@ -73,6 +91,7 @@ export function useContacts() {
 export function useProjects() {
   const { session } = useSession()
   const { user } = useUser()
+  const queryClient = useQueryClient()
 
   return useQuery({
     queryKey: ['projects', user?.id],
@@ -83,6 +102,13 @@ export function useProjects() {
     },
     enabled: !!session && !!user,
     staleTime: 5 * 60 * 1000,
+    // Use hydrated data from server prefetch immediately
+    placeholderData: () => {
+      const cachedData = queryClient.getQueryData<Project[]>(['projects', user?.id])
+      if (cachedData) return cachedData
+      const allCached = queryClient.getQueriesData<Project[]>({ queryKey: ['projects'] })
+      return allCached[0]?.[1] ?? undefined
+    },
   })
 }
 
@@ -111,6 +137,7 @@ export function useProject(projectId: string | null | undefined) {
 export function useBankAccounts() {
   const { session } = useSession()
   const { user } = useUser()
+  const queryClient = useQueryClient()
 
   return useQuery({
     queryKey: ['bankAccounts', user?.id],
@@ -121,6 +148,13 @@ export function useBankAccounts() {
     },
     enabled: !!session && !!user,
     staleTime: 5 * 60 * 1000,
+    // Use hydrated data from server prefetch immediately
+    placeholderData: () => {
+      const cachedData = queryClient.getQueryData<BankAccount[]>(['bankAccounts', user?.id])
+      if (cachedData) return cachedData
+      const allCached = queryClient.getQueriesData<BankAccount[]>({ queryKey: ['bankAccounts'] })
+      return allCached[0]?.[1] ?? undefined
+    },
   })
 }
 
@@ -149,6 +183,7 @@ export function useProfile() {
 export function useExpenses() {
   const { session } = useSession()
   const { user } = useUser()
+  const queryClient = useQueryClient()
 
   return useQuery({
     queryKey: ['expenses', user?.id],
@@ -159,6 +194,13 @@ export function useExpenses() {
     },
     enabled: !!session && !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    // Use hydrated data from server prefetch immediately
+    placeholderData: () => {
+      const cachedData = queryClient.getQueryData<Expense[]>(['expenses', user?.id])
+      if (cachedData) return cachedData
+      const allCached = queryClient.getQueriesData<Expense[]>({ queryKey: ['expenses'] })
+      return allCached[0]?.[1] ?? undefined
+    },
   })
 }
 

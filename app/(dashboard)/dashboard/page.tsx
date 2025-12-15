@@ -52,7 +52,7 @@ function StatusBadge({ status }: { status: "paid" | "overdue" | "pending" | "dra
     },
     pending: { 
       className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-transparent hover:bg-yellow-100",
-      label: "Pending" 
+      label: "Issued" 
     },
     overdue: { 
       className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent hover:bg-red-100",

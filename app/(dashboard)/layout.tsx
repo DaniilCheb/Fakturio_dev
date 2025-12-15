@@ -3,10 +3,12 @@ import { redirect } from 'next/navigation'
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query'
 import AuthenticatedSidebar from '../components/AuthenticatedSidebar'
 import GuestMigrationWrapper from '../components/GuestMigrationWrapper'
-import DataPrefetcher from '../components/DataPrefetcher'
 import { Toaster } from '@/app/components/ui/sonner'
 import { getInvoices } from '@/lib/services/invoiceService'
 import { getExpenses } from '@/lib/services/expenseService'
+import { getContacts } from '@/lib/services/contactService'
+import { getProjects } from '@/lib/services/projectService'
+import { getBankAccounts } from '@/lib/services/bankAccountService'
 
 export default async function DashboardLayout({
   children,
@@ -29,7 +31,8 @@ export default async function DashboardLayout({
     },
   })
 
-  // Fetch invoices and expenses on the server in parallel
+  // Fetch all critical data on the server in parallel
+  // This ensures data is available immediately on hydration, eliminating client-side loading delays
   await Promise.all([
     queryClient.prefetchQuery({
       queryKey: ['invoices', userId],
@@ -39,12 +42,23 @@ export default async function DashboardLayout({
       queryKey: ['expenses', userId],
       queryFn: () => getExpenses(),
     }),
+    queryClient.prefetchQuery({
+      queryKey: ['contacts', userId],
+      queryFn: () => getContacts(),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['projects', userId],
+      queryFn: () => getProjects(),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['bankAccounts', userId],
+      queryFn: () => getBankAccounts(),
+    }),
   ])
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="min-h-screen bg-design-background flex">
-        <DataPrefetcher />
         {/* Sidebar */}
         <AuthenticatedSidebar />
         
