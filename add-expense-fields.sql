@@ -10,3 +10,4 @@ ADD COLUMN IF NOT EXISTS depreciation_years INTEGER;
 COMMENT ON COLUMN expenses.frequency IS 'Frequency for recurring expenses: Weekly, Monthly, Quarterly, Yearly, or Other';
 COMMENT ON COLUMN expenses.depreciation_years IS 'Number of years for asset depreciation (only used for asset type expenses)';
 
+

@@ -1,6 +1,7 @@
 import { getUserProfileWithClient } from '@/lib/services/settingsService'
 import { getBankAccountsWithClient } from '@/lib/services/bankAccountService'
 import { createServerSupabaseClient, getCurrentUserId } from '@/lib/supabase-server'
+import { PricingTable } from '@clerk/nextjs'
 import AccountForm from './AccountForm'
 import BankAccountsSection from './BankAccountsSection'
 import LogoutButton from '@/app/components/LogoutButton'
@@ -66,6 +67,24 @@ export default async function AccountPage() {
           Bank Accounts
         </h2>
         <BankAccountsSection initialBankAccounts={bankAccounts} />
+      </div>
+
+      {/* Pricing */}
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
+        <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
+          Pricing
+        </h2>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <PricingTable
+            appearance={{
+              elements: {
+                card: 'shadow-none border border-design-border-default rounded-xl',
+                cardBox: 'shadow-none',
+                rootBox: 'shadow-none',
+              },
+            }}
+          />
+        </div>
       </div>
 
       {/* Logout Button */}

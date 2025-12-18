@@ -121,3 +121,4 @@ export function transformZefixResponse(company: ZefixCompany): CompanyInfo {
   };
 }
 
+

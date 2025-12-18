@@ -255,4 +255,20 @@
     display: none !important;
     pointer-events: none !important;
   }
+  
+  /* Remove shadows and add borders to pricing table cards */
+  [data-clerk-element*="pricing"],
+  [class*="cl-pricing"],
+  [class*="pricingTable"],
+  [data-clerk-element*="pricing"] [class*="card"],
+  [class*="cl-pricing"] [class*="card"],
+  [class*="pricingTable"] [class*="card"],
+  [data-clerk-element*="pricing"] [class*="Card"],
+  [class*="cl-pricing"] [class*="Card"],
+  [class*="pricingTable"] [class*="Card"] {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border: 1px solid hsl(var(--design-border-default)) !important;
+    border-radius: 0.75rem !important;
+  }
 }
