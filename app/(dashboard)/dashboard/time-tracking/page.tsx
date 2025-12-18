@@ -305,7 +305,7 @@ export default function TimeTrackingPage() {
 
   if (isLoadingEntries) {
     return (
-      <div className="max-w-[800px] mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-[800px] mx-auto space-y-8">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -313,7 +313,7 @@ export default function TimeTrackingPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-[800px] mx-auto space-y-8">
       <Header title="Time Tracking" />
 
       {/* Active Timer Banner */}
