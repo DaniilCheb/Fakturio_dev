@@ -167,7 +167,7 @@ export default function ManualEntryModal({
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">
-                This project doesn't have an hourly rate. Enter the rate for this entry.
+                This project doesn&apos;t have an hourly rate. Enter the rate for this entry.
               </p>
             </div>
           )}

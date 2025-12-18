@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, useUser } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
@@ -176,7 +177,7 @@ export default function NewProjectPage() {
               </select>
               {customers.length === 0 && (
                 <p className="text-[12px] text-design-content-weak mt-1">
-                  No customers yet. <a href="/dashboard/customers/new" className="text-design-button-primary hover:underline">Create one first</a>.
+                  No customers yet. <Link href="/dashboard/customers/new" className="text-design-button-primary hover:underline">Create one first</Link>.
                 </p>
               )}
             </div>

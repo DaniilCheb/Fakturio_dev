@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useContacts } from '@/lib/hooks/queries'
 import { type Project, type CreateProjectInput } from '@/lib/services/projectService.client'
 
@@ -142,7 +143,7 @@ export default function AddProjectModal({
             </select>
             {customers.length === 0 && (
               <p className="text-[12px] text-design-content-weak mt-1">
-                No customers yet. <a href="/dashboard/customers/new" className="text-design-button-primary hover:underline">Create one first</a>.
+                No customers yet. <Link href="/dashboard/customers/new" className="text-design-button-primary hover:underline">Create one first</Link>.
               </p>
             )}
           </div>
