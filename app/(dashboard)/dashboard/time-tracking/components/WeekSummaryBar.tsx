@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
+import { formatDateISO } from '@/lib/utils/dateUtils'
 
 interface WeekSummaryBarProps {
   selectedWeek: Date
@@ -16,7 +17,7 @@ export default function WeekSummaryBar({ selectedWeek, dailySummaries, selectedD
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(selectedWeek)
     date.setDate(selectedWeek.getDate() + i)
-    const dateKey = date.toISOString().split('T')[0]
+    const dateKey = formatDateISO(date)
     const minutes = dailySummaries[dateKey] || 0
     const hours = minutes / 60
     
@@ -68,7 +69,7 @@ export default function WeekSummaryBar({ selectedWeek, dailySummaries, selectedD
             )}>
               {day.date}
             </div>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-background rounded-full overflow-hidden">
               <div
                 className={cn(
                   "h-full transition-all",

@@ -57,8 +57,8 @@ export default function TimeEntryList({
     return (
       <EmptyState
         title={title}
-        description="Start tracking your time to see your productivity and billable hours here."
         icon={Clock}
+        variant="minimal"
       />
     )
   }
@@ -73,31 +73,6 @@ export default function TimeEntryList({
         return (
           <Card key={dateKey} id={`day-${dateKey}`}>
             <CardContent className="p-0">
-              {/* Hide day header when this day is selected (we show it in the main header above) */}
-              {!isSelectedDay && (
-                <div className="p-4 border-b bg-muted/50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold">
-                        {formatDate(dateKey)}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Total: {formatDuration(totalMinutes)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Show total when day is selected, but as a subtitle in the main header area */}
-              {isSelectedDay && (
-                <div className="p-4 border-b bg-muted/50">
-                  <p className="text-sm text-muted-foreground">
-                    Total: {formatDuration(totalMinutes)}
-                  </p>
-                </div>
-              )}
-              
               <div className="divide-y">
                 {entries.map((entry) => {
                   const amount = calculateAmount(entry)

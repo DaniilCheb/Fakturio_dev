@@ -368,7 +368,7 @@ export default function TimeTrackingPage() {
 
           {/* Selected Day Header */}
           {selectedDay && (
-            <div className="pb-4">
+            <div className="pb-2">
               <h2 className="text-[20px] font-bold mb-2 text-foreground">
                 {formatDate(selectedDay)}
               </h2>
@@ -381,18 +381,6 @@ export default function TimeTrackingPage() {
                     Total: {formatDuration(selectedDaySummary.totalMinutes)}
                   </p>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Time Entries Header */}
-          {filteredEntriesByDate.length > 0 && (
-            <div className="border-b">
-              <div className="flex items-center gap-4 px-6 py-3">
-                <div className="w-10"></div>
-                <div className="flex-1 text-[13px] font-medium">Name / Category</div>
-                <div className="text-right text-[13px] font-medium">Amount</div>
-                <div className="w-10"></div>
               </div>
             </div>
           )}
