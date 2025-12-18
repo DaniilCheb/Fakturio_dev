@@ -26,6 +26,7 @@ interface ManualEntryModalProps {
   onCreate: (input: CreateTimeEntryInput) => void
   onClose: () => void
   isProcessing: boolean
+  selectedDay?: string | null
 }
 
 export default function ManualEntryModal({
@@ -33,9 +34,10 @@ export default function ManualEntryModal({
   onCreate,
   onClose,
   isProcessing,
+  selectedDay,
 }: ManualEntryModalProps) {
   const [projectId, setProjectId] = useState('')
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(() => selectedDay || new Date().toISOString().split('T')[0])
   const [hours, setHours] = useState('')
   const [minutes, setMinutes] = useState('')
   const [description, setDescription] = useState('')
@@ -47,6 +49,13 @@ export default function ManualEntryModal({
     console.log('ManualEntryModal - Projects loaded:', projects.length)
     console.log('ManualEntryModal - Projects:', projects)
   }, [projects])
+
+  // Update date when selectedDay changes
+  useEffect(() => {
+    if (selectedDay) {
+      setDate(selectedDay)
+    }
+  }, [selectedDay])
 
   const selectedProject = projects.find(p => p.id === projectId)
   const hasProjectRate = selectedProject?.hourly_rate && selectedProject.hourly_rate > 0

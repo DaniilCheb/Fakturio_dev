@@ -25,6 +25,7 @@ function NavItem({ href, icon, label, isActive, onClick }: NavItemProps) {
   return (
     <Link
       href={href}
+      prefetch={true}
       onClick={onClick}
       className={`
         flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 font-normal
@@ -126,7 +127,7 @@ export default function AuthenticatedSidebar() {
         <div className="flex flex-col h-full p-6 relative z-10">
           {/* Logo at top */}
           <div className="flex-shrink-0 mb-8">
-            <Link href="/dashboard" className="inline-flex items-center gap-2">
+            <Link href="/dashboard" prefetch={true} className="inline-flex items-center gap-2">
               <Image
                 src="/logo-dark.svg"
                 alt="Fakturio"

@@ -11,7 +11,6 @@ import { getContacts } from '@/lib/services/contactService'
 import { getProjects } from '@/lib/services/projectService'
 import { getBankAccounts } from '@/lib/services/bankAccountService'
 import PageLoading from './dashboard/loading'
-import NavigationProgress from '../components/NavigationProgress'
 
 export default async function DashboardLayout({
   children,
@@ -61,9 +60,6 @@ export default async function DashboardLayout({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={null}>
-        <NavigationProgress />
-      </Suspense>
       <div className="min-h-screen bg-design-background flex">
         {/* Sidebar */}
         <AuthenticatedSidebar />

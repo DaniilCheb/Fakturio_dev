@@ -40,6 +40,7 @@ export interface StartTimerInput {
   project_id: string;
   description?: string;
   hourly_rate: number;
+  date?: string;
 }
 
 export interface TimeEntrySummary {
@@ -179,6 +180,7 @@ export async function startTimerWithClient(
   
   const now = new Date().toISOString();
   const today = now.split('T')[0];
+  const entryDate = input.date || today;
   
   const { data, error } = await supabase
     .from("time_entries")
@@ -186,7 +188,7 @@ export async function startTimerWithClient(
       user_id: userId,
       project_id: input.project_id,
       description: input.description,
-      date: today,
+      date: entryDate,
       start_time: now,
       duration_minutes: 0,
       hourly_rate: input.hourly_rate,

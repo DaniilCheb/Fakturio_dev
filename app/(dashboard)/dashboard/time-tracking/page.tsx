@@ -28,7 +28,7 @@ import StartTimerModal from "./components/StartTimerModal"
 import ManualEntryModal from "./components/ManualEntryModal"
 import SelectionFooter from "./components/SelectionFooter"
 import { formatCurrency } from "@/lib/utils/formatters"
-import { formatDate } from "@/lib/utils/dateUtils"
+import { formatDate, getCurrentDateISO } from "@/lib/utils/dateUtils"
 import { useRouter } from "next/navigation"
 import { Play, Plus } from "lucide-react"
 
@@ -57,7 +57,7 @@ export default function TimeTrackingPage() {
   })
   
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set())
-  const [selectedDay, setSelectedDay] = useState<string | null>(null)
+  const [selectedDay, setSelectedDay] = useState<string | null>(() => getCurrentDateISO())
   const [showStartTimerModal, setShowStartTimerModal] = useState(false)
   const [showManualEntryModal, setShowManualEntryModal] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -126,7 +126,7 @@ export default function TimeTrackingPage() {
     return summaries
   }, [weekEntries])
 
-  const handleStartTimer = async (projectId: string, description?: string) => {
+  const handleStartTimer = async (projectId: string, description?: string, date?: string) => {
     if (!session) return
     
     setIsProcessing(true)
@@ -143,6 +143,7 @@ export default function TimeTrackingPage() {
         project_id: projectId,
         description,
         hourly_rate: project.hourly_rate,
+        date: date || selectedDay || undefined,
       })
       
       await queryClient.invalidateQueries({ queryKey: ['runningTimer'] })
@@ -422,6 +423,7 @@ export default function TimeTrackingPage() {
           onStart={handleStartTimer}
           onClose={() => setShowStartTimerModal(false)}
           isProcessing={isProcessing}
+          selectedDay={selectedDay}
         />
       )}
 
@@ -431,6 +433,7 @@ export default function TimeTrackingPage() {
           onCreate={handleCreateManualEntry}
           onClose={() => setShowManualEntryModal(false)}
           isProcessing={isProcessing}
+          selectedDay={selectedDay}
         />
       )}
     </div>

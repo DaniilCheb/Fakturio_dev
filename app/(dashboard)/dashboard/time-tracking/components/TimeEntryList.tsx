@@ -111,21 +111,21 @@ export default function TimeEntryList({
                       />
                       
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium">
+                        <div className="text-[14px] font-medium">
                           {getProjectName(entry.project_id)}
                         </div>
                         {entry.description && (
-                          <div className="text-sm text-muted-foreground mt-1">
+                          <div className="text-[13px] text-muted-foreground mt-1">
                             {entry.description}
                           </div>
                         )}
                       </div>
                       
                       <div className="text-right">
-                        <div className="font-medium">
+                        <div className="text-[14px] font-medium">
                           {formatDuration(entry.duration_minutes)}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-[14px] text-muted-foreground">
                           {formatCurrency(amount, 'CHF')}
                         </div>
                       </div>

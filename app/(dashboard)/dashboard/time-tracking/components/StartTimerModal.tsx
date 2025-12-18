@@ -22,9 +22,10 @@ import type { Project } from '@/lib/services/projectService.client'
 
 interface StartTimerModalProps {
   projects: Project[]
-  onStart: (projectId: string, description?: string) => void
+  onStart: (projectId: string, description?: string, date?: string) => void
   onClose: () => void
   isProcessing: boolean
+  selectedDay?: string | null
 }
 
 export default function StartTimerModal({
@@ -32,6 +33,7 @@ export default function StartTimerModal({
   onStart,
   onClose,
   isProcessing,
+  selectedDay,
 }: StartTimerModalProps) {
   const [projectId, setProjectId] = useState('')
   const [description, setDescription] = useState('')
@@ -60,7 +62,7 @@ export default function StartTimerModal({
       return
     }
 
-    onStart(projectId, description || undefined)
+    onStart(projectId, description || undefined, selectedDay || undefined)
   }
 
   return (
