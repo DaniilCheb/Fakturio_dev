@@ -30,7 +30,24 @@ import SelectionFooter from "./components/SelectionFooter"
 import { formatCurrency } from "@/lib/utils/formatters"
 import { formatDate, getCurrentDateISO } from "@/lib/utils/dateUtils"
 import { useRouter } from "next/navigation"
-import { Play, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
+
+// Play icon component
+const PlayIcon = ({ className }: { className?: string }) => (
+  <svg 
+    width="16" 
+    height="16" 
+    viewBox="0 0 16 16" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path 
+      d="M6.235 2.19193C6.00679 2.06365 5.74898 1.99733 5.4872 1.99957C5.22542 2.0018 4.96878 2.07251 4.74279 2.20466C4.5168 2.33682 4.32934 2.52582 4.19903 2.75287C4.06872 2.97993 4.0001 3.23714 4 3.49893V12.4989C3.99993 12.7608 4.06842 13.0181 4.19865 13.2453C4.32889 13.4725 4.51634 13.6617 4.74236 13.7939C4.96837 13.9262 5.22508 13.997 5.48695 13.9993C5.74882 14.0016 6.00672 13.9352 6.235 13.8069L14.235 9.30693C14.467 9.17646 14.6602 8.98659 14.7946 8.75682C14.929 8.52704 14.9999 8.26563 14.9999 7.99943C14.9999 7.73322 14.929 7.47182 14.7946 7.24204C14.6602 7.01226 14.467 6.82239 14.235 6.69193L6.235 2.19193Z" 
+      fill="currentColor"
+    />
+  </svg>
+)
 
 function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60)
@@ -351,7 +368,7 @@ export default function TimeTrackingPage() {
 
           {/* Selected Day Header */}
           {selectedDay && (
-            <div className="pb-4 border-b-2 border-primary/20">
+            <div className="pb-4">
               <h2 className="text-[20px] font-bold mb-2 text-foreground">
                 {formatDate(selectedDay)}
               </h2>
@@ -364,6 +381,18 @@ export default function TimeTrackingPage() {
                     Total: {formatDuration(selectedDaySummary.totalMinutes)}
                   </p>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Time Entries Header */}
+          {filteredEntriesByDate.length > 0 && (
+            <div className="border-b">
+              <div className="flex items-center gap-4 px-6 py-3">
+                <div className="w-10"></div>
+                <div className="flex-1 text-[13px] font-medium">Name / Category</div>
+                <div className="text-right text-[13px] font-medium">Amount</div>
+                <div className="w-10"></div>
               </div>
             </div>
           )}
@@ -381,24 +410,23 @@ export default function TimeTrackingPage() {
           />
 
           {/* Action Buttons */}
-          <div className="pt-6 border-t">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
               <Button
-                size="lg"
-                onClick={() => setShowStartTimerModal(true)}
-                className="flex-1 sm:flex-none min-w-[200px]"
-              >
-                <Play className="mr-2 h-4 w-4" />
-                Start Timer
-              </Button>
-              <Button
-                size="lg"
                 variant="outline"
                 onClick={() => setShowManualEntryModal(true)}
-                className="flex-1 sm:flex-none min-w-[200px]"
+                className="flex-1 sm:flex-none"
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Manual Entry
+                Manual Entry
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => setShowStartTimerModal(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <PlayIcon className="mr-2 h-4 w-4" />
+                Start Timer
               </Button>
             </div>
           </div>

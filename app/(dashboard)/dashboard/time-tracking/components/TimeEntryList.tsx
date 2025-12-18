@@ -6,7 +6,8 @@ import { Button } from '@/app/components/ui/button'
 import type { TimeEntry } from '@/lib/services/timeEntryService.client'
 import type { Project } from '@/lib/services/projectService.client'
 import { formatDate } from '@/lib/utils/dateUtils'
-import { MoreVertical, Trash2 } from 'lucide-react'
+import { MoreVertical, Trash2, Clock } from 'lucide-react'
+import EmptyState from '@/app/components/EmptyState'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,14 +50,16 @@ export default function TimeEntryList({
   }
 
   if (entriesByDate.length === 0) {
-    const emptyMessage = selectedDay 
-      ? `No time entries for ${formatDate(selectedDay)}. Start tracking your time!`
-      : "No time entries for this week. Start tracking your time!"
+    const title = selectedDay 
+      ? `No entries for ${formatDate(selectedDay)}`
+      : "No entries for this week"
     
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        {emptyMessage}
-      </div>
+      <EmptyState
+        title={title}
+        description="Start tracking your time to see your productivity and billable hours here."
+        icon={Clock}
+      />
     )
   }
 
