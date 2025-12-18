@@ -256,10 +256,7 @@
     pointer-events: none !important;
   }
   
-  /* Remove shadows and add borders to pricing table cards */
-  [data-clerk-element*="pricing"],
-  [class*="cl-pricing"],
-  [class*="pricingTable"],
+  /* Remove shadows and add only external border to pricing table cards */
   [data-clerk-element*="pricing"] [class*="card"],
   [class*="cl-pricing"] [class*="card"],
   [class*="pricingTable"] [class*="card"],
@@ -270,5 +267,132 @@
     -webkit-box-shadow: none !important;
     border: 1px solid hsl(var(--design-border-default)) !important;
     border-radius: 0.75rem !important;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  /* Remove all internal borders and backgrounds from nested elements, except buttons */
+  [data-clerk-element*="pricing"] [class*="card"] *:not(button),
+  [class*="cl-pricing"] [class*="card"] *:not(button),
+  [class*="pricingTable"] [class*="card"] *:not(button),
+  [data-clerk-element*="pricing"] [class*="Card"] *:not(button),
+  [class*="cl-pricing"] [class*="Card"] *:not(button),
+  [class*="pricingTable"] [class*="Card"] *:not(button) {
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+  
+  /* Set text size to 14px for pricing table content */
+  [data-clerk-element*="pricing"] [class*="card"],
+  [class*="cl-pricing"] [class*="card"],
+  [class*="pricingTable"] [class*="card"],
+  [data-clerk-element*="pricing"] [class*="Card"],
+  [class*="cl-pricing"] [class*="Card"],
+  [class*="pricingTable"] [class*="Card"],
+  [data-clerk-element*="pricing"] [class*="card"] *,
+  [class*="cl-pricing"] [class*="card"] *,
+  [class*="pricingTable"] [class*="card"] *,
+  [data-clerk-element*="pricing"] [class*="Card"] *,
+  [class*="cl-pricing"] [class*="Card"] *,
+  [class*="pricingTable"] [class*="Card"] * {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Increase price numbers to 32px */
+  [data-clerk-element*="pricing"] [class*="price"],
+  [data-clerk-element*="pricing"] [class*="Price"],
+  [data-clerk-element*="pricing"] [class*="amount"],
+  [data-clerk-element*="pricing"] [class*="Amount"],
+  [class*="cl-pricing"] [class*="price"],
+  [class*="cl-pricing"] [class*="Price"],
+  [class*="cl-pricing"] [class*="amount"],
+  [class*="cl-pricing"] [class*="Amount"],
+  [class*="pricingTable"] [class*="price"],
+  [class*="pricingTable"] [class*="Price"],
+  [class*="pricingTable"] [class*="amount"],
+  [class*="pricingTable"] [class*="Amount"] {
+    font-size: 32px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Keep "/month" text at 14px */
+  [data-clerk-element*="pricing"] [class*="price"] span,
+  [data-clerk-element*="pricing"] [class*="Price"] span,
+  [class*="cl-pricing"] [class*="price"] span,
+  [class*="cl-pricing"] [class*="Price"] span,
+  [class*="pricingTable"] [class*="price"] span,
+  [class*="pricingTable"] [class*="Price"] span {
+    font-size: 14px !important;
+  }
+  
+  /* Keep button text at 14px (already set) */
+  [data-clerk-element*="pricing"] button,
+  [class*="cl-pricing"] button,
+  [class*="pricingTable"] button {
+    font-size: 14px !important;
+  }
+  
+  /* Ensure Clerk buttons are visible and styled with black background and white text - very aggressive */
+  [data-clerk-element*="pricing"] button,
+  [class*="cl-pricing"] button,
+  [class*="pricingTable"] button,
+  [data-clerk-element*="pricing"] [class*="button"],
+  [class*="cl-pricing"] [class*="button"],
+  [class*="pricingTable"] [class*="button"],
+  [data-clerk-element*="pricing"] [class*="Button"],
+  [class*="cl-pricing"] [class*="Button"],
+  [class*="pricingTable"] [class*="Button"],
+  .dark [data-clerk-element*="pricing"] button,
+  .dark [class*="cl-pricing"] button,
+  .dark [class*="pricingTable"] button,
+  .dark [data-clerk-element*="pricing"] [class*="button"],
+  .dark [class*="cl-pricing"] [class*="button"],
+  .dark [class*="pricingTable"] [class*="button"] {
+    display: inline-flex !important;
+    visibility: visible !important;
+    background-color: #141414 !important;
+    background: #141414 !important;
+    background-image: none !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 9999px !important;
+    padding: 0.625rem 1.25rem !important;
+    height: 44px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 200ms ease-in-out !important;
+  }
+  
+  [data-clerk-element*="pricing"] button:hover,
+  [class*="cl-pricing"] button:hover,
+  [class*="pricingTable"] button:hover,
+  [data-clerk-element*="pricing"] [class*="button"]:hover,
+  [class*="cl-pricing"] [class*="button"]:hover,
+  [class*="pricingTable"] [class*="button"]:hover,
+  .dark [data-clerk-element*="pricing"] button:hover,
+  .dark [class*="cl-pricing"] button:hover,
+  .dark [class*="pricingTable"] button:hover {
+    background-color: #333333 !important;
+    background: #333333 !important;
+    background-image: none !important;
+    opacity: 0.9 !important;
+  }
+  
+  [data-clerk-element*="pricing"] button:active,
+  [class*="cl-pricing"] button:active,
+  [class*="pricingTable"] button:active,
+  [data-clerk-element*="pricing"] [class*="button"]:active,
+  [class*="cl-pricing"] [class*="button"]:active,
+  [class*="pricingTable"] [class*="button"]:active,
+  .dark [data-clerk-element*="pricing"] button:active,
+  .dark [class*="cl-pricing"] button:active,
+  .dark [class*="pricingTable"] button:active {
+    background-color: #000000 !important;
+    background: #000000 !important;
+    background-image: none !important;
+    opacity: 0.8 !important;
   }
 }

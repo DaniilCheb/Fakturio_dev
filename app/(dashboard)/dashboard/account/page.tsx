@@ -4,6 +4,7 @@ import { createServerSupabaseClient, getCurrentUserId } from '@/lib/supabase-ser
 import { PricingTable } from '@clerk/nextjs'
 import AccountForm from './AccountForm'
 import BankAccountsSection from './BankAccountsSection'
+import PricingTableStyler from './PricingTableStyler'
 import LogoutButton from '@/app/components/LogoutButton'
 
 export default async function AccountPage() {
@@ -75,15 +76,18 @@ export default async function AccountPage() {
           Pricing
         </h2>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <PricingTable
-            appearance={{
-              elements: {
-                card: 'shadow-none border border-design-border-default rounded-xl',
-                cardBox: 'shadow-none',
-                rootBox: 'shadow-none',
-              },
-            }}
-          />
+          <PricingTableStyler>
+            <PricingTable
+              appearance={{
+                elements: {
+                  card: 'shadow-none border border-design-border-default rounded-xl bg-transparent',
+                  cardBox: 'shadow-none bg-transparent',
+                  rootBox: 'shadow-none bg-transparent',
+                  button: 'bg-[#141414] text-white hover:bg-[#333333] active:bg-[#000000] rounded-full px-5 py-2.5 h-[44px] text-[14px] font-medium',
+                },
+              }}
+            />
+          </PricingTableStyler>
         </div>
       </div>
 
