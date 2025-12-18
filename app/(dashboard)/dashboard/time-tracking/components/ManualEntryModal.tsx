@@ -59,7 +59,9 @@ export default function ManualEntryModal({
 
   const selectedProject = projects.find(p => p.id === projectId)
   const hasProjectRate = selectedProject?.hourly_rate && selectedProject.hourly_rate > 0
-  const hourlyRate = hasProjectRate ? selectedProject.hourly_rate : (parseFloat(customRate) || 0)
+  const hourlyRate: number = hasProjectRate && selectedProject.hourly_rate 
+    ? selectedProject.hourly_rate 
+    : (parseFloat(customRate) || 0)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
