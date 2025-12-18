@@ -21,9 +21,13 @@ export interface ValidationErrors {
  * Validate IBAN format
  * Supports international IBANs with mod-97 checksum validation
  * Format: 2 letter country code + 2 check digits + bank account number (up to 30 chars)
+ * IBAN is optional - only validates format if provided
  */
 export function validateIBAN(iban: string): { valid: boolean; error?: string } {
-  if (!iban) return { valid: false, error: 'IBAN is required' }
+  // IBAN is optional - if empty, it's valid
+  if (!iban || !iban.trim()) {
+    return { valid: true }
+  }
   
   // Remove spaces and convert to uppercase
   const cleanIBAN = iban.replace(/\s/g, '').toUpperCase()
@@ -122,10 +126,12 @@ export function validateInvoice(invoice: Partial<GuestInvoice>): {
     errors.fromZip = 'ZIP / City is required'
   }
 
-  // IBAN validation with format checking
-  const ibanValidation = validateIBAN(invoice.from_info?.iban || '')
-  if (!ibanValidation.valid) {
-    errors.fromIban = ibanValidation.error
+  // IBAN validation with format checking (optional - only validates if provided)
+  if (invoice.from_info?.iban) {
+    const ibanValidation = validateIBAN(invoice.from_info.iban)
+    if (!ibanValidation.valid) {
+      errors.fromIban = ibanValidation.error
+    }
   }
 
   // To section (UID is optional, others required)

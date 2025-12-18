@@ -40,7 +40,7 @@ export default function WeekNavigation({ selectedWeek, onWeekChange }: WeekNavig
 
   return (
     <div className="flex items-center justify-between">
-      <Button variant="outline" size="sm" onClick={goToPreviousWeek}>
+      <Button variant="ghost" size="sm" onClick={goToPreviousWeek}>
         ◀ Week
       </Button>
       
@@ -51,7 +51,7 @@ export default function WeekNavigation({ selectedWeek, onWeekChange }: WeekNavig
         </Button>
       </div>
       
-      <Button variant="outline" size="sm" onClick={goToNextWeek}>
+      <Button variant="ghost" size="sm" onClick={goToNextWeek}>
         Week ▶
       </Button>
     </div>

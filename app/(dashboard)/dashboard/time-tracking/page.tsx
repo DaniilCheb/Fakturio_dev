@@ -352,15 +352,15 @@ export default function TimeTrackingPage() {
           {/* Selected Day Header */}
           {selectedDay && (
             <div className="pb-4 border-b-2 border-primary/20">
-              <h2 className="text-2xl font-bold mb-2 text-foreground">
+              <h2 className="text-[20px] font-bold mb-2 text-foreground">
                 {formatDate(selectedDay)}
               </h2>
               <div className="flex items-center gap-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[15px] font-normal text-muted-foreground">
                   Creating entries for this day
                 </p>
                 {selectedDaySummary && selectedDaySummary.totalMinutes > 0 && (
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-[15px] font-semibold text-foreground">
                     Total: {formatDuration(selectedDaySummary.totalMinutes)}
                   </p>
                 )}

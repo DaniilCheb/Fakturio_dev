@@ -193,13 +193,12 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-design-content-weak">
-              IBAN *
+              IBAN
             </label>
             <input
               type="text"
               value={newAccount.iban}
               onChange={(e) => setNewAccount(prev => ({ ...prev, iban: e.target.value }))}
-              required
               className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors font-mono"
               placeholder="CH93 0076 2011 6238 5295 7"
             />
@@ -219,7 +218,7 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
           <div className="flex gap-3">
             <button
               type="submit"
-              disabled={isLoading || !newAccount.iban}
+              disabled={isLoading}
               className="inline-flex items-center justify-center px-5 py-2 h-[40px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Adding...' : 'Add Account'}

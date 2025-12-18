@@ -135,7 +135,7 @@ export default function GuestPaymentInformationSection({
           {/* IBAN */}
           <div className="flex flex-col gap-1" data-field="fromIban">
             <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
-              IBAN <span className="text-destructive">*</span>
+              IBAN
             </Label>
             <Input
               type="text"

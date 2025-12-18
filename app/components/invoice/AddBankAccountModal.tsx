@@ -84,9 +84,7 @@ export default function AddBankAccountModal({
       }
     }
     
-    if (!formData.iban.trim()) {
-      newErrors.iban = 'IBAN is required'
-    }
+    // IBAN is optional - no validation needed
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -131,7 +129,6 @@ export default function AddBankAccountModal({
             onChange={handleFieldChange('iban')}
             placeholder="CH93 0076 2011 6238 5295 7"
             error={errors.iban}
-            required
             className="font-mono"
           />
         </ModalBody>

@@ -180,7 +180,6 @@ export default function AuthFromSection({
             onChange={handleChange('iban')}
             placeholder="CH93 0076 2011 6238 5295 7"
             error={errors.fromIban}
-            required
             onErrorClear={() => onClearError?.('fromIban')}
             fieldName="fromIban"
           />
