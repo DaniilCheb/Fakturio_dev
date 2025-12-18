@@ -105,4 +105,87 @@ export async function getProjectsByCustomerWithClient(
   return data || [];
 }
 
+/**
+ * Create a new project (with explicit client)
+ */
+export async function createProjectWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+  projectData: CreateProjectInput
+): Promise<Project> {
+  const { data, error } = await supabase
+    .from("projects")
+    .insert({
+      user_id: userId,
+      contact_id: projectData.contact_id,
+      name: projectData.name,
+      description: projectData.description,
+      status: projectData.status || "active",
+      hourly_rate: projectData.hourly_rate,
+      budget: projectData.budget,
+      currency: projectData.currency || "CHF",
+      start_date: projectData.start_date,
+      end_date: projectData.end_date,
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    console.error("Error creating project:", error);
+    throw new Error("Failed to create project");
+  }
+  
+  return data;
+}
+
+/**
+ * Update an existing project (with explicit client)
+ */
+export async function updateProjectWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+  projectId: string,
+  updates: UpdateProjectInput
+): Promise<Project> {
+  const { data, error } = await supabase
+    .from("projects")
+    .update(updates)
+    .eq("id", projectId)
+    .eq("user_id", userId)
+    .select()
+    .single();
+  
+  if (error) {
+    console.error("Error updating project:", error);
+    throw new Error("Failed to update project");
+  }
+  
+  if (!data) {
+    throw new Error("Project not found");
+  }
+  
+  return data;
+}
+
+/**
+ * Delete a project (with explicit client)
+ */
+export async function deleteProjectWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+  projectId: string
+): Promise<boolean> {
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", projectId)
+    .eq("user_id", userId);
+  
+  if (error) {
+    console.error("Error deleting project:", error);
+    throw new Error("Failed to delete project");
+  }
+  
+  return true;
+}
 

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
-import { InvoicesIcon, ExpensesIcon, CustomersIcon, SettingsIcon, CloseIcon } from './Icons'
+import { InvoicesIcon, ExpensesIcon, CustomersIcon, SettingsIcon, CloseIcon, TimeTrackingIcon, ProjectsIcon } from './Icons'
 
 const MenuIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,7 +47,9 @@ export default function AuthenticatedSidebar() {
   const navItems = [
     { href: '/dashboard', icon: <InvoicesIcon size={20} />, label: 'Invoices' },
     { href: '/dashboard/expenses', icon: <ExpensesIcon size={20} />, label: 'Expenses' },
+    { href: '/dashboard/time-tracking', icon: <TimeTrackingIcon size={20} />, label: 'Time Tracking' },
     { href: '/dashboard/customers', icon: <CustomersIcon size={20} />, label: 'Customers' },
+    { href: '/dashboard/projects', icon: <ProjectsIcon size={20} />, label: 'Projects' },
     { href: '/dashboard/account', icon: <SettingsIcon size={20} />, label: 'Account' },
   ]
 

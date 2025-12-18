@@ -9,6 +9,12 @@ import { getProjectsWithClient, getProjectByIdWithClient, type Project } from '@
 import { getBankAccountsWithClient, type BankAccount } from '@/lib/services/bankAccountService.client'
 import { getExpensesWithClient, getExpenseByIdWithClient, type Expense } from '@/lib/services/expenseService.client'
 import { getUserProfileWithClient, type Profile } from '@/lib/services/settingsService.client'
+import { 
+  getTimeEntriesWithClient, 
+  getRunningTimerWithClient,
+  getUnbilledEntriesByProjectWithClient,
+  type TimeEntry 
+} from '@/lib/services/timeEntryService.client'
 
 /**
  * Hook to fetch all invoices for the current user
@@ -239,6 +245,71 @@ export function useExpense(expenseId: string) {
     },
     enabled: !!session && !!user && !!expenseId,
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Hook to fetch all time entries for the current user
+ */
+export function useTimeEntries() {
+  const { session } = useSession()
+  const { user } = useUser()
+  const queryClient = useQueryClient()
+
+  return useQuery({
+    queryKey: ['timeEntries', user?.id],
+    queryFn: async () => {
+      if (!session || !user) return []
+      const supabase = createClientSupabaseClient(session)
+      return getTimeEntriesWithClient(supabase, user.id)
+    },
+    enabled: !!session && !!user,
+    staleTime: 1 * 60 * 1000, // 1 minute (shorter for active tracking)
+    placeholderData: () => {
+      const cachedData = queryClient.getQueryData<TimeEntry[]>(['timeEntries', user?.id])
+      if (cachedData) return cachedData
+      const allCached = queryClient.getQueriesData<TimeEntry[]>({ queryKey: ['timeEntries'] })
+      return allCached[0]?.[1] ?? undefined
+    },
+  })
+}
+
+/**
+ * Hook to fetch unbilled time entries for a project
+ */
+export function useUnbilledEntries(projectId: string | null | undefined) {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['timeEntries', 'unbilled', projectId],
+    queryFn: async () => {
+      if (!session || !user || !projectId) return []
+      const supabase = createClientSupabaseClient(session)
+      return getUnbilledEntriesByProjectWithClient(supabase, user.id, projectId)
+    },
+    enabled: !!session && !!user && !!projectId,
+    staleTime: 1 * 60 * 1000,
+  })
+}
+
+/**
+ * Hook to fetch running timer (if any)
+ */
+export function useRunningTimer() {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['runningTimer', user?.id],
+    queryFn: async () => {
+      if (!session || !user) return null
+      const supabase = createClientSupabaseClient(session)
+      return getRunningTimerWithClient(supabase, user.id)
+    },
+    enabled: !!session && !!user,
+    staleTime: 10 * 1000,  // 10 seconds - check frequently
+    refetchInterval: 30 * 1000, // Refetch every 30 seconds when tab active
   })
 }
 

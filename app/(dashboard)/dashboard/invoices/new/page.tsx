@@ -11,6 +11,8 @@ import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { saveInvoiceWithClient } from '@/lib/services/invoiceService.client'
 import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
 import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
+import { markEntriesAsInvoicedWithClient } from '@/lib/services/timeEntryService.client'
+import { useSearchParams } from 'next/navigation'
 
 // Components
 import InvoiceHeader from '@/app/components/invoice/InvoiceHeader'
@@ -51,6 +53,7 @@ const ERROR_FIELD_PRIORITY = [
 
 export default function NewInvoicePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { session } = useSession()
   const { user } = useUser()
   const queryClient = useQueryClient()
@@ -104,6 +107,41 @@ export default function NewInvoicePage() {
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const [isLoadingNumber, setIsLoadingNumber] = useState(true)
+  const [timeEntryIds, setTimeEntryIds] = useState<string[]>([])
+
+  // Handle time entry parameters from URL
+  useEffect(() => {
+    const fromTimeEntries = searchParams.get('fromTimeEntries')
+    if (fromTimeEntries === 'true') {
+      const entryIds = searchParams.get('entryIds')?.split(',').filter(Boolean) || []
+      const description = searchParams.get('description')
+      const hours = searchParams.get('hours')
+      const rate = searchParams.get('rate')
+      const projectId = searchParams.get('projectId')
+      
+      if (entryIds.length > 0) {
+        setTimeEntryIds(entryIds)
+        
+        // Pre-fill invoice item
+        if (description && hours && rate) {
+          setItems([{
+            id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            quantity: hours,
+            um: '1', // 1 hour = 1 unit
+            description: description,
+            pricePerUm: rate,
+            vat: '8.1' // Default VAT
+          }])
+        }
+        
+        // Set project if available
+        if (projectId) {
+          // Note: We'd need to load the project to get contact_id
+          // For now, user can select contact manually
+        }
+      }
+    }
+  }, [searchParams])
 
   // Initialize invoice number from server
   useEffect(() => {
@@ -433,6 +471,18 @@ export default function NewInvoicePage() {
       notes: data.description,
       payment_terms: paymentTerms
     })
+
+    // Mark time entries as invoiced if this invoice was created from time entries
+    if (timeEntryIds.length > 0) {
+      try {
+        await markEntriesAsInvoicedWithClient(supabase, user.id, timeEntryIds, invoice.id)
+        // Invalidate time entries to refresh the list
+        queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
+      } catch (error) {
+        console.error('Error marking time entries as invoiced:', error)
+        // Don't fail the invoice save if this fails
+      }
+    }
 
     return invoice
   }
