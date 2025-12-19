@@ -12,6 +12,8 @@ import { saveInvoiceWithClient } from '@/lib/services/invoiceService.client'
 import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
 import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
 import { markEntriesAsInvoicedWithClient } from '@/lib/services/timeEntryService.client'
+import { getProjectByIdWithClient } from '@/lib/services/projectService.client'
+import { getContactByIdWithClient } from '@/lib/services/contactService.client'
 import { useSearchParams } from 'next/navigation'
 
 // Components
@@ -111,37 +113,61 @@ export default function NewInvoicePage() {
 
   // Handle time entry parameters from URL
   useEffect(() => {
-    const fromTimeEntries = searchParams.get('fromTimeEntries')
-    if (fromTimeEntries === 'true') {
-      const entryIds = searchParams.get('entryIds')?.split(',').filter(Boolean) || []
-      const description = searchParams.get('description')
-      const hours = searchParams.get('hours')
-      const rate = searchParams.get('rate')
-      const projectId = searchParams.get('projectId')
-      
-      if (entryIds.length > 0) {
-        setTimeEntryIds(entryIds)
+    async function loadProjectAndContact() {
+      const fromTimeEntries = searchParams.get('fromTimeEntries')
+      if (fromTimeEntries === 'true' && supabase && user) {
+        const entryIds = searchParams.get('entryIds')?.split(',').filter(Boolean) || []
+        const description = searchParams.get('description')
+        const hours = searchParams.get('hours')
+        const rate = searchParams.get('rate')
+        const projectId = searchParams.get('projectId')
         
-        // Pre-fill invoice item
-        if (description && hours && rate) {
-          setItems([{
-            id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            quantity: hours,
-            um: '1', // 1 hour = 1 unit
-            description: description,
-            pricePerUm: rate,
-            vat: '8.1' // Default VAT
-          }])
-        }
-        
-        // Set project if available
-        if (projectId) {
-          // Note: We'd need to load the project to get contact_id
-          // For now, user can select contact manually
+        if (entryIds.length > 0) {
+          setTimeEntryIds(entryIds)
+          
+          // Pre-fill invoice item
+          if (description && hours && rate) {
+            setItems([{
+              id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              quantity: hours,
+              um: '1', // 1 hour = 1 unit
+              description: description,
+              pricePerUm: rate,
+              vat: '8.1' // Default VAT
+            }])
+          }
+          
+          // Load project and pre-select customer
+          if (projectId && supabase && user) {
+            try {
+              const project = await getProjectByIdWithClient(supabase, user.id, projectId)
+              if (project?.contact_id) {
+                // Load the contact to get full details
+                const contact = await getContactByIdWithClient(supabase, user.id, project.contact_id)
+                if (contact) {
+                  // Build zip from postal_code and city
+                  const zipCity = [contact.postal_code, contact.city].filter(Boolean).join(' ')
+                  
+                  // Pre-select the customer
+                  setToInfo({
+                    contact_id: contact.id,
+                    uid: contact.vat_number,
+                    name: contact.company_name || contact.name,
+                    address: contact.address || '',
+                    zip: zipCity
+                  })
+                }
+              }
+            } catch (error) {
+              console.error('Error loading project/contact:', error)
+            }
+          }
         }
       }
     }
-  }, [searchParams])
+    
+    loadProjectAndContact()
+  }, [searchParams, supabase, user])
 
   // Initialize invoice number from server
   useEffect(() => {
