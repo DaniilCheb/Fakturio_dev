@@ -29,6 +29,9 @@ export default function GuestSidebar() {
             />
           </div>
           <div className="flex items-center gap-2">
+            <Link href="/sign-in">
+              <Button variant="outline" className="text-sm px-3 py-1.5 h-auto">Log in</Button>
+            </Link>
             <Link href="/sign-up">
               <Button variant="primary" className="text-sm px-3 py-1.5 h-auto">Create free account</Button>
             </Link>
@@ -67,6 +70,11 @@ export default function GuestSidebar() {
                 <Link href="/sign-up">
                   <Button variant="primary" className="w-full justify-center">
                     Create free account
+                  </Button>
+                </Link>
+                <Link href="/sign-in">
+                  <Button variant="outline" className="w-full justify-center">
+                    Log in
                   </Button>
                 </Link>
               </div>

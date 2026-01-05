@@ -40,13 +40,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+// Deterministic currency formatter to avoid Intl.NumberFormat SSR/client mismatch
 function formatCurrency(amount: number, currency = "CHF"): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount)
+  const rounded = Math.round(amount)
+  const formatted = rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'")
+  return `${currency} ${formatted}`
 }
 
 export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: DashboardChartProps) {

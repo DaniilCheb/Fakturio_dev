@@ -18,7 +18,7 @@ declare module 'react-big-calendar' {
     onView?: (view: View) => void
     onNavigate?: (date: Date) => void
     onSelectEvent?: (event: Event) => void
-    onSelectSlot?: (slotInfo: { start: Date; end: Date }) => void
+    onSelectSlot?: (slotInfo: { start: Date; end: Date; slots: Date[] }) => void
     [key: string]: any
   }
   
@@ -65,8 +65,8 @@ declare module 'react-big-calendar/lib/addons/dragAndDrop' {
   function withDragAndDrop<TProps extends object>(
     calendar: React.ComponentType<TProps>
   ): React.ComponentType<TProps & {
-    onEventDrop?: (args: { event: any; start: Date; end: Date; allDay?: boolean }) => void
-    onEventResize?: (args: { event: any; start: Date; end: Date; allDay?: boolean }) => void
+    onEventDrop?: (args: { event: any; start: Date; end: Date; allDay?: boolean }) => void | Promise<void>
+    onEventResize?: (args: { event: any; start: Date; end: Date; allDay?: boolean }) => void | Promise<void>
     draggableAccessor?: (event: any) => boolean
     resizableAccessor?: (event: any) => boolean
     [key: string]: any
@@ -76,4 +76,6 @@ declare module 'react-big-calendar/lib/addons/dragAndDrop' {
 }
 
 declare module 'react-big-calendar/lib/addons/dragAndDrop/styles.css' {}
+
+declare module 'react-big-calendar/lib/css/react-big-calendar.css' {}
 
