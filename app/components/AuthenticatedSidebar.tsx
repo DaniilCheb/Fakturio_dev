@@ -68,19 +68,11 @@ export default function AuthenticatedSidebar() {
         <div className="flex items-center justify-between h-full px-4">
           <div className="inline-flex items-center gap-2">
             <Image
-              src="/logo-dark.svg"
+              src="/LOGO.svg"
               alt="Fakturio"
               width={102}
               height={29}
-              className="h-8 w-auto dark:hidden"
-              priority
-            />
-            <Image
-              src="/logo-dark-mode.svg"
-              alt="Fakturio"
-              width={102}
-              height={29}
-              className="h-8 w-auto hidden dark:block"
+              className="h-8 w-auto"
               priority
             />
           </div>
@@ -129,19 +121,11 @@ export default function AuthenticatedSidebar() {
           <div className="flex-shrink-0 mb-8">
             <Link href="/dashboard" prefetch={true} className="inline-flex items-center gap-2">
               <Image
-                src="/logo-dark.svg"
+                src="/LOGO.svg"
                 alt="Fakturio"
                 width={102}
                 height={29}
-                className="h-8 w-auto dark:hidden"
-                priority
-              />
-              <Image
-                src="/logo-dark-mode.svg"
-                alt="Fakturio"
-                width={102}
-                height={29}
-                className="h-8 w-auto hidden dark:block"
+                className="h-8 w-auto"
                 priority
               />
             </Link>

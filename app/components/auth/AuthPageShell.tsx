@@ -42,19 +42,11 @@ export default function AuthPageShell({
       <div className="absolute top-4 left-4 z-10">
         <Link href="/">
           <Image
-            src="/logo-dark.svg"
+            src="/LOGO.svg"
             alt="Fakturio"
             width={120}
             height={34}
-            className="h-8 w-auto dark:hidden"
-            priority
-          />
-          <Image
-            src="/logo-dark-mode.svg"
-            alt="Fakturio"
-            width={120}
-            height={34}
-            className="hidden h-8 w-auto dark:block"
+            className="h-8 w-auto"
             priority
           />
         </Link>
