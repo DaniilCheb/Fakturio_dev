@@ -17,8 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/app/components/ui/select'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Plus } from 'lucide-react'
 import type { Project } from '@/lib/services/projectService.client'
+import { useContacts } from '@/lib/hooks/queries'
+import { useSession, useUser } from '@clerk/nextjs'
+import { createClientSupabaseClient } from '@/lib/supabase-client'
+import { useQueryClient } from '@tanstack/react-query'
+import AddCustomerModal from '@/app/components/invoice/AddCustomerModal'
+import type { Contact } from '@/lib/services/contactService.client'
 
 interface StartTimerModalProps {
   projects: Project[]
@@ -35,9 +41,23 @@ export default function StartTimerModal({
   isProcessing,
   selectedDay,
 }: StartTimerModalProps) {
+  const { session } = useSession()
+  const { user } = useUser()
+  const queryClient = useQueryClient()
+  const { data: contacts = [] } = useContacts()
+  const customers = contacts.filter(c => c.type === 'customer')
+  
+  const [clientId, setClientId] = useState('')
   const [projectId, setProjectId] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [showAddClientModal, setShowAddClientModal] = useState(false)
+  const [isCreatingClient, setIsCreatingClient] = useState(false)
+
+  // Filter projects by selected client
+  const filteredProjects = clientId 
+    ? projects.filter(p => p.contact_id === clientId)
+    : projects
 
   // Debug: Log projects to verify they're loading
   useEffect(() => {
@@ -45,12 +65,31 @@ export default function StartTimerModal({
     console.log('StartTimerModal - Projects:', projects)
   }, [projects])
 
-  const selectedProject = projects.find(p => p.id === projectId)
+  // Reset project when client changes
+  useEffect(() => {
+    setProjectId('')
+  }, [clientId])
+
+  const selectedProject = filteredProjects.find(p => p.id === projectId)
   const hasHourlyRate = selectedProject?.hourly_rate && selectedProject.hourly_rate > 0
+
+  // Handle creating new client
+  const handleClientCreated = async (contact: Contact) => {
+    // The AddCustomerModal handles the creation, we just need to refresh
+    await queryClient.invalidateQueries({ queryKey: ['contacts', user?.id] })
+    // Auto-select the newly created client
+    setClientId(contact.id)
+    setShowAddClientModal(false)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    
+    if (!clientId) {
+      setError('Please select a client')
+      return
+    }
     
     if (!projectId) {
       setError('Please select a project')
@@ -80,22 +119,74 @@ export default function StartTimerModal({
             </div>
           )}
 
+          {/* Client Field - Mandatory */}
           <div>
-            <Label htmlFor="project">Project *</Label>
-            <Select value={projectId} onValueChange={(value) => {
-              setProjectId(value)
-              setError(null)
-            }}>
-              <SelectTrigger id="project" className="w-full">
-                <SelectValue placeholder="Select a project" />
+            <Label htmlFor="client" className="mb-1">Client *</Label>
+            <Select 
+              value={clientId} 
+              onValueChange={(value) => {
+                setClientId(value)
+                setProjectId('') // Reset project when client changes
+                setError(null)
+              }}
+            >
+              <SelectTrigger id="client" className="w-full bg-white dark:bg-[#252525]">
+                <SelectValue placeholder="Select a client" />
               </SelectTrigger>
               <SelectContent className="z-[100]" position="popper">
-                {projects.length === 0 ? (
-                  <SelectItem value="" disabled>
+                {customers.length === 0 ? (
+                  <SelectItem value="__disabled_no_clients__" disabled>
+                    No clients available
+                  </SelectItem>
+                ) : (
+                  customers.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.company_name || client.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+            <button
+              type="button"
+              onClick={() => setShowAddClientModal(true)}
+              className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
+            >
+              <Plus size={12} />
+              Add Client
+            </button>
+            {customers.length === 0 && (
+              <p className="text-sm text-muted-foreground mt-1">
+                No clients found. Click &quot;Add Client&quot; to create one.
+              </p>
+            )}
+          </div>
+
+          {/* Project Field - Mandatory */}
+          <div>
+            <Label htmlFor="project">Project *</Label>
+            <Select 
+              value={projectId} 
+              onValueChange={(value) => {
+                setProjectId(value)
+                setError(null)
+              }}
+              disabled={!clientId}
+            >
+              <SelectTrigger id="project" className="w-full bg-white dark:bg-[#252525]">
+                <SelectValue placeholder={clientId ? "Select a project" : "Select a client first"} />
+              </SelectTrigger>
+              <SelectContent className="z-[100]" position="popper">
+                {!clientId ? (
+                  <SelectItem value="__disabled_no_client__" disabled>
+                    Select a client first
+                  </SelectItem>
+                ) : filteredProjects.length === 0 ? (
+                  <SelectItem value="__disabled_no_projects__" disabled>
                     No projects available
                   </SelectItem>
                 ) : (
-                  projects.map((project) => {
+                  filteredProjects.map((project) => {
                     const hasRate = project.hourly_rate && project.hourly_rate > 0
                     return (
                       <SelectItem key={project.id} value={project.id}>
@@ -117,9 +208,9 @@ export default function StartTimerModal({
                 )}
               </SelectContent>
             </Select>
-            {projects.length === 0 && (
+            {clientId && filteredProjects.length === 0 && (
               <p className="text-sm text-muted-foreground mt-1">
-                No projects found. Please create a project first.
+                No projects found for this client. Please create a project first.
               </p>
             )}
             {selectedProject && !hasHourlyRate && (
@@ -137,6 +228,7 @@ export default function StartTimerModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g., Design review, Bug fixes..."
+              className="bg-white dark:bg-[#252525]"
             />
           </div>
 
@@ -144,12 +236,23 @@ export default function StartTimerModal({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!projectId || isProcessing}>
+            <Button type="submit" disabled={!clientId || !projectId || isProcessing}>
               ▶ Start Timer
             </Button>
           </div>
         </form>
       </DialogContent>
+
+      {/* Add Client Modal */}
+      {showAddClientModal && session && user && (
+        <AddCustomerModal
+          isOpen={showAddClientModal}
+          onClose={() => setShowAddClientModal(false)}
+          onCustomerCreated={handleClientCreated}
+          supabase={createClientSupabaseClient(session)}
+          userId={user.id}
+        />
+      )}
     </Dialog>
   )
 }

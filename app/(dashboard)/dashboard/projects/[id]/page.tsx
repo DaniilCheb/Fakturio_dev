@@ -2,7 +2,7 @@
 
 import { notFound } from "next/navigation"
 import { useParams } from "next/navigation"
-import { useProject, useInvoices, useContacts } from "@/lib/hooks/queries"
+import { useProject, useInvoices, useContacts, useProjectTimeEntries } from "@/lib/hooks/queries"
 import ProjectDetailClient from "./ProjectDetailClient"
 import { Skeleton } from "@/app/components/ui/skeleton"
 
@@ -23,8 +23,9 @@ export default function ProjectDetailPage() {
   const { data: project, isLoading: isLoadingProject } = useProject(projectId)
   const { data: allInvoices = [], isLoading: isLoadingInvoices } = useInvoices()
   const { data: allContacts = [] } = useContacts()
+  const { data: timeEntries = [], isLoading: isLoadingTimeEntries } = useProjectTimeEntries(projectId)
 
-  if (isLoadingProject || isLoadingInvoices) {
+  if (isLoadingProject || isLoadingInvoices || isLoadingTimeEntries) {
     return <ProjectDetailSkeleton />
   }
 
@@ -42,6 +43,7 @@ export default function ProjectDetailPage() {
         project={project}
         invoices={projectInvoices}
         customer={customer}
+        timeEntries={timeEntries}
       />
     </div>
   )

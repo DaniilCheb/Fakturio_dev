@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { useContacts } from '@/lib/hooks/queries'
 import { type Project, type CreateProjectInput } from '@/lib/services/projectService.client'
@@ -32,6 +33,7 @@ export default function AddProjectModal({
     status: 'active',
     hourly_rate: undefined,
   })
+  const [error, setError] = useState<string | null>(null)
 
   // Reset form when modal opens/closes or initialData changes
   useEffect(() => {
@@ -43,6 +45,7 @@ export default function AddProjectModal({
         status: initialData.status || 'active',
         hourly_rate: initialData.hourly_rate || undefined,
       })
+      setError(null)
     } else if (isOpen && !initialData) {
       setFormData({
         name: '',
@@ -51,6 +54,7 @@ export default function AddProjectModal({
         status: 'active',
         hourly_rate: undefined,
       })
+      setError(null)
     }
   }, [isOpen, initialData])
 
@@ -62,28 +66,43 @@ export default function AddProjectModal({
     } else {
       setFormData(prev => ({ ...prev, [name]: value }))
     }
+    if (error) setError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.name.trim() || !formData.contact_id) {
+      setError('Please fill in all required fields')
       return
     }
-    await onSave(formData)
+    
+    setError(null)
+    try {
+      await onSave(formData)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save project')
+    }
   }
 
   if (!isOpen) return null
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  const modalContent = (
+    <>
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/50"
+        className="fixed inset-0 bg-black/50 z-[100]"
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="relative bg-design-surface-default border border-design-border-default rounded-2xl p-6 w-full max-w-[500px] mx-4 max-h-[90vh] overflow-y-auto">
+      {/* Modal Container */}
+      <div 
+        className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none"
+      >
+        {/* Modal */}
+        <div 
+          className="relative bg-design-surface-default border border-design-border-default rounded-2xl p-6 w-full max-w-[500px] mx-4 max-h-[90vh] overflow-y-auto pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[18px] font-semibold text-design-content-default">
@@ -101,6 +120,13 @@ export default function AddProjectModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+              <p className="text-[13px] text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
           {/* Project Name */}
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-design-content-weak">
@@ -127,7 +153,7 @@ export default function AddProjectModal({
               value={formData.contact_id}
               onChange={handleChange}
               required
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
+              className="w-full h-[40px] px-3 py-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
@@ -157,7 +183,7 @@ export default function AddProjectModal({
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
+              className="w-full h-[40px] px-3 py-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
@@ -182,7 +208,7 @@ export default function AddProjectModal({
               onChange={handleChange}
               step="0.01"
               min="0"
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+              className="w-full h-[40px] px-3 py-2 bg-white dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
               placeholder="150.00"
             />
             <p className="text-[12px] text-design-content-weak mt-1">
@@ -200,7 +226,7 @@ export default function AddProjectModal({
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors resize-none"
+              className="w-full px-3 py-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors resize-none"
               placeholder="Project description..."
             />
           </div>
@@ -231,8 +257,16 @@ export default function AddProjectModal({
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   )
+
+  // Use portal to render modal at document body level
+  if (typeof window !== 'undefined') {
+    return createPortal(modalContent, document.body)
+  }
+  
+  return null
 }
 

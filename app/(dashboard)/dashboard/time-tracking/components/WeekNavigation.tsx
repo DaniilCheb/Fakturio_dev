@@ -54,6 +54,15 @@ export default function WeekNavigation({ selectedWeek, onWeekChange }: WeekNavig
     onWeekChange(newDate)
   }
 
+  const goToToday = () => {
+    const today = new Date()
+    const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const startOfWeek = new Date(today)
+    startOfWeek.setDate(today.getDate() - dayOfWeek) // Go back to Sunday
+    startOfWeek.setHours(0, 0, 0, 0)
+    onWeekChange(startOfWeek)
+  }
+
   const formatWeekRange = (date: Date): string => {
     const end = new Date(date)
     end.setDate(date.getDate() + 6)
@@ -65,16 +74,33 @@ export default function WeekNavigation({ selectedWeek, onWeekChange }: WeekNavig
   }
 
   return (
-    <div className="flex items-center justify-between">
-      <Button variant="ghost" size="sm" onClick={goToPreviousWeek} className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={goToToday}
+        className="font-medium"
+      >
+        Today
+      </Button>
+      
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={goToPreviousWeek}
+        className="h-8 w-8"
+      >
         <ArrowLeftIcon className="h-4 w-4" />
-        Last Week
       </Button>
       
       <span className="text-[20px] font-bold">{formatWeekRange(selectedWeek)}</span>
       
-      <Button variant="ghost" size="sm" onClick={goToNextWeek} className="flex items-center gap-2">
-        Next Week
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={goToNextWeek}
+        className="h-8 w-8"
+      >
         <ArrowRightIcon className="h-4 w-4" />
       </Button>
     </div>

@@ -13,6 +13,7 @@ import {
   getTimeEntriesWithClient, 
   getRunningTimerWithClient,
   getUnbilledEntriesByProjectWithClient,
+  getBillableEntriesByProjectWithClient,
   type TimeEntry 
 } from '@/lib/services/timeEntryService.client'
 
@@ -287,6 +288,25 @@ export function useUnbilledEntries(projectId: string | null | undefined) {
       if (!session || !user || !projectId) return []
       const supabase = createClientSupabaseClient(session)
       return getUnbilledEntriesByProjectWithClient(supabase, user.id, projectId)
+    },
+    enabled: !!session && !!user && !!projectId,
+    staleTime: 1 * 60 * 1000,
+  })
+}
+
+/**
+ * Hook to fetch all billable time entries for a project
+ */
+export function useProjectTimeEntries(projectId: string | null | undefined) {
+  const { session } = useSession()
+  const { user } = useUser()
+
+  return useQuery({
+    queryKey: ['timeEntries', 'project', projectId],
+    queryFn: async () => {
+      if (!session || !user || !projectId) return []
+      const supabase = createClientSupabaseClient(session)
+      return getBillableEntriesByProjectWithClient(supabase, user.id, projectId)
     },
     enabled: !!session && !!user && !!projectId,
     staleTime: 1 * 60 * 1000,

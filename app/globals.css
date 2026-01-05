@@ -1,3 +1,5 @@
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
 @tailwind base;
 
 @custom-variant dark (&:is(.dark *));
@@ -395,4 +397,247 @@
     background-image: none !important;
     opacity: 0.8 !important;
   }
+  
+  /* React Big Calendar - Clean Refactored Styles */
+  
+  /* Base Calendar Styles */
+  .rbc-calendar {
+    background: hsl(var(--card));
+    color: hsl(var(--foreground));
+    font-family: var(--font-radio-canada-big), sans-serif;
+    font-size: 13px;
+  }
+
+  /* Typography - All text at 13px */
+  .rbc-calendar,
+  .rbc-calendar * {
+    font-size: 13px;
+  }
+
+  /* Header Styles - Remove cell background, keep only text */
+  .rbc-header {
+    background: transparent !important;
+    color: hsl(var(--foreground));
+    border: none !important;
+    border-bottom: none !important;
+    padding: 8px 8px 4px 8px;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  /* Remove header row background and borders */
+  .rbc-time-header-content {
+    background: transparent !important;
+    border: none !important;
+    border-left: none !important;
+  }
+  
+  .rbc-time-header {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: none !important;
+  }
+  
+  /* Remove all header row cell backgrounds and borders */
+  .rbc-time-header table,
+  .rbc-time-header table td,
+  .rbc-time-header table th,
+  .rbc-time-header-cell,
+  .rbc-time-header-gutter {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  /* Event Styles */
+  .rbc-event {
+    border-radius: 6px;
+    padding: 2px 4px;
+  }
+
+  .rbc-event-content {
+    font-weight: 500;
+  }
+
+  /* Borders and Layout */
+  .rbc-time-slot {
+    border-top: 1px solid hsl(var(--border));
+  }
+
+  .rbc-day-slot .rbc-time-slot {
+    border-top: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .rbc-time-header-content {
+    border-left: none;
+  }
+
+  .rbc-time-content {
+    border-top: 2px solid hsl(var(--border));
+  }
+
+  .rbc-time-header {
+    border-bottom: none;
+  }
+
+  .rbc-day-bg {
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* View Containers */
+  .rbc-month-view,
+  .rbc-time-view,
+  .rbc-agenda-view {
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* Agenda View */
+  .rbc-agenda-date-cell,
+  .rbc-agenda-time-cell {
+    border-right: 1px solid hsl(var(--border));
+    padding: 8px;
+  }
+
+  .rbc-agenda-event-cell {
+    padding: 8px;
+  }
+
+  .rbc-agenda-table tbody > tr > td {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Special States */
+  .rbc-today {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+
+  .rbc-off-range-bg {
+    background: hsl(var(--muted) / 0.3);
+  }
+
+  /* Hide default toolbar */
+  .rbc-toolbar {
+    display: none !important;
+  }
+
+  /* Dark mode adjustments */
+  .dark .rbc-off-range-bg {
+    background: hsl(var(--muted) / 0.2);
+  }
+
+  .dark .rbc-today {
+    background-color: hsl(var(--primary) / 0.15);
+  }
+}
+
+/* Calendar Layout and Alignment - Outside layer for proper specificity */
+/* Table layout for consistent column widths */
+.rbc-time-view table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Ensure time header gutter and time gutter are in the same column and match width */
+.rbc-time-view .rbc-time-header table,
+.rbc-time-view .rbc-time-content table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Make sure the first column (time gutter) matches between header and content */
+.rbc-time-view .rbc-time-header table col:first-child,
+.rbc-time-view .rbc-time-content table col:first-child {
+  width: auto;
+}
+
+/* Ensure header gutter cell and time gutter cell have identical width */
+/* Both should have the same width since they're in the first column of their respective tables */
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter {
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  box-sizing: border-box;
+}
+
+.rbc-time-view .rbc-time-content .rbc-time-gutter {
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  box-sizing: border-box;
+}
+
+/* Time Gutter - Left column with time labels */
+/* Ensure header gutter and time gutter have matching widths */
+.rbc-time-header-gutter,
+.rbc-time-gutter {
+  box-sizing: border-box;
+  padding: 0 8px;
+  width: auto;
+  min-width: 60px;
+  font-size: 13px !important;
+}
+
+/* Force both to use the same width calculation - they're in the same table column */
+.rbc-time-header-gutter {
+  width: auto;
+}
+
+.rbc-time-gutter {
+  width: auto;
+}
+
+.rbc-time-header-gutter *,
+.rbc-time-gutter * {
+  font-size: 13px !important;
+}
+
+.rbc-time-header-gutter .rbc-label,
+.rbc-time-gutter .rbc-label {
+  text-align: center;
+  display: block;
+  font-size: 13px !important;
+}
+
+/* Additional specificity for time column */
+.rbc-time-column,
+.rbc-time-column * {
+  font-size: 13px !important;
+}
+
+/* Day Columns - Equal width distribution */
+.rbc-time-header-content {
+  width: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.rbc-time-header-content .rbc-header {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rbc-day-bg,
+.rbc-day-slot {
+  width: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* Fix scrollbar alignment issue */
+.rbc-time-view .rbc-time-header.rbc-overflowing {
+  margin-right: 0;
+}
+
+/* Ensure time gutter font size with maximum specificity */
+.big-calendar-wrapper .rbc-time-header-gutter,
+.big-calendar-wrapper .rbc-time-header-gutter *,
+.big-calendar-wrapper .rbc-time-gutter,
+.big-calendar-wrapper .rbc-time-gutter *,
+.big-calendar-wrapper .rbc-time-column,
+.big-calendar-wrapper .rbc-time-column *,
+.big-calendar-wrapper .rbc-time-header-gutter .rbc-label,
+.big-calendar-wrapper .rbc-time-gutter .rbc-label {
+  font-size: 13px !important;
 }

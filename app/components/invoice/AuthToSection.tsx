@@ -5,7 +5,9 @@ import { PlusIcon } from '../Icons'
 import { Loader2 } from 'lucide-react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getContactsWithClient, Contact } from '@/lib/services/contactService.client'
+import { getProjectsByCustomerWithClient, createProjectWithClient, Project, CreateProjectInput } from '@/lib/services/projectService.client'
 import AddCustomerModal from './AddCustomerModal'
+import AddProjectModal from '@/app/(dashboard)/dashboard/projects/AddProjectModal'
 import {
   Select as ShadcnSelect,
   SelectContent,
@@ -29,6 +31,8 @@ interface AuthToSectionProps {
   onChange: (toInfo: AuthToInfo) => void
   supabase: SupabaseClient
   userId: string
+  projectId?: string
+  onProjectChange?: (projectId: string | null) => void
   errors?: {
     toName?: string
     toAddress?: string
@@ -43,12 +47,18 @@ export default function AuthToSection({
   onChange,
   supabase,
   userId,
+  projectId,
+  onProjectChange,
   errors = {},
   onClearError
 }: AuthToSectionProps) {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false)
+  const [showAddProjectModal, setShowAddProjectModal] = useState(false)
+  const [isCreatingProject, setIsCreatingProject] = useState(false)
 
   // Load contacts on mount
   useEffect(() => {
@@ -81,6 +91,31 @@ export default function AuthToSection({
     return contacts.find(c => c.id === toInfo.contact_id)
   }, [contacts, toInfo.contact_id])
 
+  // Load projects when customer is selected
+  useEffect(() => {
+    async function loadProjects() {
+      if (!toInfo.contact_id) {
+        setProjects([])
+        // Clear project selection when customer is cleared
+        onProjectChange?.(null)
+        return
+      }
+
+      setIsLoadingProjects(true)
+      try {
+        const fetchedProjects = await getProjectsByCustomerWithClient(supabase, userId, toInfo.contact_id)
+        setProjects(fetchedProjects)
+      } catch (error) {
+        console.error('Error loading projects:', error)
+        setProjects([])
+      } finally {
+        setIsLoadingProjects(false)
+      }
+    }
+
+    loadProjects()
+  }, [toInfo.contact_id, supabase, userId, onProjectChange])
+
   const handleContactSelect = (contactId: string) => {
     const contact = contacts.find(c => c.id === contactId)
     if (contact) {
@@ -95,11 +130,46 @@ export default function AuthToSection({
         zip: zipCity
       })
       
+      // Clear project selection when customer changes
+      onProjectChange?.(null)
+      
       // Clear errors
       onClearError?.('contact_id')
       onClearError?.('toName')
       onClearError?.('toAddress')
       onClearError?.('toZip')
+    }
+  }
+
+  const handleProjectSelect = (selectedProjectId: string) => {
+    onProjectChange?.(selectedProjectId === '' ? null : selectedProjectId)
+  }
+
+  const handleProjectCreated = async (projectData: CreateProjectInput) => {
+    if (!toInfo.contact_id) {
+      return
+    }
+
+    setIsCreatingProject(true)
+    try {
+      // Ensure contact_id is set from selected customer
+      const newProject = await createProjectWithClient(supabase, userId, {
+        ...projectData,
+        contact_id: projectData.contact_id || toInfo.contact_id
+      })
+      
+      // Add to local list
+      setProjects(prev => [newProject, ...prev])
+      
+      // Auto-select the new project
+      onProjectChange?.(newProject.id)
+      
+      setShowAddProjectModal(false)
+    } catch (error) {
+      console.error('Error creating project:', error)
+      alert('Failed to create project. Please try again.')
+    } finally {
+      setIsCreatingProject(false)
     }
   }
 
@@ -176,11 +246,55 @@ export default function AuthToSection({
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors"
+            className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
           >
             <PlusIcon size={12} />
             Create new customer
           </button>
+
+          {/* Project Dropdown - Only show when customer is selected */}
+          {selectedContact && (
+            <div className="flex flex-col gap-1 pt-3 border-t border-[#e0e0e0] dark:border-[#333]">
+              <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
+                Project (optional)
+              </Label>
+              
+              {isLoadingProjects ? (
+                <div className="flex items-center gap-2 h-10 px-3 border border-[#e0e0e0] dark:border-[#333] rounded-lg">
+                  <Loader2 className="h-4 w-4 animate-spin text-design-content-weak" />
+                  <span className="text-[14px] text-design-content-weak">Loading projects...</span>
+                </div>
+              ) : (
+                <ShadcnSelect
+                  value={projectId || ''}
+                  onValueChange={handleProjectSelect}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={projects.length === 0 ? "No projects yet" : "Select a project..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </ShadcnSelect>
+              )}
+
+              {/* Create New Project Button */}
+              {selectedContact && (
+                <button
+                  type="button"
+                  onClick={() => setShowAddProjectModal(true)}
+                  className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
+                >
+                  <PlusIcon size={12} />
+                  Create new project
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Selected Customer Details */}
           {selectedContact && (
@@ -211,6 +325,25 @@ export default function AuthToSection({
         supabase={supabase}
         userId={userId}
       />
+
+      {/* Add Project Modal */}
+      {showAddProjectModal && (
+        <AddProjectModal
+          isOpen={showAddProjectModal}
+          onClose={() => setShowAddProjectModal(false)}
+          onSave={handleProjectCreated}
+          isLoading={isCreatingProject}
+          initialData={toInfo.contact_id ? {
+            id: '',
+            user_id: userId,
+            contact_id: toInfo.contact_id,
+            name: '',
+            status: 'active',
+            created_at: '',
+            updated_at: ''
+          } as Project : undefined}
+        />
+      )}
     </div>
   )
 }

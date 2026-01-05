@@ -3,8 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@clerk/nextjs'
+import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
+import { FileText, Trash2 } from 'lucide-react'
 import { Card, CardContent } from '@/app/components/ui/card'
+import { Checkbox } from '@/app/components/ui/checkbox'
+import { Button } from '@/app/components/ui/button'
 import StatusBadge from '@/app/components/StatusBadge'
 import { EditIcon, DeleteIcon } from '@/app/components/Icons'
 import BackLink from '@/app/components/BackLink'
@@ -12,6 +16,7 @@ import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { type Project, deleteProjectWithClient } from '@/lib/services/projectService.client'
 import { type Invoice, getInvoiceStatus } from '@/lib/services/invoiceService.client'
 import { type Contact } from '@/lib/services/contactService.client'
+import { type TimeEntry, calculateTimeEntrySummary, deleteTimeEntryWithClient } from '@/lib/services/timeEntryService.client'
 import { formatDate } from '@/lib/utils/dateUtils'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
@@ -28,16 +33,130 @@ interface ProjectDetailClientProps {
   project: Project
   invoices: Invoice[]
   customer: Contact | undefined
+  timeEntries: TimeEntry[]
 }
 
-export default function ProjectDetailClient({ project, invoices, customer }: ProjectDetailClientProps) {
+export default function ProjectDetailClient({ project, invoices, customer, timeEntries }: ProjectDetailClientProps) {
   const router = useRouter()
   const { session } = useSession()
+  const queryClient = useQueryClient()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeletingEntries, setIsDeletingEntries] = useState(false)
+  const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set())
   const { confirm, DialogComponent } = useConfirmDialog()
 
   const customerName = customer?.company_name || customer?.name || 'Unknown Customer'
   const totalAmount = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0)
+  
+  // Calculate total time tracked
+  const totalTimeTracked = timeEntries.reduce((sum, entry) => sum + entry.duration_minutes, 0)
+
+  // Format duration helper
+  const formatDuration = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    if (hours === 0) return `${mins}m`
+    if (mins === 0) return `${hours}h`
+    return `${hours}h ${mins}m`
+  }
+
+  // Get time entry status badge
+  const getTimeEntryStatusBadge = (entry: TimeEntry) => {
+    const isInvoiced = entry.status === 'invoiced' || entry.invoice_id !== null
+    if (isInvoiced) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal bg-[#e8f5e9] dark:bg-[#1b4332] text-[#2e7d32] dark:text-[#4ade80]">
+          Invoiced
+        </span>
+      )
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal bg-muted text-muted-foreground">
+        Not Issued
+      </span>
+    )
+  }
+
+  // Toggle entry selection
+  const toggleEntrySelection = (entryId: string) => {
+    setSelectedEntryIds(prev => {
+      const next = new Set(prev)
+      if (next.has(entryId)) {
+        next.delete(entryId)
+      } else {
+        next.add(entryId)
+      }
+      return next
+    })
+  }
+
+  // Handle invoice creation from selected entries
+  const handleCreateInvoiceFromEntries = () => {
+    if (selectedEntryIds.size === 0) return
+
+    const selectedEntries = timeEntries.filter(e => selectedEntryIds.has(e.id))
+    if (selectedEntries.length === 0) return
+
+    try {
+      const summary = calculateTimeEntrySummary(selectedEntries, project.name)
+      
+      const params = new URLSearchParams({
+        fromTimeEntries: 'true',
+        projectId: project.id,
+        entryIds: selectedEntries.map(e => e.id).join(','),
+        hours: summary.total_hours.toString(),
+        rate: summary.hourly_rate.toString(),
+        amount: summary.total_amount.toString(),
+        description: `${project.name} - ${summary.total_hours} hours (${summary.date_range.from} to ${summary.date_range.to})`,
+      })
+      
+      router.push(`/dashboard/invoices/new?${params.toString()}`)
+    } catch (error) {
+      console.error('Error creating invoice from entries:', error)
+      alert('Failed to prepare invoice. Please try again.')
+    }
+  }
+
+  // Handle batch delete of selected entries
+  const handleDeleteSelectedEntries = async () => {
+    if (!session || selectedEntryIds.size === 0) return
+
+    const selectedEntries = timeEntries.filter(e => selectedEntryIds.has(e.id))
+    if (selectedEntries.length === 0) return
+
+    const confirmed = await confirm({
+      title: "Delete Time Entries",
+      message: `Are you sure you want to delete ${selectedEntries.length} time ${selectedEntries.length === 1 ? 'entry' : 'entries'}? This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "destructive",
+    })
+
+    if (!confirmed) return
+
+    setIsDeletingEntries(true)
+    try {
+      const supabase = createClientSupabaseClient(session)
+      const userId = session.user.id
+
+      // Delete entries one by one
+      for (const entryId of selectedEntryIds) {
+        await deleteTimeEntryWithClient(supabase, userId, entryId)
+      }
+
+      // Invalidate queries to refresh the list
+      await queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
+      await queryClient.invalidateQueries({ queryKey: ['timeEntries', 'project', project.id] })
+
+      // Clear selection
+      setSelectedEntryIds(new Set())
+    } catch (error) {
+      console.error("Error deleting time entries:", error)
+      alert("Failed to delete time entries. Please try again.")
+    } finally {
+      setIsDeletingEntries(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (!session) return
@@ -151,6 +270,14 @@ export default function ProjectDetailClient({ project, invoices, customer }: Pro
                 {invoices.length}
               </p>
             </div>
+            <div>
+              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                Time Tracked
+              </p>
+              <p className="text-[15px] text-foreground font-medium">
+                {formatDuration(totalTimeTracked)}
+              </p>
+            </div>
             {project.hourly_rate && (
               <div>
                 <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
@@ -172,6 +299,86 @@ export default function ProjectDetailClient({ project, invoices, customer }: Pro
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Time Entries List */}
+      <Card>
+        <div className="px-6 py-3 border-b flex items-center justify-between">
+          <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
+            Time Entries
+          </p>
+          {selectedEntryIds.size > 0 && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleCreateInvoiceFromEntries}
+                variant="ghost"
+                size="sm"
+                className="h-8"
+              >
+                <FileText className="h-4 w-4" style={{ marginRight: '2px' }} />
+                Invoice Selected
+              </Button>
+              <Button
+                onClick={handleDeleteSelectedEntries}
+                disabled={isDeletingEntries}
+                variant="ghost"
+                size="sm"
+                className="h-8 text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" style={{ marginRight: '2px' }} />
+                {isDeletingEntries ? 'Deleting...' : 'Delete Selected'}
+              </Button>
+            </div>
+          )}
+        </div>
+        <CardContent className="p-0">
+          {timeEntries.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-muted-foreground">No time entries for this project yet.</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-[13px] font-medium px-6 w-12">
+                    <span className="sr-only">Select</span>
+                  </TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Date</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Duration</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Description</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {timeEntries.map((entry) => (
+                  <TableRow 
+                    key={entry.id}
+                    className="hover:bg-muted/50"
+                  >
+                    <TableCell className="px-6">
+                      <Checkbox
+                        checked={selectedEntryIds.has(entry.id)}
+                        onCheckedChange={() => toggleEntrySelection(entry.id)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-[14px] text-muted-foreground px-6">
+                      {formatDate(entry.date)}
+                    </TableCell>
+                    <TableCell className="text-[14px] px-6">
+                      {formatDuration(entry.duration_minutes)}
+                    </TableCell>
+                    <TableCell className="text-[14px] px-6">
+                      {entry.description || <span className="text-muted-foreground italic">No description</span>}
+                    </TableCell>
+                    <TableCell className="px-6">
+                      {getTimeEntryStatusBadge(entry)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

@@ -15,6 +15,15 @@ import AddProjectModal from './AddProjectModal'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { EditIcon, DeleteIcon, ProjectsIcon } from '@/app/components/Icons'
 import { formatCurrency } from '@/lib/utils/formatters'
+
+// Format duration helper
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours === 0) return `${mins}m`
+  if (mins === 0) return `${hours}h`
+  return `${hours}h ${mins}m`
+}
 import TableRowLabel from '@/app/components/TableRowLabel'
 import { Card, CardContent } from '@/app/components/ui/card'
 import {
@@ -80,6 +89,9 @@ function ProjectRow({
       </TableCell>
       <TableCell className="text-[14px] text-muted-foreground px-6">
         {project.invoiceCount} {project.invoiceCount !== 1 ? 'invoices' : 'invoice'}
+      </TableCell>
+      <TableCell className="text-[14px] text-muted-foreground px-6">
+        {formatDuration(project.timeTracked)}
       </TableCell>
       <TableCell className="text-[14px] font-medium px-6">
         {formatCurrency(project.totalAmount)}
@@ -210,6 +222,7 @@ export default function ProjectsList({
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-[13px] font-medium px-6">Project</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Invoices</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Time Tracked</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
                   <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
                 </TableRow>

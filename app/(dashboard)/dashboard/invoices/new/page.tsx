@@ -79,6 +79,7 @@ export default function NewInvoicePage() {
     address: '',
     zip: ''
   })
+  const [projectId, setProjectId] = useState<string | null>(null)
   
   const [description, setDescription] = useState('')
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -120,7 +121,7 @@ export default function NewInvoicePage() {
         const description = searchParams.get('description')
         const hours = searchParams.get('hours')
         const rate = searchParams.get('rate')
-        const projectId = searchParams.get('projectId')
+        const projectIdParam = searchParams.get('projectId')
         
         if (entryIds.length > 0) {
           setTimeEntryIds(entryIds)
@@ -138,10 +139,13 @@ export default function NewInvoicePage() {
           }
           
           // Load project and pre-select customer
-          if (projectId && supabase && user) {
+          if (projectIdParam && supabase && user) {
             try {
-              const project = await getProjectByIdWithClient(supabase, user.id, projectId)
+              const project = await getProjectByIdWithClient(supabase, user.id, projectIdParam)
               if (project?.contact_id) {
+                // Pre-select the project
+                setProjectId(project.id)
+                
                 // Load the contact to get full details
                 const contact = await getContactByIdWithClient(supabase, user.id, project.contact_id)
                 if (contact) {
@@ -439,8 +443,8 @@ export default function NewInvoicePage() {
       
       setSaveSuccess(true)
       
-      // Navigate immediately - data is already cached
-      router.replace(`/dashboard/invoices/${invoice.id}`)
+      // Navigate to invoice detail page after successful save
+      router.push(`/dashboard/invoices/${invoice.id}`)
     } catch (error) {
       console.error('Error saving invoice:', error)
       alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -481,6 +485,7 @@ export default function NewInvoicePage() {
 
     const invoice = await saveInvoiceWithClient(supabase, user.id, {
       contact_id: data.contact_id,
+      project_id: projectId || undefined,
       bank_account_id: selectedBankAccount.id,
       invoice_number: data.invoice_number,
       status: 'issued',
@@ -711,6 +716,8 @@ export default function NewInvoicePage() {
           onChange={setToInfo}
           supabase={supabase}
           userId={user.id}
+          projectId={projectId || undefined}
+          onProjectChange={setProjectId}
           errors={validationErrors}
           onClearError={clearError}
         />

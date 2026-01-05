@@ -1,28 +1,25 @@
 'use client'
 
-import { useTimeEntries, useRunningTimer, useProjects } from "@/lib/hooks/queries"
+import { useTimeEntries, useProjects } from "@/lib/hooks/queries"
 import { useState, useMemo } from "react"
-import { useSession } from "@clerk/nextjs"
-import { createClientSupabaseClient } from "@/lib/supabase-client"
-import { useQueryClient } from "@tanstack/react-query"
-import { 
-  startTimerWithClient, 
-  stopTimerWithClient,
-  createTimeEntryWithClient, 
-  updateTimeEntryWithClient,
-  deleteTimeEntryWithClient,
-  type CreateTimeEntryInput 
-} from "@/lib/services/timeEntryService.client"
 import Header from "@/app/components/Header"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Skeleton } from "@/app/components/ui/skeleton"
 import { Button } from "@/app/components/ui/button"
 import { BigCalendar, type BigCalendarEvent } from "@/app/components/ui/big-calendar"
-import { Plus } from "lucide-react"
-import ActiveTimerBanner from "./components/ActiveTimerBanner"
-import StartTimerModal from "./components/StartTimerModal"
-import ManualEntryModal from "./components/ManualEntryModal"
+import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useSession } from "@clerk/nextjs"
+import { createClientSupabaseClient } from "@/lib/supabase-client"
+import { useQueryClient } from "@tanstack/react-query"
+import { 
+  createTimeEntryWithClient, 
+  updateTimeEntryWithClient,
+  deleteTimeEntryWithClient,
+  type CreateTimeEntryInput 
+} from "@/lib/services/timeEntryService.client"
 import { formatDateISO } from "@/lib/utils/dateUtils"
+import ManualEntryModal from "../components/ManualEntryModal"
 import type { TimeEntry } from "@/lib/services/timeEntryService.client"
 import type { View } from 'react-big-calendar'
 
@@ -44,32 +41,14 @@ function formatDuration(minutes: number): string {
   return `${hours}h ${mins}m`
 }
 
-// Play icon component
-const PlayIcon = ({ className }: { className?: string }) => (
-  <svg 
-    width="16" 
-    height="16" 
-    viewBox="0 0 16 16" 
-    fill="none" 
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-  >
-    <path 
-      d="M6.235 2.19193C6.00679 2.06365 5.74898 1.99733 5.4872 1.99957C5.22542 2.0018 4.96878 2.07251 4.74279 2.20466C4.5168 2.33682 4.32934 2.52582 4.19903 2.75287C4.06872 2.97993 4.0001 3.23714 4 3.49893V12.4989C3.99993 12.7608 4.06842 13.0181 4.19865 13.2453C4.32889 13.4725 4.51634 13.6617 4.74236 13.7939C4.96837 13.9262 5.22508 13.997 5.48695 13.9993C5.74882 14.0016 6.00672 13.9352 6.235 13.8069L14.235 9.30693C14.467 9.17646 14.6602 8.98659 14.7946 8.75682C14.929 8.52704 14.9999 8.26563 14.9999 7.99943C14.9999 7.73322 14.929 7.47182 14.7946 7.24204C14.6602 7.01226 14.467 6.82239 14.235 6.69193L6.235 2.19193Z" 
-      fill="currentColor"
-    />
-  </svg>
-)
-
-export default function TimeTrackingPage() {
+export default function CalendarPreviewPage() {
+  const router = useRouter()
   const { session } = useSession()
   const queryClient = useQueryClient()
   const { data: timeEntries = [], isLoading: isLoadingEntries } = useTimeEntries()
-  const { data: runningTimer } = useRunningTimer()
   const { data: projects = [] } = useProjects()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState<View>('week')
-  const [showStartTimerModal, setShowStartTimerModal] = useState(false)
   const [showManualEntryModal, setShowManualEntryModal] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<{
     date: string
@@ -229,8 +208,6 @@ export default function TimeTrackingPage() {
       console.error('Error updating event time:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       alert(`Failed to update event time: ${errorMessage}`)
-      // Re-throw to let react-big-calendar revert the drag
-      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -273,8 +250,6 @@ export default function TimeTrackingPage() {
       console.error('Error resizing event:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
       alert(`Failed to resize event: ${errorMessage}`)
-      // Re-throw to let react-big-calendar revert the resize
-      throw error
     } finally {
       setIsProcessing(false)
     }
@@ -283,58 +258,6 @@ export default function TimeTrackingPage() {
   // Determine if an event is draggable (not running)
   const isEventDraggable = (event: CalendarEvent) => {
     return !event.resource?.isRunning
-  }
-
-  // Handle timer start
-  const handleStartTimer = async (projectId: string, description?: string, date?: string) => {
-    if (!session) return
-    
-    setIsProcessing(true)
-    try {
-      const supabase = createClientSupabaseClient(session)
-      const project = projects.find(p => p.id === projectId)
-      if (!project || !project.hourly_rate) {
-        alert('Project must have an hourly rate set')
-        setIsProcessing(false)
-        return
-      }
-      
-      await startTimerWithClient(supabase, session.user.id, {
-        project_id: projectId,
-        description,
-        hourly_rate: project.hourly_rate,
-        date: date || formatDateISO(new Date()),
-      })
-      
-      await queryClient.invalidateQueries({ queryKey: ['runningTimer'] })
-      await queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
-      setShowStartTimerModal(false)
-    } catch (error) {
-      console.error('Error starting timer:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-      alert(errorMessage)
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
-  // Handle timer stop
-  const handleStopTimer = async () => {
-    if (!session || !runningTimer) return
-    
-    setIsProcessing(true)
-    try {
-      const supabase = createClientSupabaseClient(session)
-      await stopTimerWithClient(supabase, session.user.id, runningTimer.id)
-      
-      await queryClient.invalidateQueries({ queryKey: ['runningTimer'] })
-      await queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
-    } catch (error) {
-      console.error('Error stopping timer:', error)
-      alert(`Failed to stop timer: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
-      setIsProcessing(false)
-    }
   }
 
   // Handle entry creation
@@ -413,34 +336,16 @@ export default function TimeTrackingPage() {
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <Header title="Time Tracking" />
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowManualEntryModal(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Manual Entry
-          </Button>
-          <Button
-            variant="default"
-            onClick={() => setShowStartTimerModal(true)}
-          >
-            <PlayIcon className="mr-2 h-4 w-4" />
-            Start Timer
-          </Button>
-        </div>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <Header title="Calendar Preview" />
       </div>
-
-      {/* Active Timer Banner */}
-      {runningTimer && (
-        <ActiveTimerBanner 
-          timer={runningTimer}
-          onStop={handleStopTimer}
-          isProcessing={isProcessing}
-        />
-      )}
 
       <Card>
         <CardContent className="p-6">
@@ -462,19 +367,24 @@ export default function TimeTrackingPage() {
         </CardContent>
       </Card>
 
-      {/* Start Timer Modal */}
-      {showStartTimerModal && (
-        <StartTimerModal
-          projects={projects}
-          onStart={handleStartTimer}
-          onClose={() => setShowStartTimerModal(false)}
-          isProcessing={isProcessing}
-          selectedDay={formatDateISO(new Date())}
-        />
-      )}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Calendar Features</h3>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• <strong>Month, Week, and Day views</strong> - Switch between different calendar views</li>
+            <li>• <strong>Time entries displayed as events</strong> - All your time entries are shown on the calendar</li>
+            <li>• <strong>Running timers highlighted</strong> - Active timers appear in green with a pulsing effect</li>
+            <li>• <strong>Click and drag to create entries</strong> - Click and drag on any time slot to create a new time entry</li>
+            <li>• <strong>Drag events to change time</strong> - Drag events to different time slots to update their schedule</li>
+            <li>• <strong>Resize events to change duration</strong> - Drag the edges of events to adjust their duration</li>
+            <li>• <strong>Event details on hover</strong> - Hover over events to see more information</li>
+            <li>• <strong>Responsive design</strong> - Works on desktop and mobile devices</li>
+          </ul>
+        </CardContent>
+      </Card>
 
       {/* Manual Entry Modal (Create Mode) */}
-      {showManualEntryModal && selectedSlot && !showEditModal && (
+      {showManualEntryModal && selectedSlot && (
         <ManualEntryModal
           projects={projects}
           onCreate={handleCreateManualEntry}
@@ -486,18 +396,6 @@ export default function TimeTrackingPage() {
           selectedDay={selectedSlot.date}
           prefillHours={selectedSlot.hours}
           prefillMinutes={selectedSlot.minutes}
-        />
-      )}
-
-      {/* Manual Entry Modal (Create Mode - from button) */}
-      {showManualEntryModal && !selectedSlot && !showEditModal && (
-        <ManualEntryModal
-          projects={projects}
-          onCreate={handleCreateManualEntry}
-          onClose={() => {
-            setShowManualEntryModal(false)
-          }}
-          isProcessing={isProcessing}
         />
       )}
 
@@ -519,3 +417,4 @@ export default function TimeTrackingPage() {
     </div>
   )
 }
+

@@ -106,6 +106,35 @@ export async function getUnbilledEntriesByProjectWithClient(
 }
 
 /**
+ * Get all billable time entries for a project
+ */
+export async function getBillableEntriesByProjectWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+  projectId: string
+): Promise<TimeEntry[]> {
+  const { data, error } = await supabase
+    .from("time_entries")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("project_id", projectId)
+    .eq("is_billable", true)
+    .order("date", { ascending: false });
+  
+  if (error) {
+    console.error("Error fetching billable entries:", error);
+    // Check if table doesn't exist
+    if (error.code === '42P01' || error.message?.includes('does not exist')) {
+      console.warn("time_entries table does not exist. Please run the migration: add-time-entries-table.sql");
+      return []; // Return empty array instead of throwing
+    }
+    throw new Error(`Failed to fetch billable entries: ${error.message || JSON.stringify(error)}`);
+  }
+  
+  return data || [];
+}
+
+/**
  * Manual time entry
  */
 export async function createTimeEntryWithClient(
@@ -351,7 +380,7 @@ export async function updateTimeEntryWithClient(
   supabase: SupabaseClient,
   userId: string,
   entryId: string,
-  updates: Partial<CreateTimeEntryInput>
+  updates: Partial<CreateTimeEntryInput & { start_time?: string; end_time?: string }>
 ): Promise<TimeEntry> {
   const { data, error } = await supabase
     .from("time_entries")
