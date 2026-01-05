@@ -50,6 +50,7 @@ declare module 'react-big-calendar' {
     locales?: Record<string, any>
   }
   
+  // Explicitly declare dateFnsLocalizer as a named export
   export function dateFnsLocalizer(config: DateFnsLocalizerConfig): Localizer
   
   export const Calendar: React.ComponentType<CalendarProps>

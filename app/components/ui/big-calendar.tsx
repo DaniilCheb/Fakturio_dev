@@ -3,11 +3,11 @@
 import * as React from 'react'
 import {
   Calendar as ReactBigCalendar,
+  dateFnsLocalizer,
   type View,
   type ToolbarProps,
   type EventProps,
 } from 'react-big-calendar'
-import { dateFnsLocalizer } from 'react-big-calendar/lib/localizers/dateFnsLocalizer'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import { format, parse, startOfWeek, getDay, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns'
