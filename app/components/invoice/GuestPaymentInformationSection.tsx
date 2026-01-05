@@ -103,7 +103,7 @@ export default function GuestPaymentInformationSection({
                 Payment method <span className="text-destructive">*</span>
               </Label>
               <div className={cn(
-                "flex items-center bg-[#F7F5F2] dark:bg-[#2a2a2a] border rounded-lg p-1 h-[40px]",
+                "flex items-center bg-design-surface-field dark:bg-[#252525] border rounded-lg p-1 h-[40px]",
                 errors.payment_method 
                   ? "border-destructive" 
                   : "border-[#e0e0e0] dark:border-[#444]"

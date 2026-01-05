@@ -15,7 +15,13 @@ import { enUS } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { Tabs, TabsList, TabsTrigger } from './tabs'
+
+// View options for segmented control
+const VIEW_OPTIONS = [
+  { value: 'month', label: 'Month' },
+  { value: 'week', label: 'Week' },
+  { value: 'day', label: 'Day' },
+] as const
 
 // Setup the localizer with date-fns
 const locales = {
@@ -59,7 +65,7 @@ function CustomToolbar<TEvent extends object>({
   }
 
   return (
-    <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-border">
+    <div className="flex items-center justify-between gap-4 mb-4 pb-4">
       {/* Left: Today button, arrows, and date - all stacked on left */}
       <div className="flex items-center gap-2">
         <Button
@@ -95,28 +101,23 @@ function CustomToolbar<TEvent extends object>({
       </div>
 
       {/* Right: View switcher - Segmented Control */}
-      <Tabs value={view} onValueChange={(value) => onView(value as View)}>
-        <TabsList className="h-9">
-          <TabsTrigger 
-            value="month" 
-            className="px-4 data-[state=active]:bg-white data-[state=active]:border data-[state=active]:border-border"
+      <div className="flex items-center bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg p-1 h-[40px]">
+        {VIEW_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onView(option.value as View)}
+            className={cn(
+              "px-4 h-full rounded-md text-[14px] font-medium transition-all",
+              view === option.value
+                ? 'bg-white dark:bg-[#333] text-[#141414] dark:text-white shadow-sm border border-[#e0e0e0] dark:border-[#444]'
+                : 'text-[#666666] dark:text-[#999] hover:text-[#141414] dark:hover:text-white'
+            )}
           >
-            Month
-          </TabsTrigger>
-          <TabsTrigger 
-            value="week" 
-            className="px-4 data-[state=active]:bg-white data-[state=active]:border data-[state=active]:border-border"
-          >
-            Week
-          </TabsTrigger>
-          <TabsTrigger 
-            value="day" 
-            className="px-4 data-[state=active]:bg-white data-[state=active]:border data-[state=active]:border-border"
-          >
-            Day
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+            {option.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

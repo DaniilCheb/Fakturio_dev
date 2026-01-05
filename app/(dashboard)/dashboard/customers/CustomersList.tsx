@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@clerk/nextjs'
@@ -129,6 +129,11 @@ export default function CustomersList({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { confirm, DialogComponent } = useConfirmDialog()
+
+  // Sync local state when initialCustomers prop changes (e.g., after creating a new customer)
+  useEffect(() => {
+    setCustomers(initialCustomers)
+  }, [initialCustomers])
 
   const handleUpdateCustomer = async (customerData: CreateContactInput) => {
     if (!session || !editingCustomer) return

@@ -187,7 +187,7 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
               type="text"
               value={newAccount.name}
               onChange={(e) => setNewAccount(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
               placeholder="Main Account"
             />
           </div>
@@ -199,7 +199,7 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
               type="text"
               value={newAccount.iban}
               onChange={(e) => setNewAccount(prev => ({ ...prev, iban: e.target.value }))}
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors font-mono"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors font-mono"
               placeholder="CH93 0076 2011 6238 5295 7"
             />
           </div>
@@ -211,7 +211,7 @@ export default function BankAccountsSection({ initialBankAccounts }: BankAccount
               type="text"
               value={newAccount.bank_name}
               onChange={(e) => setNewAccount(prev => ({ ...prev, bank_name: e.target.value }))}
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
               placeholder="Credit Suisse"
             />
           </div>

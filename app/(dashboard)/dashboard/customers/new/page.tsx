@@ -327,7 +327,7 @@ export default function NewCustomerPage() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
-                Search company (Zefix)
+                Search company
               </label>
               <div className="relative">
                 <Input
@@ -392,12 +392,6 @@ export default function NewCustomerPage() {
                   </div>
                 </div>
               )}
-            </div>
-
-            <div className="border-t border-[#e0e0e0] dark:border-[#333] pt-4">
-              <p className="text-[13px] text-design-content-weak mb-4">
-                {isCompanySelected ? 'Company details (auto-filled from Zefix):' : 'Or enter customer details manually:'}
-              </p>
             </div>
           </div>
         </Card>
@@ -500,7 +494,7 @@ export default function NewCustomerPage() {
                 onChange={handleFieldChange('notes')}
                 placeholder="Additional notes..."
                 rows={3}
-                className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:ring-2 focus:ring-design-button-primary focus:border-transparent resize-none"
+                className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:ring-2 focus:ring-design-button-primary focus:border-transparent resize-none"
               />
             </div>
           </div>

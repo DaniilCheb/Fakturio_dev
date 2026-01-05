@@ -407,6 +407,16 @@
     font-family: var(--font-radio-canada-big), sans-serif;
     font-size: 13px;
   }
+  
+  /* Remove only the outer border from calendar wrapper */
+  .big-calendar-wrapper {
+    border: none !important;
+  }
+  
+  /* Remove only the outer border from the calendar root element */
+  .rbc-calendar {
+    border: none !important;
+  }
 
   /* Typography - All text at 13px */
   .rbc-calendar,
@@ -420,7 +430,7 @@
     color: hsl(var(--foreground));
     border: none !important;
     border-bottom: none !important;
-    padding: 8px 8px 4px 8px;
+    padding: 8px 8px !important;
     font-weight: 600;
     text-align: center;
   }
@@ -438,14 +448,166 @@
     border-bottom: none !important;
   }
   
+  /* Remove borders from rbc-time-header with rbc-overflowing class, including bottom border */
+  .rbc-time-header.rbc-overflowing,
+  .rbc-time-header.rbc-overflowing *,
+  .rbc-time-view .rbc-time-header.rbc-overflowing,
+  .rbc-time-view .rbc-time-header.rbc-overflowing *,
+  .big-calendar-wrapper .rbc-time-header.rbc-overflowing,
+  .big-calendar-wrapper .rbc-time-header.rbc-overflowing *,
+  .big-calendar-wrapper .rbc-time-view .rbc-time-header.rbc-overflowing,
+  .big-calendar-wrapper .rbc-time-view .rbc-time-header.rbc-overflowing * {
+    border: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Set bottom border to 1px for rbc-time-header rbc-overflowing - only on the header element itself */
+  .rbc-time-header.rbc-overflowing {
+    border-bottom: 1px solid hsl(var(--border)) !important;
+  }
+  
+  .rbc-time-view .rbc-time-header.rbc-overflowing {
+    border-bottom: 1px solid hsl(var(--border)) !important;
+  }
+  
+  /* Ensure child elements don't add borders - be very specific and remove ALL borders */
+  .rbc-time-header.rbc-overflowing > *,
+  .rbc-time-header.rbc-overflowing table,
+  .rbc-time-header.rbc-overflowing table *,
+  .rbc-time-header.rbc-overflowing table tr,
+  .rbc-time-header.rbc-overflowing table tbody,
+  .rbc-time-header.rbc-overflowing table thead,
+  .rbc-time-header.rbc-overflowing table tbody tr,
+  .rbc-time-header.rbc-overflowing table thead tr,
+  .rbc-time-header.rbc-overflowing table tbody tr td,
+  .rbc-time-header.rbc-overflowing table thead tr th,
+  .rbc-time-view .rbc-time-header.rbc-overflowing > *,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table *,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tbody,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table thead,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tbody tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table thead tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tbody tr td,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table thead tr th {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  
+  /* Set border-collapse to separate to prevent border stacking */
+  .rbc-time-header.rbc-overflowing table,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+  
+  /* Remove borders from all child elements within overflowing header */
+  .rbc-time-header.rbc-overflowing table,
+  .rbc-time-header.rbc-overflowing table td,
+  .rbc-time-header.rbc-overflowing table th,
+  .rbc-time-header.rbc-overflowing table tr,
+  .rbc-time-header.rbc-overflowing table tbody,
+  .rbc-time-header.rbc-overflowing table thead,
+  .rbc-time-header.rbc-overflowing table tbody tr,
+  .rbc-time-header.rbc-overflowing table thead tr,
+  .rbc-time-header.rbc-overflowing table tbody tr td,
+  .rbc-time-header.rbc-overflowing table thead tr th,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table td,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table th,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tbody,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table thead,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tbody tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table thead tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tbody tr td,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table thead tr th,
+  .big-calendar-wrapper .rbc-time-header.rbc-overflowing table,
+  .big-calendar-wrapper .rbc-time-header.rbc-overflowing table td,
+  .big-calendar-wrapper .rbc-time-header.rbc-overflowing table th,
+  .big-calendar-wrapper .rbc-time-header.rbc-overflowing table tr {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    outline: none !important;
+  }
+  
+  /* Ensure no borders on table rows or cells that might stack */
+  .rbc-time-header.rbc-overflowing table tr,
+  .rbc-time-header.rbc-overflowing table tr td,
+  .rbc-time-header.rbc-overflowing table tr th,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tr,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tr td,
+  .rbc-time-view .rbc-time-header.rbc-overflowing table tr th {
+    border-bottom: none !important;
+  }
+  
+  /* Also target header cells specifically */
+  .rbc-time-header.rbc-overflowing .rbc-header,
+  .rbc-time-header.rbc-overflowing .rbc-time-header-cell,
+  .rbc-time-view .rbc-time-header.rbc-overflowing .rbc-header,
+  .rbc-time-view .rbc-time-header.rbc-overflowing .rbc-time-header-cell {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  
   /* Remove all header row cell backgrounds and borders */
   .rbc-time-header table,
   .rbc-time-header table td,
   .rbc-time-header table th,
+  .rbc-time-header table tr,
+  .rbc-time-header table tr:last-child,
+  .rbc-time-header table tr:last-child td,
+  .rbc-time-header table tr:last-child th,
   .rbc-time-header-cell,
   .rbc-time-header-gutter {
     background: transparent !important;
     border: none !important;
+    border-bottom: none !important;
+  }
+  
+  /* Hide both rbc-row elements */
+  .rbc-row {
+    display: none !important;
+  }
+  
+  /* Hide rbc-allday-cell */
+  .rbc-allday-cell,
+  div.rbc-allday-cell,
+  .rbc-time-view .rbc-allday-cell,
+  .rbc-time-view div.rbc-allday-cell,
+  .big-calendar-wrapper .rbc-allday-cell,
+  .big-calendar-wrapper div.rbc-allday-cell,
+  .rbc-time-header .rbc-allday-cell,
+  .rbc-time-header div.rbc-allday-cell {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+  
+  /* Also hide the row containing the allday cell */
+  .rbc-time-header .rbc-row:has(.rbc-allday-cell),
+  .rbc-time-header .rbc-row:has(div.rbc-allday-cell) {
+    display: none !important;
   }
 
   /* Event Styles */
@@ -488,28 +650,174 @@
   }
 
   .rbc-time-header-content {
-    border-left: none;
+    border-left: none !important;
+  }
+  
+  /* Remove left border from first day column that might appear as time column border */
+  .rbc-time-view .rbc-time-content .rbc-day-slot:first-child,
+  .rbc-time-view .rbc-time-content .rbc-day-bg:first-child,
+  .rbc-time-view .rbc-time-content table td:nth-child(2),
+  .rbc-time-view .rbc-time-content table th:nth-child(2) {
+    border-left: none !important;
   }
 
   .rbc-time-content {
-    border-top: 2px solid hsl(var(--border));
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+  }
+  
+  /* Add 1px bottom border to rbc-time-header rbc-overflowing instead */
+  .rbc-time-header.rbc-overflowing {
+    border-bottom: none !important;
+  }
+  
+  /* Remove outer borders from time-content table */
+  .rbc-time-view .rbc-time-content table {
+    border: none !important;
   }
 
   .rbc-time-header {
-    border-bottom: none;
+    border-bottom: none !important;
   }
 
   .rbc-day-bg {
     border: 1px solid hsl(var(--border));
   }
+  
+  /* Remove ALL borders from day-bg in time-view, then selectively add back internal ones */
+  .rbc-time-view .rbc-time-content .rbc-day-bg {
+    border: none !important;
+  }
+  
+  /* Add back internal vertical borders (between day columns) - exclude last column */
+  .rbc-time-view .rbc-time-content .rbc-day-bg:not(:last-child) {
+    border-right: 1px solid hsl(var(--border)) !important;
+  }
+  
+  /* Add back internal horizontal borders (between time slots) - exclude first row */
+  .rbc-time-view .rbc-time-content table tbody tr:not(:first-child) .rbc-day-bg {
+    border-top: 1px solid hsl(var(--border)) !important;
+  }
+  
+  /* Ensure first day column has no left border */
+  .rbc-time-view .rbc-time-content .rbc-day-bg:first-child,
+  .rbc-time-view .rbc-time-content .rbc-day-slot:first-child {
+    border-left: none !important;
+  }
+  
+  /* Remove outer borders from outermost table cells */
+  /* Top row - remove top border */
+  .rbc-time-view .rbc-time-content table > tbody > tr:first-child,
+  .rbc-time-view .rbc-time-content table > tbody > tr:first-child > td,
+  .rbc-time-view .rbc-time-content table > tbody > tr:first-child > td .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table > tbody > tr:first-child > td .rbc-day-slot,
+  .rbc-time-view .rbc-time-content table > tbody > tr:first-child > td .rbc-time-slot {
+    border-top: none !important;
+  }
+  
+  /* Bottom row - remove bottom border */
+  .rbc-time-view .rbc-time-content table > tbody > tr:last-child > td .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table > tbody > tr:last-child > td .rbc-day-slot {
+    border-bottom: none !important;
+  }
+  
+  /* First column - remove left border (already handled above but being explicit) */
+  .rbc-time-view .rbc-time-content table > tbody > tr > td:first-child .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table > tbody > tr > td:first-child .rbc-day-slot {
+    border-left: none !important;
+  }
+  
+  /* Last column - remove right border */
+  .rbc-time-view .rbc-time-content table > tbody > tr > td:last-child .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table > tbody > tr > td:last-child .rbc-day-slot {
+    border-right: none !important;
+  }
 
-  /* View Containers */
+  /* View Containers - Remove only outer border, keep internal grid */
   .rbc-month-view,
   .rbc-time-view,
   .rbc-agenda-view {
-    border: 1px solid hsl(var(--border));
+    border: none !important;
     border-radius: 8px;
     overflow: hidden;
+  }
+  
+  /* Specifically target rbc-time-view to remove outer border */
+  .rbc-time-view,
+  div.rbc-time-view {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    outline: none !important;
+  }
+  
+  /* Also target with wrapper for maximum specificity */
+  .big-calendar-wrapper .rbc-time-view,
+  .big-calendar-wrapper div.rbc-time-view {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    outline: none !important;
+  }
+  
+  /* Remove outer borders from the calendar grid - target the outermost edges */
+  /* Top edge - remove top border from first row */
+  .rbc-time-view .rbc-time-content table tbody tr:first-child td .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table tbody tr:first-child td .rbc-day-slot,
+  .rbc-time-view .rbc-time-content table tbody tr:first-child td {
+    border-top: none !important;
+  }
+  
+  /* Bottom edge - remove bottom border from last row */
+  .rbc-time-view .rbc-time-content table tbody tr:last-child td .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table tbody tr:last-child td .rbc-day-slot,
+  .rbc-time-view .rbc-time-content table tbody tr:last-child td {
+    border-bottom: none !important;
+  }
+  
+  /* Left edge - remove left border from first column */
+  .rbc-time-view .rbc-time-content table tbody tr td:first-child .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table tbody tr td:first-child .rbc-day-slot,
+  .rbc-time-view .rbc-time-content table tbody tr td:first-child {
+    border-left: none !important;
+  }
+  
+  /* Right edge - remove right border from last column */
+  .rbc-time-view .rbc-time-content table tbody tr td:last-child .rbc-day-bg,
+  .rbc-time-view .rbc-time-content table tbody tr td:last-child .rbc-day-slot,
+  .rbc-time-view .rbc-time-content table tbody tr td:last-child {
+    border-right: none !important;
+  }
+  
+  /* Also target with maximum specificity using big-calendar-wrapper - only remove outer edges */
+  /* Top row - remove only top border */
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr:first-child td .rbc-day-bg,
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr:first-child td .rbc-day-slot {
+    border-top: none !important;
+  }
+  
+  /* Bottom row - remove only bottom border */
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr:last-child td .rbc-day-bg,
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr:last-child td .rbc-day-slot {
+    border-bottom: none !important;
+  }
+  
+  /* First column - remove only left border */
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr td:first-child .rbc-day-bg,
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr td:first-child .rbc-day-slot {
+    border-left: none !important;
+  }
+  
+  /* Last column - remove only right border */
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr td:last-child .rbc-day-bg,
+  .big-calendar-wrapper .rbc-time-view .rbc-time-content table tbody tr td:last-child .rbc-day-slot {
+    border-right: none !important;
   }
 
   /* Agenda View */
@@ -635,6 +943,7 @@
 .rbc-time-header-content .rbc-header {
   width: 100%;
   box-sizing: border-box;
+  padding: 8px 8px !important;
 }
 
 .rbc-day-bg,
@@ -648,6 +957,21 @@
 /* Fix scrollbar alignment issue */
 .rbc-time-view .rbc-time-header.rbc-overflowing {
   margin-right: 0;
+  border: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure no borders on table elements inside overflowing header */
+.rbc-time-view .rbc-time-header.rbc-overflowing table,
+.rbc-time-view .rbc-time-header.rbc-overflowing table tr,
+.rbc-time-view .rbc-time-header.rbc-overflowing table td,
+.rbc-time-view .rbc-time-header.rbc-overflowing table th {
+  border-bottom: none !important;
 }
 
 /* Ensure time gutter font size with maximum specificity */
@@ -660,4 +984,161 @@
 .big-calendar-wrapper .rbc-time-header-gutter .rbc-label,
 .big-calendar-wrapper .rbc-time-gutter .rbc-label {
   font-size: 13px !important;
+}
+
+/* Remove all borders/strokes from time column - comprehensive rules */
+.rbc-time-header-gutter,
+.rbc-time-gutter,
+.rbc-time-header-gutter td,
+.rbc-time-gutter td,
+.rbc-time-header-gutter th,
+.rbc-time-gutter th,
+.rbc-time-view .rbc-time-header-gutter,
+.rbc-time-view .rbc-time-gutter,
+.rbc-time-view .rbc-time-header-gutter *,
+.rbc-time-view .rbc-time-gutter *,
+.rbc-time-view .rbc-time-header table td:first-child,
+.rbc-time-view .rbc-time-header table th:first-child,
+.rbc-time-view .rbc-time-content table td:first-child,
+.rbc-time-view .rbc-time-content table th:first-child {
+  border: none !important;
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Remove vertical dividers from time column */
+.rbc-time-view .rbc-time-content table col:first-child,
+.rbc-time-view .rbc-time-header table col:first-child,
+.rbc-time-view .rbc-time-content table td:first-child,
+.rbc-time-view .rbc-time-header table td:first-child,
+.rbc-time-view .rbc-time-content table th:first-child,
+.rbc-time-view .rbc-time-header table th:first-child,
+.rbc-time-view .rbc-time-content table tr td:first-child,
+.rbc-time-view .rbc-time-header table tr td:first-child,
+.rbc-time-view .rbc-time-content table tr th:first-child,
+.rbc-time-view .rbc-time-header table tr th:first-child {
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* Remove borders from time gutter cells */
+.rbc-time-view .rbc-time-content .rbc-time-gutter,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter,
+.rbc-time-view .rbc-time-content .rbc-time-gutter table,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter table,
+.rbc-time-view .rbc-time-content .rbc-time-gutter table td,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter table td,
+.rbc-time-view .rbc-time-content .rbc-time-gutter table th,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter table th {
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border: none !important;
+}
+
+/* Remove borders from time gutter time slots */
+.rbc-time-gutter .rbc-time-slot,
+.rbc-time-gutter .rbc-time-slot * {
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border: none !important;
+  padding: 0;
+  position: relative;
+}
+
+/* Remove borders from time column wrapper */
+.rbc-time-column,
+.rbc-time-column * {
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* Remove borders from time gutter table rows */
+.rbc-time-view .rbc-time-content .rbc-time-gutter table tr,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter table tr,
+.rbc-time-view .rbc-time-content .rbc-time-gutter table tr td,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter table tr td,
+.rbc-time-view .rbc-time-content .rbc-time-gutter table tr th,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter table tr th {
+  border: none !important;
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Target the actual table element in time gutter */
+.rbc-time-view .rbc-time-content table:first-child,
+.rbc-time-view .rbc-time-header table:first-child {
+  border-collapse: separate;
+}
+
+.rbc-time-view .rbc-time-content table:first-child td:first-child,
+.rbc-time-view .rbc-time-content table:first-child th:first-child,
+.rbc-time-view .rbc-time-header table:first-child td:first-child,
+.rbc-time-view .rbc-time-header table:first-child th:first-child {
+  border: none !important;
+  border-right: none !important;
+}
+
+/* Catch-all: Remove all borders from any element in the time gutter column */
+.rbc-time-view .rbc-time-content > table > tbody > tr > td:first-child,
+.rbc-time-view .rbc-time-content > table > thead > tr > th:first-child,
+.rbc-time-view .rbc-time-header > table > tbody > tr > td:first-child,
+.rbc-time-view .rbc-time-header > table > thead > tr > th:first-child,
+.rbc-time-view .rbc-time-content .rbc-time-gutter,
+.rbc-time-view .rbc-time-header .rbc-time-header-gutter {
+  border: none !important;
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any border from the time column container itself */
+.rbc-time-view .rbc-time-content .rbc-time-column,
+.rbc-time-view .rbc-time-header .rbc-time-column {
+  border: none !important;
+  border-right: none !important;
+}
+
+/* Maximum specificity - remove ALL borders from time gutter with highest priority */
+.big-calendar-wrapper .rbc-time-view .rbc-time-content .rbc-time-gutter,
+.big-calendar-wrapper .rbc-time-view .rbc-time-header .rbc-time-header-gutter,
+.big-calendar-wrapper .rbc-time-view .rbc-time-content .rbc-time-gutter *,
+.big-calendar-wrapper .rbc-time-view .rbc-time-header .rbc-time-header-gutter *,
+.big-calendar-wrapper .rbc-time-view .rbc-time-content table td:first-child,
+.big-calendar-wrapper .rbc-time-view .rbc-time-content table th:first-child,
+.big-calendar-wrapper .rbc-time-view .rbc-time-header table td:first-child,
+.big-calendar-wrapper .rbc-time-view .rbc-time-header table th:first-child {
+  border: 0 !important;
+  border-right: 0 !important;
+  border-left: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Align hour labels to horizontal dividers - align with the border-top of day slots */
+.rbc-time-gutter .rbc-label {
+  position: absolute;
+  top: -1px; /* Align with the border-top of adjacent day slot time slots */
+  right: 8px;
+  text-align: right;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.rbc-time-header-gutter .rbc-label {
+  text-align: right;
+  padding-right: 8px;
 }

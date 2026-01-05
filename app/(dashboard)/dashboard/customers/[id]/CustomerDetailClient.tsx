@@ -207,7 +207,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="text"
                     value={formData.name}
                     onChange={handleChange('name')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                     placeholder="John Doe"
                   />
                 </div>
@@ -219,7 +219,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="text"
                     value={formData.company_name}
                     onChange={handleChange('company_name')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-default transition-colors"
                     placeholder="Acme GmbH"
                   />
                 </div>
@@ -233,7 +233,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="email"
                     value={formData.email}
                     onChange={handleChange('email')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -245,7 +245,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange('phone')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                     placeholder="+41 44 123 45 67"
                   />
                 </div>
@@ -258,7 +258,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                   type="text"
                   value={formData.address}
                   onChange={handleChange('address')}
-                  className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                  className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                   placeholder="Bahnhofstrasse 1"
                 />
               </div>
@@ -271,7 +271,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="text"
                     value={formData.postal_code}
                     onChange={handleChange('postal_code')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                     placeholder="8001"
                   />
                 </div>
@@ -283,7 +283,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="text"
                     value={formData.city}
                     onChange={handleChange('city')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                     placeholder="Zürich"
                   />
                 </div>
@@ -295,7 +295,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     type="text"
                     value={formData.country}
                     onChange={handleChange('country')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                     placeholder="Switzerland"
                   />
                 </div>
@@ -308,7 +308,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                   type="text"
                   value={formData.vat_number}
                   onChange={handleChange('vat_number')}
-                  className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+                  className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
                   placeholder="CHE-123.456.789"
                 />
               </div>
@@ -321,7 +321,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     value={formData.notes}
                     onChange={handleChange('notes')}
                     rows={3}
-                    className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors resize-none"
+                    className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors resize-none"
                     placeholder="Additional notes..."
                   />
                 </div>

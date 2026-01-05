@@ -77,16 +77,17 @@ export default function Select({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {placeholder && !value && (
-            <SelectItem value="" disabled>
-              {placeholder}
-            </SelectItem>
-          )}
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          {options.map((option) => {
+            // Filter out options with empty string values - Radix UI doesn't allow them
+            if (option.value === '') {
+              return null
+            }
+            return (
+              <SelectItem key={option.value} value={option.value} disabled={option.value.startsWith('__disabled_')}>
+                {option.label}
+              </SelectItem>
+            )
+          })}
         </SelectContent>
       </ShadcnSelect>
       {error && (
@@ -107,7 +108,7 @@ export default function Select({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {label && (
-        <Label className="font-medium text-[13px] text-[#474743] dark:text-[#999]">
+        <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>

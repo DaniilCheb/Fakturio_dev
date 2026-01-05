@@ -130,7 +130,7 @@ export default function StartTimerModal({
                 setError(null)
               }}
             >
-              <SelectTrigger id="client" className="w-full bg-white dark:bg-[#252525]">
+              <SelectTrigger id="client" className="w-full bg-design-surface-field dark:bg-[#252525]">
                 <SelectValue placeholder="Select a client" />
               </SelectTrigger>
               <SelectContent className="z-[100]" position="popper">
@@ -173,7 +173,7 @@ export default function StartTimerModal({
               }}
               disabled={!clientId}
             >
-              <SelectTrigger id="project" className="w-full bg-white dark:bg-[#252525]">
+              <SelectTrigger id="project" className="w-full bg-design-surface-field dark:bg-[#252525]">
                 <SelectValue placeholder={clientId ? "Select a project" : "Select a client first"} />
               </SelectTrigger>
               <SelectContent className="z-[100]" position="popper">

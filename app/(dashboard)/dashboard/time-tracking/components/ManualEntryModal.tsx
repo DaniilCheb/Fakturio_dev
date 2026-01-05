@@ -8,15 +8,9 @@ import {
   DialogTitle,
 } from '@/app/components/ui/dialog'
 import { Button } from '@/app/components/ui/button'
-import { Input } from '@/app/components/ui/input'
-import { Label } from '@/app/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/app/components/ui/select'
+import Input from '@/app/components/Input'
+import Select from '@/app/components/Select'
+import DatePicker from '@/app/components/DatePicker'
 import { AlertCircle, Trash2, Plus } from 'lucide-react'
 import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
@@ -269,9 +263,6 @@ export default function ManualEntryModal({
 
     // If no project selected, create a default project
     let finalProjectId = projectId
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ManualEntryModal.tsx:271',message:'handleSubmit - processing projectId',data:{projectId:projectId,finalProjectId:finalProjectId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
     if (!finalProjectId) {
       if (!session || !user) {
         setError('Please sign in to create a time entry')
@@ -359,32 +350,24 @@ export default function ManualEntryModal({
 
             {/* Client Field - Mandatory */}
             <div>
-              <Label htmlFor="client" className="mb-1">Client *</Label>
-              <Select 
-                value={clientId} 
-                onValueChange={(value) => {
-                  setClientId(value)
+              <Select
+                label="Client"
+                value={clientId || ''}
+                onChange={(e) => {
+                  setClientId(e.target.value === '__no_clients__' ? '' : e.target.value)
                   setProjectId('') // Reset project when client changes
                   setError(null)
                 }}
-              >
-                <SelectTrigger id="client" className="w-full">
-                  <SelectValue placeholder="Select a client" />
-                </SelectTrigger>
-                <SelectContent className="z-[100]" position="popper">
-                  {customers.length === 0 ? (
-                    <SelectItem value="" disabled>
-                      No clients available
-                    </SelectItem>
-                  ) : (
-                    customers.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.company_name || client.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+                options={customers.length === 0 
+                  ? [{ value: '__no_clients__', label: 'No clients available' }]
+                  : customers.map(client => ({
+                      value: client.id,
+                      label: client.company_name || client.name
+                    }))
+                }
+                placeholder="Select a client"
+                error={error && !clientId ? 'Please select a client' : undefined}
+              />
               <button
                 type="button"
                 onClick={() => setShowAddClientModal(true)}
@@ -402,76 +385,36 @@ export default function ManualEntryModal({
 
             {/* Project Field - Optional */}
             <div>
-              <Label htmlFor="project" className="mb-1">Project (optional)</Label>
-              <Select 
-                value={projectId || '__none__'} 
-                onValueChange={(value) => {
-                  // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ManualEntryModal.tsx:428',message:'onValueChange - project select',data:{value:value},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                  // #endregion
-                  setProjectId(value === '__none__' ? '' : value)
+              <Select
+                label="Project (optional)"
+                value={projectId || '__none__'}
+                onChange={(e) => {
+                  setProjectId(e.target.value === '__none__' ? '' : e.target.value)
                   setError(null)
                 }}
+                options={(() => {
+                  if (!clientId) {
+                    return [{ value: '__disabled_no_client__', label: 'Select a client first' }]
+                  } else if (filteredProjects.length === 0) {
+                    return [{ value: '__disabled_no_projects__', label: 'No projects available' }]
+                  } else {
+                    return [
+                      { value: '__none__', label: 'None (General)' },
+                      ...filteredProjects.map((project) => {
+                        const hasRate = project.hourly_rate && project.hourly_rate > 0
+                        return {
+                          value: project.id,
+                          label: hasRate 
+                            ? `${project.name} (${project.hourly_rate} CHF/h)`
+                            : `${project.name} (No rate)`
+                        }
+                      })
+                    ]
+                  }
+                })()}
+                placeholder={clientId ? "Select a project (optional)" : "Select a client first"}
                 disabled={!clientId}
-              >
-                <SelectTrigger id="project" className="w-full">
-                  <SelectValue placeholder={clientId ? "Select a project (optional)" : "Select a client first"} />
-                </SelectTrigger>
-                <SelectContent className="z-[100]" position="popper">
-                  {(() => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ManualEntryModal.tsx:435',message:'SelectContent render - checking conditions',data:{hasClientId:!!clientId,filteredProjectsCount:filteredProjects.length,projectId:projectId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
-                    if (!clientId) {
-                      // #region agent log
-                      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ManualEntryModal.tsx:437',message:'Rendering disabled SelectItem - no client',data:{value:''},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                      // #endregion
-                      return (
-                        <SelectItem value="__disabled_no_client__" disabled>
-                          Select a client first
-                        </SelectItem>
-                      )
-                    } else if (filteredProjects.length === 0) {
-                      // #region agent log
-                      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ManualEntryModal.tsx:441',message:'Rendering disabled SelectItem - no projects',data:{value:''},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                      // #endregion
-                      return (
-                        <SelectItem value="__disabled_no_projects__" disabled>
-                          No projects available
-                        </SelectItem>
-                      )
-                    } else {
-                      // #region agent log
-                      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ManualEntryModal.tsx:445',message:'Rendering project options including None option',data:{filteredProjectsCount:filteredProjects.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                      // #endregion
-                      return (
-                        <>
-                          <SelectItem value="__none__">None (General)</SelectItem>
-                          {filteredProjects.map((project) => {
-                            const hasRate = project.hourly_rate && project.hourly_rate > 0
-                            return (
-                              <SelectItem key={project.id} value={project.id}>
-                                <div className="flex items-center gap-2">
-                                  <span>{project.name}</span>
-                                  {hasRate ? (
-                                    <span className="text-xs text-muted-foreground">
-                                      ({project.hourly_rate} CHF/h)
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs text-destructive">
-                                      (No rate)
-                                    </span>
-                                  )}
-                                </div>
-                              </SelectItem>
-                            )
-                          })}
-                        </>
-                      )
-                    }
-                  })()}
-                </SelectContent>
-              </Select>
+              />
               {clientId && (
                 <button
                   type="button"
@@ -495,9 +438,8 @@ export default function ManualEntryModal({
             {/* Show hourly rate input if project doesn't have one */}
             {(!selectedProject || !hasProjectRate) && (
               <div>
-                <Label htmlFor="customRate">Hourly Rate (CHF) *</Label>
                 <Input
-                  id="customRate"
+                  label="Hourly Rate (CHF)"
                   type="number"
                   min="0"
                   step="0.01"
@@ -518,22 +460,16 @@ export default function ManualEntryModal({
               </div>
             )}
 
-            <div>
-              <Label htmlFor="date">Date *</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
-            </div>
+            <DatePicker
+              label="Date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="hours">Hours</Label>
                 <Input
-                  id="hours"
+                  label="Hours"
                   type="number"
                   min="0"
                   step="0.25"
@@ -543,9 +479,8 @@ export default function ManualEntryModal({
                 />
               </div>
               <div>
-                <Label htmlFor="minutes">Minutes</Label>
                 <Input
-                  id="minutes"
+                  label="Minutes"
                   type="number"
                   min="0"
                   max="59"
@@ -557,9 +492,8 @@ export default function ManualEntryModal({
             </div>
 
             <div>
-              <Label htmlFor="description">Description (optional)</Label>
               <Input
-                id="description"
+                label="Description (optional)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What did you work on?"
@@ -600,9 +534,8 @@ export default function ManualEntryModal({
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="clientName">Name *</Label>
               <Input
-                id="clientName"
+                label="Name *"
                 value={newClientData.name}
                 onChange={(e) => setNewClientData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Client name"
@@ -610,18 +543,16 @@ export default function ManualEntryModal({
               />
             </div>
             <div>
-              <Label htmlFor="companyName">Company Name</Label>
               <Input
-                id="companyName"
+                label="Company Name"
                 value={newClientData.company_name || ''}
                 onChange={(e) => setNewClientData(prev => ({ ...prev, company_name: e.target.value }))}
                 placeholder="Company name (optional)"
               />
             </div>
             <div>
-              <Label htmlFor="clientEmail">Email</Label>
               <Input
-                id="clientEmail"
+                label="Email"
                 type="email"
                 value={newClientData.email || ''}
                 onChange={(e) => setNewClientData(prev => ({ ...prev, email: e.target.value }))}
@@ -629,9 +560,8 @@ export default function ManualEntryModal({
               />
             </div>
             <div>
-              <Label htmlFor="clientPhone">Phone</Label>
               <Input
-                id="clientPhone"
+                label="Phone"
                 value={newClientData.phone || ''}
                 onChange={(e) => setNewClientData(prev => ({ ...prev, phone: e.target.value }))}
                 placeholder="Phone number"
@@ -657,9 +587,8 @@ export default function ManualEntryModal({
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="projectName">Project Name *</Label>
               <Input
-                id="projectName"
+                label="Project Name *"
                 value={newProjectData.name}
                 onChange={(e) => setNewProjectData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Project name"
@@ -667,9 +596,8 @@ export default function ManualEntryModal({
               />
             </div>
             <div>
-              <Label htmlFor="projectRate">Hourly Rate (CHF)</Label>
               <Input
-                id="projectRate"
+                label="Hourly Rate (CHF)"
                 type="number"
                 min="0"
                 step="0.01"
@@ -682,9 +610,8 @@ export default function ManualEntryModal({
               />
             </div>
             <div>
-              <Label htmlFor="projectDescription">Description</Label>
               <Input
-                id="projectDescription"
+                label="Description"
                 value={newProjectData.description || ''}
                 onChange={(e) => setNewProjectData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Project description (optional)"

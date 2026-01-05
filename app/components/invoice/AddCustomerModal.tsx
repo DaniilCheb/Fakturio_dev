@@ -262,7 +262,7 @@ export default function AddCustomerModal({
         {/* Company search */}
         <div className="flex flex-col gap-1">
           <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
-            Search company (Zefix)
+            Search company
           </label>
           <div className="relative">
             <Input
@@ -329,11 +329,7 @@ export default function AddCustomerModal({
           )}
         </div>
 
-        <div className="border-t border-[#e0e0e0] dark:border-[#333] pt-4">
-          <p className="text-[13px] text-design-content-weak mb-4">
-            {isCompanySelected ? 'Company details (auto-filled from Zefix):' : 'Or enter customer details manually:'}
-          </p>
-          
+        <div>
           {formData.uid && (
             <div className="mb-4">
               <Input

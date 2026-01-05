@@ -138,7 +138,7 @@ export default function AddProjectModal({
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
               placeholder="Website Redesign"
             />
           </div>
@@ -153,7 +153,7 @@ export default function AddProjectModal({
               value={formData.contact_id}
               onChange={handleChange}
               required
-              className="w-full h-[40px] px-3 py-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
@@ -183,7 +183,7 @@ export default function AddProjectModal({
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full h-[40px] px-3 py-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors cursor-pointer appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
                 backgroundRepeat: 'no-repeat',
@@ -208,7 +208,7 @@ export default function AddProjectModal({
               onChange={handleChange}
               step="0.01"
               min="0"
-              className="w-full h-[40px] px-3 py-2 bg-white dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors"
+              className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
               placeholder="150.00"
             />
             <p className="text-[12px] text-design-content-weak mt-1">
@@ -226,7 +226,7 @@ export default function AddProjectModal({
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="w-full px-3 py-2 bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:border-design-content-default transition-colors resize-none"
+              className="w-full px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors resize-none"
               placeholder="Project description..."
             />
           </div>

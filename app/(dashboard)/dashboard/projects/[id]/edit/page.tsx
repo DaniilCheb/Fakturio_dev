@@ -244,7 +244,7 @@ export default function EditProjectPage() {
                 onChange={handleFieldChange('description')}
                 placeholder="Project description..."
                 rows={4}
-                className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-design-content-weakest focus:outline-none focus:ring-2 focus:ring-design-button-primary focus:border-transparent resize-none"
+                className="w-full px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:ring-2 focus:ring-design-button-primary focus:border-transparent resize-none"
               />
             </div>
           </div>

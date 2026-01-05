@@ -18,7 +18,6 @@ import { Card, CardContent } from "@/app/components/ui/card"
 import { Skeleton } from "@/app/components/ui/skeleton"
 import { Button } from "@/app/components/ui/button"
 import { BigCalendar, type BigCalendarEvent } from "@/app/components/ui/big-calendar"
-import { Plus } from "lucide-react"
 import ActiveTimerBanner from "./components/ActiveTimerBanner"
 import StartTimerModal from "./components/StartTimerModal"
 import ManualEntryModal from "./components/ManualEntryModal"
@@ -405,7 +404,7 @@ export default function TimeTrackingPage() {
 
   if (isLoadingEntries) {
     return (
-      <div className="max-w-[1400px] mx-auto space-y-8">
+      <div className="max-w-[800px] mx-auto space-y-8">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-[700px] w-full" />
       </div>
@@ -413,17 +412,10 @@ export default function TimeTrackingPage() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8">
+    <div className="max-w-[800px] mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <Header title="Time Tracking" />
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowManualEntryModal(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Manual Entry
-          </Button>
           <Button
             variant="default"
             onClick={() => setShowStartTimerModal(true)}
@@ -487,18 +479,6 @@ export default function TimeTrackingPage() {
           selectedDay={selectedSlot.date}
           prefillHours={selectedSlot.hours}
           prefillMinutes={selectedSlot.minutes}
-        />
-      )}
-
-      {/* Manual Entry Modal (Create Mode - from button) */}
-      {showManualEntryModal && !selectedSlot && !showEditModal && (
-        <ManualEntryModal
-          projects={projects}
-          onCreate={handleCreateManualEntry}
-          onClose={() => {
-            setShowManualEntryModal(false)
-          }}
-          isProcessing={isProcessing}
         />
       )}
 
