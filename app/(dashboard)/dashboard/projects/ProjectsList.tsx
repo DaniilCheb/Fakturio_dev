@@ -161,7 +161,8 @@ export default function ProjectsList({
         ...updated,
         invoiceCount: editingProject.invoiceCount,
         totalAmount: editingProject.totalAmount,
-        customerName: editingProject.customerName
+        customerName: editingProject.customerName,
+        timeTracked: editingProject.timeTracked
       }
 
       setProjects(prev => prev.map(p => p.id === updated.id ? updatedWithStats : p))
