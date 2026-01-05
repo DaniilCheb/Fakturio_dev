@@ -1,29 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 import { GuestInvoice } from '@/lib/types/invoice'
 import { calculateItemTotal } from '@/lib/utils/invoiceCalculations'
 import { format, parseISO } from 'date-fns'
 
-// Register Radio Canada Big font
-Font.register({
-  family: 'Radio Canada Big',
-  fonts: [
-    { 
-      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjsdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpGC_l7mMfqJq8.woff2', 
-      fontWeight: 400 
-    },
-    { 
-      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjhdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpnDBJ0bHxXauLPQ.woff2', 
-      fontWeight: 500 
-    },
-    { 
-      src: 'https://fonts.gstatic.com/s/radiocanadabig/v24/LYjhdZvomlJ0BKQ6SI9Mq2-N0JbsEFkpkDNJ0bHxXauLPQ.woff2', 
-      fontWeight: 600 
-    },
-  ]
-})
+// NOTE: Font registration is handled in pdfService.tsx with proper base64 conversion
+// Do NOT register fonts here as browser-mode react-pdf doesn't support URL sources
 
 // Format date: "15 Aug, 2023"
 function formatDate(date: string | Date | null | undefined): string {
@@ -78,10 +62,11 @@ const colors = {
 }
 
 // Styles following Fakturio Design System
+// Using Helvetica as default (built-in to react-pdf) with Radio Canada Big as enhancement when registered
 const styles = StyleSheet.create({
   page: {
     backgroundColor: colors.surface,
-    fontFamily: 'Radio Canada Big',
+    fontFamily: 'Helvetica', // Use built-in Helvetica - Radio Canada Big registration is handled by pdfService
     padding: 40,
     fontSize: 10,
     color: colors.contentDefault,
