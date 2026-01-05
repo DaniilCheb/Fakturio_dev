@@ -4,6 +4,8 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import QueryProvider from "@/lib/providers/QueryProvider";
+import NavigationProgress from "@/app/components/NavigationProgress";
+import { LoadingBarProvider } from "@/app/components/LoadingBarContext";
 
 const radioCanadaBig = Radio_Canada_Big({
   subsets: ["latin"],
@@ -27,13 +29,16 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <QueryProvider>
-        <html lang="en">
-          <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
-            <main>{children}</main>
-            <Analytics />
-            <SpeedInsights />
-          </body>
-        </html>
+        <LoadingBarProvider>
+          <html lang="en">
+            <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
+              <NavigationProgress />
+              <main>{children}</main>
+              <Analytics />
+              <SpeedInsights />
+            </body>
+          </html>
+        </LoadingBarProvider>
       </QueryProvider>
     </ClerkProvider>
   );

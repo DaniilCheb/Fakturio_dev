@@ -74,6 +74,8 @@ export default function TimeTrackingPage() {
     date: string
     hours: string
     minutes: string
+    startTime: string  // ISO timestamp
+    endTime: string    // ISO timestamp
   } | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -170,11 +172,18 @@ export default function TimeTrackingPage() {
     // Format date
     const date = formatDateISO(start)
     
-    // Set selected slot data and open modal
+    // Calculate adjusted end time if duration was extended to minimum
+    const adjustedEnd = durationMinutes < 15 
+      ? new Date(start.getTime() + 15 * 60 * 1000)
+      : end
+    
+    // Set selected slot data and open modal (capture start/end times for proper positioning)
     setSelectedSlot({
       date,
       hours: hours.toString(),
       minutes: minutes.toString(),
+      startTime: start.toISOString(),
+      endTime: adjustedEnd.toISOString(),
     })
     setShowManualEntryModal(true)
   }
@@ -413,9 +422,9 @@ export default function TimeTrackingPage() {
 
   return (
     <div className="max-w-[800px] mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <Header title="Time Tracking" />
-        <div className="flex gap-2">
+      <Header 
+        title="Time Tracking" 
+        actions={
           <Button
             variant="default"
             onClick={() => setShowStartTimerModal(true)}
@@ -423,8 +432,8 @@ export default function TimeTrackingPage() {
             <PlayIcon className="mr-2 h-4 w-4" />
             Start Timer
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Active Timer Banner */}
       {runningTimer && (
@@ -479,6 +488,8 @@ export default function TimeTrackingPage() {
           selectedDay={selectedSlot.date}
           prefillHours={selectedSlot.hours}
           prefillMinutes={selectedSlot.minutes}
+          prefillStartTime={selectedSlot.startTime}
+          prefillEndTime={selectedSlot.endTime}
         />
       )}
 

@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
+import { useLoadingBar } from '@/app/components/LoadingBarContext'
 import Link from 'next/link'
 import { FileText, Trash2 } from 'lucide-react'
 import { Card, CardContent } from '@/app/components/ui/card'
 import { Checkbox } from '@/app/components/ui/checkbox'
 import { Button } from '@/app/components/ui/button'
-import StatusBadge from '@/app/components/StatusBadge'
+import { Badge } from '@/app/components/ui/badge'
 import { EditIcon, DeleteIcon } from '@/app/components/Icons'
 import BackLink from '@/app/components/BackLink'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
@@ -40,6 +41,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
   const router = useRouter()
   const { session } = useSession()
   const queryClient = useQueryClient()
+  const { start: startLoadingBar } = useLoadingBar()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeletingEntries, setIsDeletingEntries] = useState(false)
   const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set())
@@ -65,15 +67,21 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
     const isInvoiced = entry.status === 'invoiced' || entry.invoice_id !== null
     if (isInvoiced) {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal bg-[#e8f5e9] dark:bg-[#1b4332] text-[#2e7d32] dark:text-[#4ade80]">
+        <Badge 
+          variant="outline" 
+          className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100"
+        >
           Invoiced
-        </span>
+        </Badge>
       )
     }
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal bg-muted text-muted-foreground">
+      <Badge 
+        variant="outline" 
+        className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100"
+      >
         Not Issued
-      </span>
+      </Badge>
     )
   }
 
@@ -98,6 +106,9 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
     if (selectedEntries.length === 0) return
 
     try {
+      // Start loading bar before navigation
+      startLoadingBar()
+      
       const summary = calculateTimeEntrySummary(selectedEntries, project.name)
       
       const params = new URLSearchParams({
@@ -188,12 +199,28 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
 
   const getStatusBadge = (invoice: Invoice) => {
     const status = getInvoiceStatus(invoice)
-    const statusMap: Record<string, "paid" | "overdue" | "issued"> = {
-      paid: "paid",
-      overdue: "overdue",
-      pending: "issued"
+    const variants: Record<typeof status, { className: string; label: string }> = {
+      paid: { 
+        className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+        label: "Paid" 
+      },
+      pending: { 
+        className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-transparent hover:bg-yellow-100",
+        label: "Issued" 
+      },
+      overdue: { 
+        className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent hover:bg-red-100",
+        label: "Overdue" 
+      },
     }
-    return <StatusBadge status={statusMap[status] || "issued"} />
+
+    const { className, label } = variants[status] || variants.pending
+
+    return (
+      <Badge variant="outline" className={className}>
+        {label}
+      </Badge>
+    )
   }
 
   const actionButtons = (
@@ -317,7 +344,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
                 className="h-8"
               >
                 <FileText className="h-4 w-4" style={{ marginRight: '2px' }} />
-                Invoice Selected
+                Create invoice
               </Button>
               <Button
                 onClick={handleDeleteSelectedEntries}
@@ -327,7 +354,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
                 className="h-8 text-destructive hover:text-destructive"
               >
                 <Trash2 className="h-4 w-4" style={{ marginRight: '2px' }} />
-                {isDeletingEntries ? 'Deleting...' : 'Delete Selected'}
+                {isDeletingEntries ? 'Deleting...' : 'Delete'}
               </Button>
             </div>
           )}

@@ -15,6 +15,7 @@ import { markEntriesAsInvoicedWithClient } from '@/lib/services/timeEntryService
 import { getProjectByIdWithClient } from '@/lib/services/projectService.client'
 import { getContactByIdWithClient } from '@/lib/services/contactService.client'
 import { useSearchParams } from 'next/navigation'
+import { useLoadingBar } from '@/app/components/LoadingBarContext'
 
 // Components
 import InvoiceHeader from '@/app/components/invoice/InvoiceHeader'
@@ -59,6 +60,7 @@ export default function NewInvoicePage() {
   const { session } = useSession()
   const { user } = useUser()
   const queryClient = useQueryClient()
+  const { start: startLoadingBar } = useLoadingBar()
   
   // Create Supabase client (memoized)
   const supabase = useMemo(() => {
@@ -433,6 +435,9 @@ export default function NewInvoicePage() {
     setValidationErrors({})
     setIsSaving(true)
     
+    // Start loading bar before save operation
+    startLoadingBar()
+    
     try {
       const invoice = await saveInvoiceToDatabase()
       
@@ -599,6 +604,9 @@ export default function NewInvoicePage() {
     }
 
     setIsSaving(true)
+    
+    // Start loading bar before save operation
+    startLoadingBar()
     
     try {
       const invoice = await saveInvoiceToDatabase()

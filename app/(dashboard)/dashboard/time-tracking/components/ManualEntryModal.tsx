@@ -29,6 +29,8 @@ interface ManualEntryModalProps {
   selectedDay?: string | null
   prefillHours?: string
   prefillMinutes?: string
+  prefillStartTime?: string  // ISO timestamp for calendar positioning
+  prefillEndTime?: string    // ISO timestamp for calendar positioning
   entry?: TimeEntry | null
   onUpdate?: (entryId: string, input: CreateTimeEntryInput) => Promise<void>
   onDelete?: (entryId: string) => Promise<void>
@@ -42,6 +44,8 @@ export default function ManualEntryModal({
   selectedDay,
   prefillHours,
   prefillMinutes,
+  prefillStartTime,
+  prefillEndTime,
   entry,
   onUpdate,
   onDelete,
@@ -301,6 +305,9 @@ export default function ManualEntryModal({
       duration_minutes: totalMinutes,
       hourly_rate: hourlyRate,
       description: description || undefined,
+      // Include start/end times for proper calendar positioning
+      ...(prefillStartTime && !isEditMode && { start_time: prefillStartTime }),
+      ...(prefillEndTime && !isEditMode && { end_time: prefillEndTime }),
     }
 
     if (isEditMode && entry && onUpdate) {

@@ -31,6 +31,8 @@ export interface CreateTimeEntryInput {
   project_id: string;
   description?: string;
   date: string;
+  start_time?: string;  // ISO timestamp
+  end_time?: string;    // ISO timestamp
   duration_minutes: number;
   hourly_rate: number;
   is_billable?: boolean;

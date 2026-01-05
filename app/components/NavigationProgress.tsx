@@ -2,25 +2,64 @@
 
 import { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useLoadingBar } from './LoadingBarContext'
 
 export default function NavigationProgress() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [isNavigating, setIsNavigating] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const { isActive, progress, setProgress, start, complete } = useLoadingBar()
+  const [localIsNavigating, setLocalIsNavigating] = useState(true)
+  const [localProgress, setLocalProgress] = useState(0)
+
+  // Use context values if available, otherwise use local state
+  const isNavigating = isActive || localIsNavigating
+  const displayProgress = isActive ? progress : localProgress
+
+  useEffect(() => {
+    // Show progress on initial load
+    setLocalIsNavigating(true)
+    setLocalProgress(30)
+    
+    // Simulate progress on initial load
+    const interval = setInterval(() => {
+      setLocalProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(interval)
+          return prev
+        }
+        return prev + Math.random() * 10
+      })
+    }, 100)
+
+    // Complete on mount
+    const timeout = setTimeout(() => {
+      setLocalProgress(100)
+      setTimeout(() => {
+        setLocalIsNavigating(false)
+        setLocalProgress(0)
+        clearInterval(interval)
+      }, 200)
+    }, 500)
+
+    return () => {
+      clearTimeout(timeout)
+      clearInterval(interval)
+    }
+  }, [])
 
   useEffect(() => {
     // When pathname or searchParams change, navigation has completed
-    setIsNavigating(false)
-    setProgress(100)
+    complete()
+    setLocalIsNavigating(false)
+    setLocalProgress(100)
     
     // Reset progress after animation
     const timeout = setTimeout(() => {
-      setProgress(0)
+      setLocalProgress(0)
     }, 200)
 
     return () => clearTimeout(timeout)
-  }, [pathname, searchParams])
+  }, [pathname, searchParams, complete])
 
   useEffect(() => {
     // Listen for navigation start
@@ -34,12 +73,13 @@ export default function NavigationProgress() {
         
         // Only show progress for internal navigation to different paths
         if (url.origin === currentUrl.origin && url.pathname !== currentUrl.pathname) {
-          setIsNavigating(true)
-          setProgress(20)
+          start()
+          setLocalIsNavigating(true)
+          setLocalProgress(20)
           
           // Simulate progress
           const interval = setInterval(() => {
-            setProgress(prev => {
+            setLocalProgress(prev => {
               if (prev >= 90) {
                 clearInterval(interval)
                 return prev
@@ -56,14 +96,14 @@ export default function NavigationProgress() {
 
     document.addEventListener('click', handleClick, true)
     return () => document.removeEventListener('click', handleClick, true)
-  }, [])
+  }, [start])
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] h-[3px] bg-[#F8DA43]">
+    <div className="fixed top-0 left-0 right-0 z-[100] h-[4px]">
       <div 
-        className="h-full bg-[#141414] dark:bg-white transition-all duration-200 ease-out"
+        className="h-full bg-black transition-all duration-200 ease-out"
         style={{ 
-          width: `${progress}%`,
+          width: `${displayProgress}%`,
           opacity: isNavigating ? 1 : 0 
         }}
       />
