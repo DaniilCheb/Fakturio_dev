@@ -458,6 +458,26 @@
     font-weight: 500;
   }
 
+  /* Drag and Drop Styles */
+  /* Original event (stays in place) - 50% opacity instead of hidden */
+  .big-calendar-wrapper .rbc-addons-dnd .rbc-addons-dnd-dragged-event,
+  .rbc-addons-dnd .rbc-addons-dnd-dragged-event.rbc-event,
+  .rbc-addons-dnd-dragged-event {
+    opacity: 0.5 !important;
+  }
+
+  /* Dragged event preview - 100% opacity */
+  .big-calendar-wrapper .rbc-addons-dnd .rbc-addons-dnd-drag-preview,
+  .rbc-addons-dnd .rbc-addons-dnd-drag-preview.rbc-event,
+  .rbc-addons-dnd-drag-preview {
+    opacity: 1 !important;
+  }
+
+  /* Ensure normal events have full opacity when not dragging */
+  .rbc-event:not(.rbc-addons-dnd-dragged-event):not(.rbc-addons-dnd-drag-preview) {
+    opacity: 1;
+  }
+
   /* Borders and Layout */
   .rbc-time-slot {
     border-top: 1px solid hsl(var(--border));

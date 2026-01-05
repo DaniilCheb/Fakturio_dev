@@ -146,7 +146,8 @@ export default function TimeTrackingPage() {
         borderColor: isRunning ? '#16a34a' : '#2563eb',
         borderWidth: isRunning ? '2px' : '1px',
         borderRadius: '6px',
-        opacity: isRunning ? 0.9 : 1,
+        // Don't set opacity here - let CSS handle it for drag states
+        // opacity: isRunning ? 0.9 : 1,
         color: 'white',
         fontSize: '12px',
         padding: '2px 4px',
