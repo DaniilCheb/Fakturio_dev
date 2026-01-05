@@ -608,7 +608,7 @@ export default function ManualEntryModal({
                 type="number"
                 min="0"
                 step="0.01"
-                value={newProjectData.hourly_rate || ''}
+                value={newProjectData.hourly_rate !== undefined ? newProjectData.hourly_rate.toString() : ''}
                 onChange={(e) => setNewProjectData(prev => ({ 
                   ...prev, 
                   hourly_rate: e.target.value ? parseFloat(e.target.value) : undefined 

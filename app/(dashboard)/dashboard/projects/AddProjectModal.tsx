@@ -204,7 +204,7 @@ export default function AddProjectModal({
             <input
               type="number"
               name="hourly_rate"
-              value={formData.hourly_rate || ''}
+              value={formData.hourly_rate !== undefined ? formData.hourly_rate.toString() : ''}
               onChange={handleChange}
               step="0.01"
               min="0"
