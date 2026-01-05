@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Radio_Canada_Big, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Suspense } from "react";
 import "./globals.css";
 import QueryProvider from "@/lib/providers/QueryProvider";
 import NavigationProgress from "@/app/components/NavigationProgress";
@@ -32,7 +33,9 @@ export default function RootLayout({
         <LoadingBarProvider>
           <html lang="en">
             <body className={`${radioCanadaBig.variable} ${inter.variable}`}>
-              <NavigationProgress />
+              <Suspense fallback={null}>
+                <NavigationProgress />
+              </Suspense>
               <main>{children}</main>
               <Analytics />
               <SpeedInsights />

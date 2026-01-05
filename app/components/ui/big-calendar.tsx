@@ -239,6 +239,21 @@ export function BigCalendar<TEvent extends BigCalendarEvent = BigCalendarEvent>(
     }
   }
 
+  // Wrap callbacks to handle type compatibility with react-big-calendar
+  const handleSelectEvent = onSelectEvent
+    ? (event: object) => onSelectEvent(event as TEvent)
+    : undefined
+
+  const handleEventDrop = onEventDrop
+    ? (args: { event: object; start: string | Date; end: string | Date; allDay?: boolean }) =>
+        onEventDrop({ event: args.event as TEvent, start: new Date(args.start), end: new Date(args.end), allDay: args.allDay })
+    : undefined
+
+  const handleEventResize = onEventResize
+    ? (args: { event: object; start: string | Date; end: string | Date; allDay?: boolean }) =>
+        onEventResize({ event: args.event as TEvent, start: new Date(args.start), end: new Date(args.end), allDay: args.allDay })
+    : undefined
+
   return (
     <div className={cn("big-calendar-wrapper", className)} style={{ height }}>
       <DragAndDropCalendar
@@ -253,9 +268,9 @@ export function BigCalendar<TEvent extends BigCalendarEvent = BigCalendarEvent>(
         eventPropGetter={eventPropGetter ?? defaultEventPropGetter}
         selectable={selectable}
         onSelectSlot={onSelectSlot}
-        onSelectEvent={onSelectEvent}
-        onEventDrop={onEventDrop}
-        onEventResize={onEventResize}
+        onSelectEvent={handleSelectEvent}
+        onEventDrop={handleEventDrop}
+        onEventResize={handleEventResize}
         draggableAccessor={draggableAccessor ?? (() => true)}
         resizableAccessor={resizableAccessor ?? (() => true)}
         step={step}
@@ -270,11 +285,11 @@ export function BigCalendar<TEvent extends BigCalendarEvent = BigCalendarEvent>(
           event: CustomEvent,
         }}
         formats={{
-          dayHeaderFormat: (date) => format(date, 'EEE M/d'),
-          dayRangeHeaderFormat: ({ start, end }) =>
+          dayHeaderFormat: (date: Date) => format(date, 'EEE M/d'),
+          dayRangeHeaderFormat: ({ start, end }: { start: Date; end: Date }) =>
             `${format(start, 'MMM d')} - ${format(end, 'MMM d')}`,
-          monthHeaderFormat: (date) => format(date, 'MMMM yyyy'),
-          timeGutterFormat: (date) => format(date, 'h a'),
+          monthHeaderFormat: (date: Date) => format(date, 'MMMM yyyy'),
+          timeGutterFormat: (date: Date) => format(date, 'h a'),
         }}
       />
     </div>
