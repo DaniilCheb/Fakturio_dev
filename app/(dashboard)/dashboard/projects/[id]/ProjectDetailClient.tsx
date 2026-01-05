@@ -151,7 +151,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       const userId = session.user.id
 
       // Delete entries one by one
-      for (const entryId of selectedEntryIds) {
+      for (const entryId of Array.from(selectedEntryIds)) {
         await deleteTimeEntryWithClient(supabase, userId, entryId)
       }
 
