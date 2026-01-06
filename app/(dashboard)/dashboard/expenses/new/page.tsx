@@ -9,6 +9,7 @@ import { saveExpenseWithClient } from '@/lib/services/expenseService.client'
 import { getUserProfileWithClient } from '@/lib/services/settingsService.client'
 import { getCurrentDateISO } from '@/lib/utils/dateUtils'
 import { formatCurrency } from '@/lib/utils/formatters'
+import { getExchangeRate, convertAmount } from '@/lib/services/exchangeRateService'
 
 // Components
 import Input from '@/app/components/Input'
@@ -312,9 +313,24 @@ export default function NewExpensePage() {
         }
       }
 
+      // Handle currency conversion if expense currency differs from account currency
+      const expenseAmount = parseFloat(amount)
+      let exchangeRate: number | undefined
+      let amountInAccountCurrency: number | undefined
+
+      if (currency && currency !== accountCurrency) {
+        try {
+          exchangeRate = await getExchangeRate(supabase, currency, accountCurrency, date)
+          amountInAccountCurrency = convertAmount(expenseAmount, currency, accountCurrency, exchangeRate)
+        } catch (error) {
+          console.error('Error fetching exchange rate:', error)
+          // Continue without conversion - expense will be saved with original currency
+        }
+      }
+
       await saveExpenseWithClient(supabase, user.id, {
         name: name.trim(),
-        amount: parseFloat(amount),
+        amount: expenseAmount,
         currency: currency,
         category: category as any,
         type: type,
@@ -324,6 +340,8 @@ export default function NewExpensePage() {
         depreciation_years: type === 'asset' ? parseInt(depreciationYears) : undefined,
         description: description.trim() || undefined,
         receipt_url: finalReceiptUrl || undefined,
+        exchange_rate: exchangeRate,
+        amount_in_account_currency: amountInAccountCurrency,
       })
       
       // Invalidate expenses query to refetch the list

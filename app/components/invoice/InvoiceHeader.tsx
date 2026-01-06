@@ -3,6 +3,7 @@
 import React from 'react'
 import Input from '../Input'
 import DatePicker from '../DatePicker'
+import CurrencyPicker from '../CurrencyPicker'
 import {
   Select as ShadcnSelect,
   SelectContent,
@@ -18,11 +19,13 @@ interface InvoiceHeaderProps {
   invoiceNumber: string
   issuedOn: string
   dueDate: string
+  currency: string
   onChange: (field: string, value: string) => void
   errors?: {
     invoice_number?: string
     issued_on?: string
     due_date?: string
+    currency?: string
   }
   onClearError?: (field: string) => void
 }
@@ -39,6 +42,7 @@ export default function InvoiceHeader({
   invoiceNumber,
   issuedOn,
   dueDate,
+  currency,
   onChange,
   errors = {},
   onClearError
@@ -102,7 +106,7 @@ export default function InvoiceHeader({
         </div>
       </div>
 
-      {/* Second Row: Due */}
+      {/* Second Row: Due and Currency */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <div className="flex flex-col gap-1" data-field="due_date">
@@ -146,6 +150,18 @@ export default function InvoiceHeader({
               <p className="text-destructive text-[12px] mt-1">{errors.due_date}</p>
             )}
           </div>
+        </div>
+        <div className="flex-1">
+          <CurrencyPicker
+            label="Currency"
+            value={currency}
+            onChange={(value) => {
+              onChange('currency', value)
+              onClearError?.('currency')
+            }}
+            error={errors.currency}
+            onErrorClear={() => onClearError?.('currency')}
+          />
         </div>
       </div>
     </div>

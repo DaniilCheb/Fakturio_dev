@@ -21,6 +21,8 @@ export interface Invoice {
   vat_amount: number;
   vat_rate: number;
   total: number;
+  exchange_rate?: number;
+  amount_in_account_currency?: number;
   from_info: Record<string, any>;
   to_info: Record<string, any>;
   items: Array<Record<string, any>>;
@@ -44,6 +46,8 @@ export interface CreateInvoiceInput {
   vat_amount: number;
   vat_rate: number;
   total: number;
+  exchange_rate?: number;
+  amount_in_account_currency?: number;
   from_info: Record<string, any>;
   to_info: Record<string, any>;
   items: Array<Record<string, any>>;
@@ -138,6 +142,9 @@ export async function saveInvoiceWithClient(
   // Generate invoice number if not provided
   const invoiceNumber = invoiceData.invoice_number || await generateInvoiceNumber(supabase, userId);
   
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.client.ts:145',message:'Inserting invoice with conversion data',data:{hasExchangeRate:invoiceData.exchange_rate !== undefined,exchangeRate:invoiceData.exchange_rate,hasAmountInAccountCurrency:invoiceData.amount_in_account_currency !== undefined,amountInAccountCurrency:invoiceData.amount_in_account_currency},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   const { data, error } = await supabase
     .from("invoices")
     .insert({
@@ -155,6 +162,8 @@ export async function saveInvoiceWithClient(
       vat_amount: invoiceData.vat_amount,
       vat_rate: invoiceData.vat_rate,
       total: invoiceData.total,
+      exchange_rate: invoiceData.exchange_rate,
+      amount_in_account_currency: invoiceData.amount_in_account_currency,
       from_info: invoiceData.from_info,
       to_info: invoiceData.to_info,
       items: invoiceData.items,
@@ -163,6 +172,10 @@ export async function saveInvoiceWithClient(
     })
     .select()
     .single();
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.client.ts:170',message:'Invoice inserted result',data:{hasError:!!error,error:error?.message,hasData:!!data,invoiceId:data?.id,currency:data?.currency,total:data?.total,exchangeRate:data?.exchange_rate,amountInAccountCurrency:data?.amount_in_account_currency},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   
   if (error) {
     console.error("Error creating invoice:", error);

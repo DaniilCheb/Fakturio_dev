@@ -24,6 +24,8 @@ interface Invoice {
   issued_on: string
   total: number
   currency: string
+  amount_in_account_currency?: number
+  exchange_rate?: number
 }
 
 interface DashboardChartProps {
@@ -84,7 +86,21 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
         const monthTotal = invoices.reduce((sum, inv) => {
           const invDate = new Date(inv.issued_on)
           const invMonthKey = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2, "0")}`
-          return invMonthKey === monthKey ? sum + inv.total : sum
+          if (invMonthKey === monthKey) {
+            // Determine the amount to use in account currency
+            let amount: number
+            if (inv.currency === defaultCurrency) {
+              amount = inv.total
+            } else if (inv.amount_in_account_currency !== undefined && inv.amount_in_account_currency !== null) {
+              amount = inv.amount_in_account_currency
+            } else if (inv.exchange_rate !== undefined && inv.exchange_rate !== null) {
+              amount = inv.total * inv.exchange_rate
+            } else {
+              amount = inv.total
+            }
+            return sum + amount
+          }
+          return sum
         }, 0)
         
         const monthCount = invoices.filter((inv) => {
@@ -111,7 +127,21 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
         const monthTotal = invoices.reduce((sum, inv) => {
           const invDate = new Date(inv.issued_on)
           const invMonthKey = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2, "0")}`
-          return invMonthKey === monthKey ? sum + inv.total : sum
+          if (invMonthKey === monthKey) {
+            // Determine the amount to use in account currency
+            let amount: number
+            if (inv.currency === defaultCurrency) {
+              amount = inv.total
+            } else if (inv.amount_in_account_currency !== undefined && inv.amount_in_account_currency !== null) {
+              amount = inv.amount_in_account_currency
+            } else if (inv.exchange_rate !== undefined && inv.exchange_rate !== null) {
+              amount = inv.total * inv.exchange_rate
+            } else {
+              amount = inv.total
+            }
+            return sum + amount
+          }
+          return sum
         }, 0)
         
         const monthCount = invoices.filter((inv) => {
@@ -138,7 +168,21 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
         const monthTotal = invoices.reduce((sum, inv) => {
           const invDate = new Date(inv.issued_on)
           const invMonthKey = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2, "0")}`
-          return invMonthKey === monthKey ? sum + inv.total : sum
+          if (invMonthKey === monthKey) {
+            // Determine the amount to use in account currency
+            let amount: number
+            if (inv.currency === defaultCurrency) {
+              amount = inv.total
+            } else if (inv.amount_in_account_currency !== undefined && inv.amount_in_account_currency !== null) {
+              amount = inv.amount_in_account_currency
+            } else if (inv.exchange_rate !== undefined && inv.exchange_rate !== null) {
+              amount = inv.total * inv.exchange_rate
+            } else {
+              amount = inv.total
+            }
+            return sum + amount
+          }
+          return sum
         }, 0)
         
         const monthCount = invoices.filter((inv) => {
@@ -172,7 +216,20 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
     return { monthlyData: months, periodInvoices: filtered }
   }, [invoices, timePeriod])
 
-  const totalAmount = periodInvoices.reduce((sum, inv) => sum + inv.total, 0)
+  const totalAmount = periodInvoices.reduce((sum, inv) => {
+    // Determine the amount to use in account currency
+    let amount: number
+    if (inv.currency === defaultCurrency) {
+      amount = inv.total
+    } else if (inv.amount_in_account_currency !== undefined && inv.amount_in_account_currency !== null) {
+      amount = inv.amount_in_account_currency
+    } else if (inv.exchange_rate !== undefined && inv.exchange_rate !== null) {
+      amount = inv.total * inv.exchange_rate
+    } else {
+      amount = inv.total
+    }
+    return sum + amount
+  }, 0)
   const monthlyAverage = totalAmount / 12
 
   const getTimePeriodLabel = (period: TimePeriod) => {

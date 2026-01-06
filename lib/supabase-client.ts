@@ -60,6 +60,11 @@ export function createClientSupabaseClient(
   const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   
   const client = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false, // Disable session persistence to avoid multiple GoTrueClient instances
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
     global: {
       fetch: async (url, options = {}) => {
         const clerkToken = await session?.getToken({ template: "supabase" });

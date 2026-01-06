@@ -164,14 +164,6 @@ export default function ExpensesPage() {
     return dateB.getTime() - dateA.getTime()
   })
 
-  // Get the most common currency
-  const currencyCount = sortedExpenses.reduce((acc, exp) => {
-    const currency = exp.currency || accountCurrency
-    acc[currency] = (acc[currency] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-  const defaultCurrency = Object.entries(currencyCount).sort((a, b) => b[1] - a[1])[0]?.[0] || accountCurrency
-
   return (
     <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header */}
@@ -189,7 +181,7 @@ export default function ExpensesPage() {
 
       {/* Stats & Chart */}
       {sortedExpenses.length > 0 && (
-        <ExpensesChart expenses={sortedExpenses} accountCurrency={defaultCurrency} />
+        <ExpensesChart expenses={sortedExpenses} accountCurrency={accountCurrency} />
       )}
 
       {/* Expenses Table */}

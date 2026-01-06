@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, useUser } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { createProjectWithClient, type CreateProjectInput } from '@/lib/services/projectService.client'
+import { getUserProfileWithClient } from '@/lib/services/settingsService.client'
 import { Loader2 } from 'lucide-react'
 import { Card } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
@@ -48,6 +49,27 @@ export default function NewProjectPage() {
 
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Load account currency on mount
+  useEffect(() => {
+    async function loadAccountCurrency() {
+      if (!supabase || !user) return
+
+      try {
+        const profile = await getUserProfileWithClient(supabase, user.id)
+        if (profile?.account_currency) {
+          setFormData(prev => ({
+            ...prev,
+            currency: profile.account_currency,
+          }))
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error)
+      }
+    }
+
+    loadAccountCurrency()
+  }, [supabase, user])
 
   const handleFieldChange = (field: keyof CreateProjectInput) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

@@ -31,6 +31,8 @@ interface Invoice {
   issued_on: string
   total: number
   currency: string
+  amount_in_account_currency?: number
+  exchange_rate?: number
 }
 
 interface InvoicesChartProps {

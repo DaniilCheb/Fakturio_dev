@@ -51,10 +51,28 @@ function getExpenseDate(expense: Expense): Date {
   return new Date(expense.created_at)
 }
 
-// Get the amount in account currency (for now, just use the amount as-is)
-// In the future, this could handle currency conversion
+// Get the amount in account currency
 function getExpenseAmountInAccountCurrency(expense: Expense, accountCurrency: string): number {
-  return parseFloat(String(expense.amount)) || 0
+  const expenseCurrency = expense.currency || accountCurrency
+  const expenseAmount = parseFloat(String(expense.amount)) || 0
+  
+  // If currency matches account currency, use amount directly
+  if (expenseCurrency === accountCurrency) {
+    return expenseAmount
+  }
+  
+  // Use stored converted amount if available
+  if (expense.amount_in_account_currency !== undefined && expense.amount_in_account_currency !== null) {
+    return parseFloat(String(expense.amount_in_account_currency)) || 0
+  }
+  
+  // Convert using stored exchange rate if available
+  if (expense.exchange_rate !== undefined && expense.exchange_rate !== null) {
+    return expenseAmount * parseFloat(String(expense.exchange_rate))
+  }
+  
+  // Fallback: use original amount (may be in wrong currency for old data)
+  return expenseAmount
 }
 
 // Convert recurring expense to monthly equivalent

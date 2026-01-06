@@ -18,6 +18,8 @@ interface Invoice {
   issued_on: string
   total: number
   currency: string
+  amount_in_account_currency?: number
+  exchange_rate?: number
 }
 
 interface DashboardInvoicesCardProps {
@@ -53,7 +55,28 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
       const monthTotal = invoices.reduce((sum, inv) => {
         const invDate = new Date(inv.issued_on)
         const invMonthKey = `${invDate.getFullYear()}-${String(invDate.getMonth() + 1).padStart(2, "0")}`
-        return invMonthKey === monthKey ? sum + inv.total : sum
+        if (invMonthKey === monthKey) {
+          // Determine the amount to use in account currency
+          let amount: number
+          if (inv.currency === defaultCurrency) {
+            // Same currency - use total directly
+            amount = inv.total
+          } else if (inv.amount_in_account_currency !== undefined && inv.amount_in_account_currency !== null) {
+            // Use stored converted amount
+            amount = inv.amount_in_account_currency
+          } else if (inv.exchange_rate !== undefined && inv.exchange_rate !== null) {
+            // Convert using stored exchange rate
+            amount = inv.total * inv.exchange_rate
+          } else {
+            // Fallback: use original total (may be in wrong currency for old data)
+            amount = inv.total
+          }
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DashboardInvoicesCard.tsx:57',message:'Using invoice amount for dashboard',data:{invoiceId:inv.id,currency:inv.currency,defaultCurrency:defaultCurrency,total:inv.total,amountInAccountCurrency:inv.amount_in_account_currency,exchangeRate:inv.exchange_rate,usingAmount:amount},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+          // #endregion
+          return sum + amount
+        }
+        return sum
       }, 0)
       
       months.push({
@@ -72,7 +95,27 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
     return { monthlyData: months, periodInvoices: filtered }
   }, [invoices, currentYear])
 
-  const totalAmount = periodInvoices.reduce((sum, inv) => sum + inv.total, 0)
+  const totalAmount = periodInvoices.reduce((sum, inv) => {
+    // Determine the amount to use in account currency
+    let amount: number
+    if (inv.currency === defaultCurrency) {
+      // Same currency - use total directly
+      amount = inv.total
+    } else if (inv.amount_in_account_currency !== undefined && inv.amount_in_account_currency !== null) {
+      // Use stored converted amount
+      amount = inv.amount_in_account_currency
+    } else if (inv.exchange_rate !== undefined && inv.exchange_rate !== null) {
+      // Convert using stored exchange rate
+      amount = inv.total * inv.exchange_rate
+    } else {
+      // Fallback: use original total (may be in wrong currency for old data)
+      amount = inv.total
+    }
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DashboardInvoicesCard.tsx:90',message:'Calculating total amount',data:{invoiceId:inv.id,currency:inv.currency,defaultCurrency:defaultCurrency,total:inv.total,amountInAccountCurrency:inv.amount_in_account_currency,exchangeRate:inv.exchange_rate,usingAmount:amount},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    return sum + amount
+  }, 0)
   const monthlyAverage = totalAmount / 12
 
   const displayAmount = hoveredMonth !== null 

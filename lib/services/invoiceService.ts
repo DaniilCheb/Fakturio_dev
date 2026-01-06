@@ -21,6 +21,8 @@ export interface Invoice {
   vat_amount: number;
   vat_rate: number;
   total: number;
+  exchange_rate?: number;
+  amount_in_account_currency?: number;
   from_info: Record<string, any>;
   to_info: Record<string, any>;
   items: Array<Record<string, any>>;
@@ -44,6 +46,8 @@ export interface CreateInvoiceInput {
   vat_amount: number;
   vat_rate: number;
   total: number;
+  exchange_rate?: number;
+  amount_in_account_currency?: number;
   from_info: Record<string, any>;
   to_info: Record<string, any>;
   items: Array<Record<string, any>>;
@@ -59,9 +63,37 @@ export interface UpdateInvoiceInput extends Partial<CreateInvoiceInput> {
  * Get all invoices for the current user (server-side)
  */
 export async function getInvoices(): Promise<Invoice[]> {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:65',message:'getInvoices entry',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
+  // #endregion
+  
   const { createServerSupabaseClient, getCurrentUserId } = await import("../supabase-server");
-  const userId = await getCurrentUserId();
-  const supabase = await createServerSupabaseClient();
+  
+  // #region agent log
+  let userId: string;
+  try {
+    userId = await getCurrentUserId();
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:67',message:'getCurrentUserId success',data:{userId:userId||'null',userIdType:typeof userId,userIdLength:userId?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  } catch (err) {
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:67',message:'getCurrentUserId error',data:{error:String(err),errorType:typeof err,errorKeys:err?Object.keys(err):[],errorMessage:err instanceof Error?err.message:'',errorStack:err instanceof Error?err.stack:''},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    throw err;
+  }
+  // #endregion
+  
+  // #region agent log
+  let supabase;
+  try {
+    supabase = await createServerSupabaseClient();
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:68',message:'createServerSupabaseClient success',data:{supabaseExists:!!supabase,supabaseType:typeof supabase},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  } catch (err) {
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:68',message:'createServerSupabaseClient error',data:{error:String(err),errorType:typeof err,errorMessage:err instanceof Error?err.message:'',errorStack:err instanceof Error?err.stack:''},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    throw err;
+  }
+  // #endregion
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:70',message:'Before Supabase query',data:{userId,queryTable:'invoices'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
+  // #endregion
   
   const { data, error } = await supabase
     .from("invoices")
@@ -69,10 +101,21 @@ export async function getInvoices(): Promise<Invoice[]> {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:75',message:'After Supabase query',data:{hasError:!!error,errorType:typeof error,errorIsNull:error===null,errorIsUndefined:error===undefined,errorString:String(error),errorKeys:error?Object.keys(error):[],errorCode:error?.code,errorMessage:error?.message,errorDetails:error?.details,errorHint:error?.hint,hasData:!!data,dataType:typeof data,dataLength:Array.isArray(data)?data.length:'not-array'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D,E'})}).catch(()=>{});
+  // #endregion
+  
   if (error) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:76',message:'Error branch entered',data:{errorFull:JSON.stringify(error),errorOwnProps:error?Object.getOwnPropertyNames(error):[],errorPrototype:Object.getPrototypeOf(error)?.constructor?.name,errorToString:error?.toString(),errorValueOf:error?.valueOf?.(),errorJSON:JSON.stringify(error,Object.getOwnPropertyNames(error))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     console.error("Error fetching invoices:", error);
     throw new Error("Failed to fetch invoices");
   }
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoiceService.ts:81',message:'getInvoices success',data:{dataLength:Array.isArray(data)?data.length:0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
+  // #endregion
   
   return data || [];
 }
@@ -236,6 +279,8 @@ export async function saveInvoice(invoiceData: CreateInvoiceInput): Promise<Invo
       vat_amount: invoiceData.vat_amount,
       vat_rate: invoiceData.vat_rate,
       total: invoiceData.total,
+      exchange_rate: invoiceData.exchange_rate,
+      amount_in_account_currency: invoiceData.amount_in_account_currency,
       from_info: invoiceData.from_info,
       to_info: invoiceData.to_info,
       items: invoiceData.items,
@@ -281,6 +326,8 @@ export async function saveInvoiceWithClient(
       vat_amount: invoiceData.vat_amount,
       vat_rate: invoiceData.vat_rate,
       total: invoiceData.total,
+      exchange_rate: invoiceData.exchange_rate,
+      amount_in_account_currency: invoiceData.amount_in_account_currency,
       from_info: invoiceData.from_info,
       to_info: invoiceData.to_info,
       items: invoiceData.items,

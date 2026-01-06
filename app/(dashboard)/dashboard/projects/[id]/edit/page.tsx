@@ -8,12 +8,13 @@ import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { useProject } from '@/lib/hooks/queries'
 import { updateProjectWithClient, type UpdateProjectInput } from '@/lib/services/projectService.client'
 import { Loader2 } from 'lucide-react'
-import BackLink from '@/app/components/BackLink'
 import { Card } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import Input from '@/app/components/Input'
+import CurrencyPicker from '@/app/components/CurrencyPicker'
+import CreatableCustomerSelect from '@/app/components/CreatableCustomerSelect'
 import { useContacts } from '@/lib/hooks/queries'
-import { Skeleton } from '@/app/components/ui/skeleton'
+import { getUserProfileWithClient } from '@/lib/services/settingsService.client'
 
 export default function EditProjectPage() {
   const router = useRouter()
@@ -38,6 +39,7 @@ export default function EditProjectPage() {
     description: '',
     status: 'active',
     hourly_rate: undefined,
+    currency: 'CHF',
   })
 
   const [isSaving, setIsSaving] = useState(false)
@@ -45,16 +47,33 @@ export default function EditProjectPage() {
 
   // Initialize form data when project loads
   useEffect(() => {
-    if (project) {
-      setFormData({
-        name: project.name || '',
-        contact_id: project.contact_id || '',
-        description: project.description || '',
-        status: project.status || 'active',
-        hourly_rate: project.hourly_rate || undefined,
-      })
+    async function initializeFormData() {
+      if (project && supabase && user) {
+        // Load account currency as default if project doesn't have one
+        let defaultCurrency = project.currency || 'CHF'
+        if (!project.currency) {
+          try {
+            const profile = await getUserProfileWithClient(supabase, user.id)
+            if (profile?.account_currency) {
+              defaultCurrency = profile.account_currency
+            }
+          } catch (error) {
+            console.error('Error loading profile:', error)
+          }
+        }
+
+        setFormData({
+          name: project.name || '',
+          contact_id: project.contact_id || '',
+          description: project.description || '',
+          status: project.status || 'active',
+          hourly_rate: project.hourly_rate || undefined,
+          currency: defaultCurrency,
+        })
+      }
     }
-  }, [project])
+    initializeFormData()
+  }, [project, supabase, user])
 
   const handleFieldChange = (field: keyof UpdateProjectInput) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -97,6 +116,7 @@ export default function EditProjectPage() {
         description: formData.description?.trim() || undefined,
         status: formData.status || 'active',
         hourly_rate: formData.hourly_rate,
+        currency: formData.currency || 'CHF',
       })
       
       // Invalidate queries to refetch the list
@@ -113,11 +133,15 @@ export default function EditProjectPage() {
     }
   }
 
+  const handleCustomerCreated = () => {
+    // Invalidate contacts query to refresh the list
+    queryClient.invalidateQueries({ queryKey: ['contacts'] })
+  }
+
   // Loading state
   if (!session || !user || !supabase || isLoadingProject) {
     return (
       <div className="max-w-[920px] mx-auto">
-        <BackLink to="/dashboard/projects" label="Back to Projects" />
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-design-content-weak" />
         </div>
@@ -128,7 +152,6 @@ export default function EditProjectPage() {
   if (!project) {
     return (
       <div className="max-w-[920px] mx-auto">
-        <BackLink to="/dashboard/projects" label="Back to Projects" />
         <div className="text-center py-20">
           <p className="text-muted-foreground">Project not found</p>
         </div>
@@ -138,8 +161,6 @@ export default function EditProjectPage() {
 
   return (
     <div className="max-w-[920px] mx-auto">
-      {/* Back Link */}
-      <BackLink to={`/dashboard/projects/${projectId}`} label="Back to Project" />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -176,25 +197,19 @@ export default function EditProjectPage() {
               <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
                 Customer *
               </label>
-              <select
-                name="contact_id"
+              <CreatableCustomerSelect
                 value={formData.contact_id}
-                onChange={handleFieldChange('contact_id')}
-                required
-                className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:ring-2 focus:ring-design-button-primary focus:border-transparent cursor-pointer appearance-none"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 12px center'
+                onChange={(value) => {
+                  setFormData(prev => ({ ...prev, contact_id: value }))
+                  if (error) setError(null)
                 }}
-              >
-                <option value="">Select a customer</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.company_name || customer.name}
-                  </option>
-                ))}
-              </select>
+                customers={customers}
+                supabase={supabase}
+                userId={user.id}
+                onCustomerCreated={handleCustomerCreated}
+                placeholder="Select a customer"
+                error={error && !formData.contact_id ? 'Customer is required' : undefined}
+              />
             </div>
 
             {/* Status */}
@@ -220,18 +235,36 @@ export default function EditProjectPage() {
             </div>
 
             {/* Hourly Rate */}
-            <Input
-              label="Hourly Rate (optional)"
-              type="number"
-              value={formData.hourly_rate !== undefined ? formData.hourly_rate.toString() : ''}
-              onChange={handleFieldChange('hourly_rate')}
-              placeholder="150.00"
-              step="0.01"
-              min="0"
-            />
-            <p className="text-[12px] text-design-content-weak -mt-4">
-              Set the hourly rate for this project (e.g., 150.00)
-            </p>
+            <div className="flex flex-col gap-1">
+              <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
+                Hourly Rate (optional)
+              </label>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <Input
+                    noLabel
+                    type="number"
+                    value={formData.hourly_rate !== undefined ? formData.hourly_rate.toString() : ''}
+                    onChange={handleFieldChange('hourly_rate')}
+                    placeholder="150.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                <div className="flex-1">
+                  <CurrencyPicker
+                    noLabel
+                    value={formData.currency || 'CHF'}
+                    onChange={(value) => {
+                      setFormData(prev => ({ ...prev, currency: value }))
+                    }}
+                  />
+                </div>
+              </div>
+              <p className="text-[12px] text-design-content-weak mt-1">
+                Set the hourly rate for this project (e.g., 150.00)
+              </p>
+            </div>
 
             {/* Description */}
             <div className="flex flex-col gap-1">

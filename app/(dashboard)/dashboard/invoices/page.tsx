@@ -5,6 +5,7 @@ import { Button } from "@/app/components/ui/button"
 import { Skeleton } from "@/app/components/ui/skeleton"
 import Header from "@/app/components/Header"
 import { getInvoices, type Invoice } from "@/lib/services/invoiceService"
+import { getUserProfile } from "@/lib/services/settingsService"
 import InvoicesChart from "../InvoicesChart"
 import InvoicesTable from "../InvoicesTable"
 
@@ -30,7 +31,22 @@ function DashboardSkeleton() {
 
 // Server component that fetches invoices
 async function InvoicesData() {
-  const invoices = await getInvoices()
+  const [invoices, profile] = await Promise.all([
+    getInvoices(),
+    getUserProfile().catch((error) => {
+      // Silently handle JWT expiration or other auth errors - default to CHF
+      // This is expected behavior when session expires, we'll use default currency
+      if (error?.message?.includes('JWT') || error?.code === 'PGRST303') {
+        return null
+      }
+      // Log other unexpected errors
+      console.error('Error fetching profile:', error)
+      return null
+    })
+  ])
+
+  // Get account currency from profile, default to CHF
+  const accountCurrency = profile?.account_currency || 'CHF'
 
   // Sort by issued date, newest first
   const sortedInvoices = [...invoices].sort((a, b) => {
@@ -39,25 +55,20 @@ async function InvoicesData() {
     return dateB.getTime() - dateA.getTime()
   })
 
-  // Prepare invoice data for chart (only pass what's needed)
+  // Prepare invoice data for chart (include conversion data)
   const chartInvoices = sortedInvoices.map((inv) => ({
     id: inv.id,
     issued_on: inv.issued_on,
     total: inv.total,
     currency: inv.currency,
+    amount_in_account_currency: inv.amount_in_account_currency,
+    exchange_rate: inv.exchange_rate,
   }))
-
-  // Get the most common currency
-  const currencyCount = sortedInvoices.reduce((acc, inv) => {
-    acc[inv.currency] = (acc[inv.currency] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-  const defaultCurrency = Object.entries(currencyCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "CHF"
 
   return (
     <>
       {/* Stats & Chart */}
-      <InvoicesChart invoices={chartInvoices} defaultCurrency={defaultCurrency} />
+      <InvoicesChart invoices={chartInvoices} defaultCurrency={accountCurrency} />
 
       {/* Invoices Table */}
       <InvoicesTable invoices={sortedInvoices} />

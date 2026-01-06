@@ -71,22 +71,25 @@ function DashboardContent() {
   const { data: expenses = [], isLoading: isLoadingExpenses } = useExpenses()
   const { data: profile } = useProfile()
   
-  const accountCurrency = profile?.currency || 'CHF'
+  const accountCurrency = profile?.account_currency || 'CHF'
   
   // Prepare invoice data for chart
-  const chartInvoices = invoices.map((inv) => ({
-    id: inv.id,
-    issued_on: inv.issued_on,
-    total: inv.total,
-    currency: inv.currency,
-  }))
+  const chartInvoices = invoices.map((inv) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/page.tsx:77',message:'Preparing invoice for chart',data:{invoiceId:inv.id,currency:inv.currency,accountCurrency:accountCurrency,total:inv.total,amountInAccountCurrency:inv.amount_in_account_currency,exchangeRate:inv.exchange_rate},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    return {
+      id: inv.id,
+      issued_on: inv.issued_on,
+      total: inv.total,
+      currency: inv.currency,
+      amount_in_account_currency: inv.amount_in_account_currency,
+      exchange_rate: inv.exchange_rate,
+    }
+  })
 
-  // Get the most common currency for invoices
-  const currencyCount = invoices.reduce((acc, inv) => {
-    acc[inv.currency] = (acc[inv.currency] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-  const defaultCurrency = Object.entries(currencyCount).sort((a, b) => b[1] - a[1])[0]?.[0] || accountCurrency
+  // Use account currency for display (all amounts are converted)
+  const defaultCurrency = accountCurrency
 
   const handleNavigate = (path: string) => {
     startLoadingBar()

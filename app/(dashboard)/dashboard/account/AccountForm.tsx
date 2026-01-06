@@ -6,6 +6,7 @@ import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { updateUserProfileWithClient, type Profile } from '@/lib/services/settingsService.client'
 import { formatUid } from '@/lib/services/zefixService'
 import { Loader2, X } from 'lucide-react'
+import CurrencyPicker from '@/app/components/CurrencyPicker'
 
 interface AccountFormProps {
   initialProfile: Profile | null
@@ -54,6 +55,7 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
     country: initialProfile?.country || 'Switzerland',
     phone: initialProfile?.phone || '',
     vat_number: initialProfile?.vat_number || '',
+    account_currency: initialProfile?.account_currency || 'CHF',
   })
 
   // Cleanup debounce on unmount
@@ -202,6 +204,7 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
       await updateUserProfileWithClient(supabase, userId, {
         ...formData,
         email: session.user.primaryEmailAddress?.emailAddress || initialProfile?.email || '',
+        account_currency: formData.account_currency,
       })
 
       setSuccess(true)
@@ -385,6 +388,22 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
           placeholder="e.g., CHE-123.456.789"
         />
+      </div>
+
+      {/* Currency Preference */}
+      <div className="flex flex-col gap-1">
+        <CurrencyPicker
+          label="Preferred Currency"
+          value={formData.account_currency}
+          onChange={(value) => {
+            setFormData(prev => ({ ...prev, account_currency: value }))
+            setSuccess(false)
+            setError(null)
+          }}
+        />
+        <p className="text-[12px] text-design-content-weak mt-1">
+          This currency will be used as the default for new invoices, expenses, and projects.
+        </p>
       </div>
 
       {/* Error */}

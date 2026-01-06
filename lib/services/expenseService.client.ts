@@ -18,6 +18,8 @@ export interface Expense {
   currency?: string;
   vat_amount?: number;
   vat_rate?: number;
+  exchange_rate?: number;
+  amount_in_account_currency?: number;
   date: string;
   end_date?: string;
   frequency?: "Weekly" | "Monthly" | "Quarterly" | "Yearly" | "Other";
@@ -38,6 +40,8 @@ export interface CreateExpenseInput {
   currency?: string;
   vat_amount?: number;
   vat_rate?: number;
+  exchange_rate?: number;
+  amount_in_account_currency?: number;
   date: string;
   end_date?: string;
   frequency?: "Weekly" | "Monthly" | "Quarterly" | "Yearly" | "Other";
@@ -116,6 +120,8 @@ export async function saveExpenseWithClient(
       currency: expenseData.currency || "CHF",
       vat_amount: expenseData.vat_amount,
       vat_rate: expenseData.vat_rate,
+      exchange_rate: expenseData.exchange_rate,
+      amount_in_account_currency: expenseData.amount_in_account_currency,
       date: expenseData.date,
       end_date: expenseData.end_date,
       frequency: expenseData.frequency,

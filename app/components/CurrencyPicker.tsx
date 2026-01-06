@@ -17,16 +17,13 @@ import { cn } from '@/lib/utils'
 export const currencies = [
   { value: 'CHF', label: 'CHF - Swiss Franc', symbol: 'CHF' },
   { value: 'EUR', label: 'EUR - Euro', symbol: '€' },
-  { value: 'USD', label: 'USD - US Dollar', symbol: '$' },
   { value: 'GBP', label: 'GBP - British Pound', symbol: '£' },
-  { value: 'JPY', label: 'JPY - Japanese Yen', symbol: '¥' },
-  { value: 'CAD', label: 'CAD - Canadian Dollar', symbol: 'C$' },
-  { value: 'AUD', label: 'AUD - Australian Dollar', symbol: 'A$' },
-  { value: 'CNY', label: 'CNY - Chinese Yuan', symbol: '¥' },
-  { value: 'INR', label: 'INR - Indian Rupee', symbol: '₹' },
+  { value: 'USD', label: 'USD - US Dollar', symbol: '$' },
   { value: 'SEK', label: 'SEK - Swedish Krona', symbol: 'kr' },
   { value: 'NOK', label: 'NOK - Norwegian Krone', symbol: 'kr' },
   { value: 'DKK', label: 'DKK - Danish Krone', symbol: 'kr' },
+  { value: 'PLN', label: 'PLN - Polish Złoty', symbol: 'zł' },
+  { value: 'CZK', label: 'CZK - Czech Koruna', symbol: 'Kč' },
 ]
 
 interface CurrencyPickerProps {
