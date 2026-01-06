@@ -59,6 +59,9 @@ export async function PATCH(
     if (body.paid_date !== undefined) {
       updates.paid_date = body.paid_date || null
     }
+    if (body.invoice_number !== undefined) {
+      updates.invoice_number = body.invoice_number
+    }
     if (body.issued_on) {
       updates.issued_on = body.issued_on
     }
@@ -67,6 +70,15 @@ export async function PATCH(
     }
     if (body.currency) {
       updates.currency = body.currency
+    }
+    if (body.contact_id !== undefined) {
+      updates.contact_id = body.contact_id
+    }
+    if (body.project_id !== undefined) {
+      updates.project_id = body.project_id
+    }
+    if (body.bank_account_id !== undefined) {
+      updates.bank_account_id = body.bank_account_id
     }
     if (body.notes !== undefined) {
       updates.notes = body.notes
@@ -91,6 +103,12 @@ export async function PATCH(
     }
     if (body.total !== undefined) {
       updates.total = body.total
+    }
+    if (body.exchange_rate !== undefined) {
+      updates.exchange_rate = body.exchange_rate
+    }
+    if (body.amount_in_account_currency !== undefined) {
+      updates.amount_in_account_currency = body.amount_in_account_currency
     }
     if (body.payment_terms) {
       updates.payment_terms = body.payment_terms

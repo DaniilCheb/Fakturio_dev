@@ -15,7 +15,6 @@ import { generateInvoicePDF, generateInvoicePDFBlob } from "@/lib/services/pdfSe
 import { createClientSupabaseClient } from "@/lib/supabase-client"
 import { getBankAccountsWithClient } from "@/lib/services/bankAccountService.client"
 import type { GuestInvoice } from "@/lib/types/invoice"
-import EditInvoiceModal from "./EditInvoiceModal"
 
 // Check Icon (local, as it's specific to this page)
 const CheckIcon = () => (
@@ -113,7 +112,6 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [isDuplicating, setIsDuplicating] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [currentInvoice, setCurrentInvoice] = useState(invoice)
 
   const invoiceStatus = getInvoiceStatus(currentInvoice)
@@ -245,17 +243,12 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
     }
   }
 
-  const handleInvoiceUpdated = (updatedInvoice: Invoice) => {
-    setCurrentInvoice(updatedInvoice)
-    router.refresh()
-  }
-
   const currency = currentInvoice.currency || "CHF"
 
   const actionButtons = (
     <div className="flex items-center gap-6">
       <button
-        onClick={() => setIsEditModalOpen(true)}
+        onClick={() => router.push(`/dashboard/invoices/${currentInvoice.id}/edit`)}
         className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors"
       >
         <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
@@ -462,13 +455,6 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
         </div>
       </Card>
 
-      {/* Edit Modal */}
-      <EditInvoiceModal
-        invoice={currentInvoice}
-        open={isEditModalOpen}
-        onOpenChange={setIsEditModalOpen}
-        onInvoiceUpdated={handleInvoiceUpdated}
-      />
     </>
   )
 }

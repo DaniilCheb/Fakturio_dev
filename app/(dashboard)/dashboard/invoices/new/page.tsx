@@ -146,8 +146,11 @@ export default function NewInvoicePage() {
             try {
               const project = await getProjectByIdWithClient(supabase, user.id, projectIdParam)
               if (project?.contact_id) {
-                // Pre-select the project
-                setProjectId(project.id)
+                // Store projectId to set after customer is loaded
+                // We'll set it in a separate useEffect after customer is selected
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('pendingProjectIdFromTimeEntries', project.id)
+                }
                 
                 // Load the contact to get full details
                 const contact = await getContactByIdWithClient(supabase, user.id, project.contact_id)
@@ -155,7 +158,7 @@ export default function NewInvoicePage() {
                   // Build zip from postal_code and city
                   const zipCity = [contact.postal_code, contact.city].filter(Boolean).join(' ')
                   
-                  // Pre-select the customer
+                  // Pre-select the customer FIRST (this will trigger project list loading)
                   setToInfo({
                     contact_id: contact.id,
                     uid: contact.vat_number,
@@ -175,6 +178,83 @@ export default function NewInvoicePage() {
     
     loadProjectAndContact()
   }, [searchParams, supabase, user])
+
+  // Set project ID after customer is selected (for time entries flow)
+  useEffect(() => {
+    if (!toInfo.contact_id || typeof window === 'undefined') return
+    
+    const pendingProjectId = sessionStorage.getItem('pendingProjectIdFromTimeEntries')
+    if (!pendingProjectId) return
+    
+    // Only set if project is not already selected
+    if (projectId === pendingProjectId) {
+      sessionStorage.removeItem('pendingProjectIdFromTimeEntries')
+      return
+    }
+    
+    // Set project ID after a brief delay to ensure projects list has loaded
+    const timer = setTimeout(() => {
+      setProjectId(pendingProjectId)
+      sessionStorage.removeItem('pendingProjectIdFromTimeEntries')
+    }, 200)
+    
+    return () => clearTimeout(timer)
+  }, [toInfo.contact_id, projectId])
+
+  // Check for newly created project from time tracking
+  useEffect(() => {
+    async function loadStoredProject() {
+      // Only check if we haven't already loaded a project from URL params
+      const fromTimeEntries = searchParams.get('fromTimeEntries')
+      if (fromTimeEntries === 'true') {
+        // Skip if we already loaded project from URL params
+        return
+      }
+
+      if (!supabase || !user || typeof window === 'undefined') return
+
+      const storedProjectId = sessionStorage.getItem('lastCreatedProjectFromTimeTracking')
+      if (!storedProjectId) return
+
+      // Only pre-select if no project is already selected
+      if (projectId) return
+
+      try {
+        const project = await getProjectByIdWithClient(supabase, user.id, storedProjectId)
+        if (project?.contact_id) {
+          // Store projectId to set after customer is loaded
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('pendingProjectIdFromTimeEntries', project.id)
+          }
+
+          // Load the contact to get full details
+          const contact = await getContactByIdWithClient(supabase, user.id, project.contact_id)
+          if (contact) {
+            // Build zip from postal_code and city
+            const zipCity = [contact.postal_code, contact.city].filter(Boolean).join(' ')
+
+            // Pre-select the customer
+            setToInfo({
+              contact_id: contact.id,
+              uid: contact.vat_number,
+              name: contact.company_name || contact.name,
+              address: contact.address || '',
+              zip: zipCity
+            })
+          }
+
+          // Clear the stored project ID after using it
+          sessionStorage.removeItem('lastCreatedProjectFromTimeTracking')
+        }
+      } catch (error) {
+        console.error('Error loading stored project:', error)
+        // Clear invalid stored project ID
+        sessionStorage.removeItem('lastCreatedProjectFromTimeTracking')
+      }
+    }
+
+    loadStoredProject()
+  }, [supabase, user, searchParams, projectId])
 
   // Initialize invoice number from server
   useEffect(() => {
