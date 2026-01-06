@@ -1,12 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useSession } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { updateUserProfileWithClient, type Profile } from '@/lib/services/settingsService.client'
+import { formatUid } from '@/lib/services/zefixService'
+import { Loader2, X } from 'lucide-react'
 
 interface AccountFormProps {
   initialProfile: Profile | null
+}
+
+interface CompanyInfo {
+  name: string
+  address: string
+  zip: string
+  city: string
+  canton: string
+  legalForm: string
+  uid: string
+  status: string
+}
+
+interface SearchResult {
+  name: string
+  uid: string
+  legalSeat: string
+  legalForm: string
+  status: string
 }
 
 export default function AccountForm({ initialProfile }: AccountFormProps) {
@@ -14,6 +35,15 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  // Zefix search state
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [showResults, setShowResults] = useState(false)
+  const [lookupError, setLookupError] = useState<string | null>(null)
+  const [isCompanySelected, setIsCompanySelected] = useState(false)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   
   const [formData, setFormData] = useState({
     name: initialProfile?.name || '',
@@ -26,11 +56,135 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
     vat_number: initialProfile?.vat_number || '',
   })
 
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     setSuccess(false)
     setError(null)
+  }
+
+  const handleCompanyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFormData(prev => ({ ...prev, company_name: value }))
+    setSuccess(false)
+    setError(null)
+    setIsCompanySelected(false)
+    if (lookupError) setLookupError(null)
+    
+    // Clear previous debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+    
+    // If less than 3 characters, hide results
+    if (value.trim().length < 3) {
+      setShowResults(false)
+      setSearchResults([])
+      return
+    }
+    
+    // Debounce the search
+    debounceRef.current = setTimeout(() => {
+      performSearch(value.trim())
+    }, 300)
+  }
+
+  const performSearch = async (query: string) => {
+    setIsSearching(true)
+    setLookupError(null)
+
+    try {
+      const response = await fetch('/api/zefix/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: query }),
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        setLookupError(data.error || 'Failed to search companies')
+        return
+      }
+
+      const results = data as SearchResult[]
+      
+      if (results.length === 0) {
+        setLookupError('No companies found')
+        return
+      }
+
+      setSearchResults(results)
+      setShowResults(true)
+    } catch (err) {
+      console.error('Lookup error:', err)
+      setLookupError('Failed to connect to lookup service')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const lookupByUid = async (uid: string): Promise<CompanyInfo | null> => {
+    const response = await fetch(`/api/zefix/${encodeURIComponent(uid)}`)
+    const data = await response.json()
+
+    if (!response.ok) {
+      setLookupError(data.error || 'Failed to lookup company')
+      return null
+    }
+
+    return data as CompanyInfo
+  }
+
+  const handleSelectResult = async (result: SearchResult) => {
+    setShowResults(false)
+    setSearchResults([])
+    setIsSearching(true)
+    
+    try {
+      const company = await lookupByUid(result.uid)
+      if (company) {
+        setFormData(prev => ({
+          ...prev,
+          company_name: company.name,
+          address: company.address,
+          city: company.city,
+          postal_code: company.zip,
+          country: 'Switzerland',
+        }))
+        setIsCompanySelected(true)
+        setSuccess(false)
+      }
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleClearCompany = () => {
+    setFormData(prev => ({ ...prev, company_name: '' }))
+    setLookupError(null)
+    setShowResults(false)
+    setSearchResults([])
+    setIsCompanySelected(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,19 +229,72 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
         />
       </div>
 
-      {/* Company Name */}
-      <div className="flex flex-col gap-1">
+      {/* Company Name with Zefix Search */}
+      <div className="flex flex-col gap-1" ref={dropdownRef}>
         <label className="text-[13px] font-medium text-design-content-weak">
           Company Name
         </label>
-        <input
-          type="text"
-          name="company_name"
-          value={formData.company_name}
-          onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="e.g., Acme GmbH"
-        />
+        <div className="relative">
+          <input
+            type="text"
+            name="company_name"
+            value={formData.company_name}
+            onChange={handleCompanyNameChange}
+            className="w-full h-[40px] px-3 py-2 pr-10 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
+            placeholder="Search Swiss companies..."
+          />
+          {isSearching ? (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-4 w-4 animate-spin text-design-content-weak" />
+            </div>
+          ) : formData.company_name && (
+            <button
+              type="button"
+              onClick={handleClearCompany}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-design-content-weak rounded-full transition-all hover:bg-design-surface-field-hover hover:text-design-content-default"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          
+          {/* Search results dropdown */}
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-design-surface-default border border-design-border-default rounded-lg shadow-lg max-h-[240px] overflow-y-auto">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-design-border-default">
+                <span className="text-xs text-design-content-weak">
+                  {searchResults.length} companies found
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowResults(false)}
+                  className="text-design-content-weak hover:text-design-content-default"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              {searchResults.map((result, index) => (
+                <button
+                  key={`${result.uid}-${index}`}
+                  type="button"
+                  onClick={() => handleSelectResult(result)}
+                  className="w-full px-3 py-3 text-left hover:bg-design-surface-field border-b border-design-border-default last:border-b-0 transition-colors"
+                >
+                  <div className="font-medium text-sm text-design-content-default">
+                    {result.name}
+                  </div>
+                  <div className="text-xs text-design-content-weak mt-0.5">
+                    {formatUid(result.uid)} • {result.legalSeat} • {result.legalForm}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {lookupError && (
+          <span className="text-red-500 dark:text-red-400 text-[12px]">
+            {lookupError}
+          </span>
+        )}
       </div>
 
       {/* Address */}

@@ -46,7 +46,7 @@ export default function TimeEntryList({
 
   const calculateAmount = (entry: TimeEntry): number => {
     const hours = entry.duration_minutes / 60
-    return hours * entry.hourly_rate
+    return hours * (entry.hourly_rate || 0)
   }
 
   if (entriesByDate.length === 0) {

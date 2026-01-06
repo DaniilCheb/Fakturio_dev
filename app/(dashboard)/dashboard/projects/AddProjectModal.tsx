@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import Modal, { ModalBody, ModalFooter } from '@/app/components/Modal'
+import Button from '@/app/components/Button'
+import CurrencyPicker from '@/app/components/CurrencyPicker'
 import { useContacts } from '@/lib/hooks/queries'
 import { type Project, type CreateProjectInput } from '@/lib/services/projectService.client'
 
@@ -32,6 +34,7 @@ export default function AddProjectModal({
     description: '',
     status: 'active',
     hourly_rate: undefined,
+    currency: 'CHF',
   })
   const [error, setError] = useState<string | null>(null)
 
@@ -44,6 +47,7 @@ export default function AddProjectModal({
         description: initialData.description || '',
         status: initialData.status || 'active',
         hourly_rate: initialData.hourly_rate || undefined,
+        currency: initialData.currency || 'CHF',
       })
       setError(null)
     } else if (isOpen && !initialData) {
@@ -53,6 +57,7 @@ export default function AddProjectModal({
         description: '',
         status: 'active',
         hourly_rate: undefined,
+        currency: 'CHF',
       })
       setError(null)
     }
@@ -84,42 +89,14 @@ export default function AddProjectModal({
     }
   }
 
-  if (!isOpen) return null
-
-  const modalContent = (
-    <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 z-[100]"
-        onClick={onClose}
-      />
-      
-      {/* Modal Container */}
-      <div 
-        className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none"
-      >
-        {/* Modal */}
-        <div 
-          className="relative bg-design-surface-default border border-design-border-default rounded-2xl p-6 w-full max-w-[500px] mx-4 max-h-[90vh] overflow-y-auto pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[18px] font-semibold text-design-content-default">
-            {isEditing ? 'Edit Project' : 'New Project'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1 text-design-content-weak hover:text-design-content-default transition-colors"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+  return (
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={isEditing ? 'Edit Project' : 'New Project'}
+    >
+      <form onSubmit={handleSubmit}>
+        <ModalBody>
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
@@ -201,19 +178,28 @@ export default function AddProjectModal({
             <label className="text-[13px] font-medium text-design-content-weak">
               Hourly Rate (optional)
             </label>
-            <input
-              type="number"
-              name="hourly_rate"
-              value={formData.hourly_rate !== undefined ? formData.hourly_rate.toString() : ''}
-              onChange={handleChange}
-              step="0.01"
-              min="0"
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
-              placeholder="150.00"
-            />
-            <p className="text-[12px] text-design-content-weak mt-1">
-              Set the hourly rate for this project (e.g., 150.00)
-            </p>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="hourly_rate"
+                value={formData.hourly_rate !== undefined ? formData.hourly_rate.toString() : ''}
+                onChange={handleChange}
+                step="0.01"
+                min="0"
+                className="flex-1 h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
+                placeholder="150.00"
+              />
+              <div className="w-[140px]">
+                <CurrencyPicker
+                  noLabel
+                  value={formData.currency || 'CHF'}
+                  onChange={(value) => {
+                    setFormData(prev => ({ ...prev, currency: value }))
+                    if (error) setError(null)
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Description */}
@@ -230,43 +216,33 @@ export default function AddProjectModal({
               placeholder="Project description..."
             />
           </div>
+        </ModalBody>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={isLoading || !formData.name || !formData.contact_id}
-              className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] bg-design-button-primary text-design-on-button-content rounded-full text-[14px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                  {isEditing ? 'Saving...' : 'Creating...'}
-                </>
-              ) : (
-                isEditing ? 'Save Changes' : 'Create Project'
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isLoading}
-              className="inline-flex items-center justify-center px-5 py-2.5 h-[44px] border border-design-border-default text-design-content-default rounded-full text-[14px] font-medium hover:bg-design-surface-field transition-colors disabled:opacity-50"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-        </div>
-      </div>
-    </>
+        <ModalFooter>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isLoading || !formData.name || !formData.contact_id}
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                {isEditing ? 'Saving...' : 'Creating...'}
+              </>
+            ) : (
+              isEditing ? 'Save Changes' : 'Create Project'
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
-
-  // Use portal to render modal at document body level
-  if (typeof window !== 'undefined') {
-    return createPortal(modalContent, document.body)
-  }
-  
-  return null
 }
-

@@ -46,3 +46,4 @@ export default function InvoicesChart({ invoices, defaultCurrency = "CHF" }: Inv
   return <DashboardChart invoices={invoices} defaultCurrency={defaultCurrency} />
 }
 
+

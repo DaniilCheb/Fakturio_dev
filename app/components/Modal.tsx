@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { CloseIcon } from './Icons'
 
 interface ModalProps {
@@ -8,7 +9,7 @@ interface ModalProps {
   onClose: () => void
   title?: string
   children: React.ReactNode
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | string
+  maxWidth?: string
 }
 
 /**
@@ -25,28 +26,10 @@ interface ModalProps {
  *   </ModalFooter>
  * </Modal>
  */
-export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = '640px' }: ModalProps) {
   if (!isOpen) return null
 
-  const maxWidthClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl'
-  }
-
-  // Check if maxWidth is a predefined size or a custom value
-  const maxWidthClass = maxWidthClasses[maxWidth as keyof typeof maxWidthClasses] 
-    ? maxWidthClasses[maxWidth as keyof typeof maxWidthClasses]
-    : undefined
-  
-  const customMaxWidth = maxWidthClass 
-    ? undefined 
-    : typeof maxWidth === 'string' && maxWidth.includes('px') 
-      ? { maxWidth } 
-      : { maxWidth: `${maxWidth}px` }
-
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
       {/* Backdrop */}
       <div 
@@ -54,30 +37,41 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
         onClick={onClose}
       />
       
+      {/* Modal container */}
       <div 
-        className={`relative bg-white dark:bg-[#252525] rounded-2xl shadow-xl w-full ${maxWidthClass || ''} overflow-hidden`}
-        style={customMaxWidth}
+        className="relative bg-design-surface-default dark:bg-[#252525] border border-design-border-default rounded-2xl shadow-xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        style={{ maxWidth }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#e0e0e0] dark:border-[#333]">
-            <h2 className="text-[18px] font-semibold text-[#141414] dark:text-white">
+          <div className="flex items-center justify-between p-4 sm:p-5 border-b border-design-border-default shrink-0">
+            <h2 className="text-[18px] font-semibold text-design-content-default">
               {title}
             </h2>
             <button
               onClick={onClose}
-              className="p-1 text-[#666] dark:text-[#999] hover:text-[#141414] dark:hover:text-white transition-colors"
+              className="p-1 text-design-content-weak hover:text-design-content-default transition-colors"
             >
               <CloseIcon />
             </button>
           </div>
         )}
         
-        {/* Content */}
-        {children}
+        {/* Content - scrollable area */}
+        <div className="flex-1 overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   )
+
+  // Use portal to render modal at document body level
+  if (typeof window !== 'undefined') {
+    return createPortal(modalContent, document.body)
+  }
+
+  return null
 }
 
 /**
@@ -85,7 +79,7 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'md
  */
 export function ModalBody({ children, className = '' }: { children: React.ReactNode, className?: string }) {
   return (
-    <div className={`p-4 sm:p-5 flex flex-col gap-4 text-left ${className}`}>
+    <div className={`p-4 sm:p-6 flex flex-col gap-4 text-left ${className}`}>
       {children}
     </div>
   )
@@ -96,9 +90,8 @@ export function ModalBody({ children, className = '' }: { children: React.ReactN
  */
 export function ModalFooter({ children, className = '' }: { children: React.ReactNode, className?: string }) {
   return (
-    <div className={`flex flex-col sm:flex-row gap-3 px-4 sm:px-5 pb-4 sm:pb-5 ${className}`}>
+    <div className={`flex flex-col sm:flex-row gap-3 px-4 sm:px-6 pb-4 sm:pb-6 ${className}`}>
       {children}
     </div>
   )
 }
-

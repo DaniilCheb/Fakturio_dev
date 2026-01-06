@@ -161,8 +161,8 @@ export default function TimeTrackingPage() {
     const isRunning = calendarEvent.resource?.isRunning
     return {
       style: {
-        backgroundColor: isRunning ? '#22c55e' : '#3b82f6',
-        borderColor: isRunning ? '#16a34a' : '#2563eb',
+        backgroundColor: 'hsl(168, 67%, 35%)',
+        borderColor: 'hsl(168, 67%, 30%)',
         borderWidth: isRunning ? '2px' : '1px',
         borderRadius: '6px',
         // Don't set opacity here - let CSS handle it for drag states
@@ -328,16 +328,11 @@ export default function TimeTrackingPage() {
     try {
       const supabase = createClientSupabaseClient(session)
       const project = projects.find(p => p.id === projectId)
-      if (!project || !project.hourly_rate) {
-        alert('Project must have an hourly rate set')
-        setIsProcessing(false)
-        return
-      }
       
       await startTimerWithClient(supabase, session.user.id, {
         project_id: projectId,
         description,
-        hourly_rate: project.hourly_rate,
+        hourly_rate: project?.hourly_rate ?? null,
         date: date || formatDateISO(new Date()),
       })
       

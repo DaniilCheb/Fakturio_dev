@@ -30,7 +30,7 @@ type TimePeriod = "this-year" | "last-12-months" | `year-${number}`
 const chartConfig = {
   amount: {
     label: "Amount",
-    color: "#625CF7", // Purple color for expenses
+    color: "#ff812e", // Orange color for expenses
   },
 } satisfies ChartConfig
 

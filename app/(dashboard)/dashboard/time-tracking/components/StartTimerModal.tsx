@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -10,20 +10,14 @@ import {
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { Label } from '@/app/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/app/components/ui/select'
-import { AlertCircle, Plus } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import type { Project } from '@/lib/services/projectService.client'
 import { useContacts } from '@/lib/hooks/queries'
 import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { useQueryClient } from '@tanstack/react-query'
-import AddCustomerModal from '@/app/components/invoice/AddCustomerModal'
+import CreatableCustomerSelect from '@/app/components/CreatableCustomerSelect'
+import CreatableProjectSelect from '@/app/components/CreatableProjectSelect'
 import type { Contact } from '@/lib/services/contactService.client'
 
 interface StartTimerModalProps {
@@ -47,12 +41,16 @@ export default function StartTimerModal({
   const { data: contacts = [] } = useContacts()
   const customers = contacts.filter(c => c.type === 'customer')
   
+  // Create Supabase client (memoized)
+  const supabase = useMemo(() => {
+    if (!session) return null
+    return createClientSupabaseClient(session)
+  }, [session])
+  
   const [clientId, setClientId] = useState('')
   const [projectId, setProjectId] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [showAddClientModal, setShowAddClientModal] = useState(false)
-  const [isCreatingClient, setIsCreatingClient] = useState(false)
 
   // Filter projects by selected client
   const filteredProjects = clientId 
@@ -71,15 +69,21 @@ export default function StartTimerModal({
   }, [clientId])
 
   const selectedProject = filteredProjects.find(p => p.id === projectId)
-  const hasHourlyRate = selectedProject?.hourly_rate && selectedProject.hourly_rate > 0
 
   // Handle creating new client
   const handleClientCreated = async (contact: Contact) => {
-    // The AddCustomerModal handles the creation, we just need to refresh
-    await queryClient.invalidateQueries({ queryKey: ['contacts', user?.id] })
+    // Invalidate contacts query to refresh the list
+    await queryClient.invalidateQueries({ queryKey: ['contacts'] })
     // Auto-select the newly created client
     setClientId(contact.id)
-    setShowAddClientModal(false)
+  }
+
+  // Handle creating new project
+  const handleProjectCreated = (newProject: Project) => {
+    // Invalidate projects query to refresh the list
+    queryClient.invalidateQueries({ queryKey: ['projects'] })
+    // Auto-select the newly created project
+    setProjectId(newProject.id)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,17 +100,12 @@ export default function StartTimerModal({
       return
     }
 
-    if (!hasHourlyRate) {
-      setError('This project does not have an hourly rate set. Please set an hourly rate for the project first.')
-      return
-    }
-
     onStart(projectId, description || undefined, selectedDay || undefined)
   }
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-white">
         <DialogHeader>
           <DialogTitle>Start Timer</DialogTitle>
         </DialogHeader>
@@ -122,102 +121,51 @@ export default function StartTimerModal({
           {/* Client Field - Mandatory */}
           <div>
             <Label htmlFor="client" className="mb-1">Client *</Label>
-            <Select 
-              value={clientId} 
-              onValueChange={(value) => {
-                setClientId(value)
-                setProjectId('') // Reset project when client changes
-                setError(null)
-              }}
-            >
-              <SelectTrigger id="client" className="w-full bg-design-surface-field dark:bg-[#252525]">
-                <SelectValue placeholder="Select a client" />
-              </SelectTrigger>
-              <SelectContent className="z-[100]" position="popper">
-                {customers.length === 0 ? (
-                  <SelectItem value="__disabled_no_clients__" disabled>
-                    No clients available
-                  </SelectItem>
-                ) : (
-                  customers.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.company_name || client.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-            <button
-              type="button"
-              onClick={() => setShowAddClientModal(true)}
-              className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
-            >
-              <Plus size={12} />
-              Add Client
-            </button>
-            {customers.length === 0 && (
-              <p className="text-sm text-muted-foreground mt-1">
-                No clients found. Click &quot;Add Client&quot; to create one.
-              </p>
+            {supabase && user ? (
+              <CreatableCustomerSelect
+                value={clientId}
+                onChange={(value) => {
+                  setClientId(value)
+                  setProjectId('') // Reset project when client changes
+                  setError(null)
+                }}
+                customers={customers}
+                supabase={supabase}
+                userId={user.id}
+                onCustomerCreated={handleClientCreated}
+                placeholder="Select a client"
+                error={error && !clientId ? 'Please select a client' : undefined}
+              />
+            ) : (
+              <div className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default flex items-center">
+                Loading...
+              </div>
             )}
           </div>
 
           {/* Project Field - Mandatory */}
           <div>
             <Label htmlFor="project">Project *</Label>
-            <Select 
-              value={projectId} 
-              onValueChange={(value) => {
-                setProjectId(value)
-                setError(null)
-              }}
-              disabled={!clientId}
-            >
-              <SelectTrigger id="project" className="w-full bg-design-surface-field dark:bg-[#252525]">
-                <SelectValue placeholder={clientId ? "Select a project" : "Select a client first"} />
-              </SelectTrigger>
-              <SelectContent className="z-[100]" position="popper">
-                {!clientId ? (
-                  <SelectItem value="__disabled_no_client__" disabled>
-                    Select a client first
-                  </SelectItem>
-                ) : filteredProjects.length === 0 ? (
-                  <SelectItem value="__disabled_no_projects__" disabled>
-                    No projects available
-                  </SelectItem>
-                ) : (
-                  filteredProjects.map((project) => {
-                    const hasRate = project.hourly_rate && project.hourly_rate > 0
-                    return (
-                      <SelectItem key={project.id} value={project.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{project.name}</span>
-                          {hasRate ? (
-                            <span className="text-xs text-muted-foreground">
-                              ({project.hourly_rate} CHF/h)
-                            </span>
-                          ) : (
-                            <span className="text-xs text-destructive">
-                              (No rate)
-                            </span>
-                          )}
-                        </div>
-                      </SelectItem>
-                    )
-                  })
-                )}
-              </SelectContent>
-            </Select>
-            {clientId && filteredProjects.length === 0 && (
-              <p className="text-sm text-muted-foreground mt-1">
-                No projects found for this client. Please create a project first.
-              </p>
-            )}
-            {selectedProject && !hasHourlyRate && (
-              <p className="text-sm text-destructive mt-1 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                This project needs an hourly rate to start a timer. Please set an hourly rate in the project settings.
-              </p>
+            {supabase && user ? (
+              <CreatableProjectSelect
+                value={projectId || undefined}
+                onChange={(value) => {
+                  setProjectId(value)
+                  setError(null)
+                }}
+                projects={filteredProjects}
+                supabase={supabase}
+                userId={user.id}
+                customerId={clientId}
+                onProjectCreated={handleProjectCreated}
+                disabled={!clientId}
+                placeholder={!clientId ? "Select a client first" : filteredProjects.length === 0 ? "No projects yet" : "Select a project"}
+                error={error && !projectId ? 'Please select a project' : undefined}
+              />
+            ) : (
+              <div className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default flex items-center">
+                {!clientId ? "Select a client first" : "Loading..."}
+              </div>
             )}
           </div>
 
@@ -242,17 +190,6 @@ export default function StartTimerModal({
           </div>
         </form>
       </DialogContent>
-
-      {/* Add Client Modal */}
-      {showAddClientModal && session && user && (
-        <AddCustomerModal
-          isOpen={showAddClientModal}
-          onClose={() => setShowAddClientModal(false)}
-          onCustomerCreated={handleClientCreated}
-          supabase={createClientSupabaseClient(session)}
-          userId={user.id}
-        />
-      )}
     </Dialog>
   )
 }

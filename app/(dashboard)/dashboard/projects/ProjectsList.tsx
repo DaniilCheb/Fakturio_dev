@@ -24,6 +24,29 @@ function formatDuration(minutes: number): string {
   if (mins === 0) return `${hours}h`
   return `${hours}h ${mins}m`
 }
+
+// Get project status badge
+function getProjectStatusBadge(status: string) {
+  const isActive = status === 'active'
+  const variants = {
+    active: { 
+      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+      label: "Active" 
+    },
+    inactive: { 
+      className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100",
+      label: "Inactive" 
+    },
+  }
+
+  const { className, label } = isActive ? variants.active : variants.inactive
+
+  return (
+    <Badge variant="outline" className={className}>
+      {label}
+    </Badge>
+  )
+}
 import TableRowLabel from '@/app/components/TableRowLabel'
 import { Card, CardContent } from '@/app/components/ui/card'
 import {
@@ -35,6 +58,7 @@ import {
   TableRow,
 } from '@/app/components/ui/table'
 import { Button } from '@/app/components/ui/button'
+import { Badge } from '@/app/components/ui/badge'
 import { Folder } from 'lucide-react'
 import type { ProjectWithStats } from './page'
 
@@ -86,6 +110,9 @@ function ProjectRow({
             labelText={project.customerName}
           />
         </Link>
+      </TableCell>
+      <TableCell className="text-[14px] px-6">
+        {project.status && getProjectStatusBadge(project.status)}
       </TableCell>
       <TableCell className="text-[14px] text-muted-foreground px-6">
         {project.invoiceCount} {project.invoiceCount !== 1 ? 'invoices' : 'invoice'}
@@ -227,6 +254,7 @@ export default function ProjectsList({
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-[13px] font-medium px-6">Project</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Invoices</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Time Tracked</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>

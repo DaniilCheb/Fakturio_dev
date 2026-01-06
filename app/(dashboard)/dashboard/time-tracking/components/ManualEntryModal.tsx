@@ -1,23 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/app/components/ui/dialog'
-import { Button } from '@/app/components/ui/button'
+import { useState, useEffect, useMemo } from 'react'
+import Modal, { ModalBody, ModalFooter } from '@/app/components/Modal'
+import Button from '@/app/components/Button'
 import Input from '@/app/components/Input'
-import Select from '@/app/components/Select'
 import DatePicker from '@/app/components/DatePicker'
-import { AlertCircle, Trash2, Plus } from 'lucide-react'
+import { AlertCircle, Trash2 } from 'lucide-react'
 import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { useContacts } from '@/lib/hooks/queries'
-import { saveContactWithClient, type CreateContactInput } from '@/lib/services/contactService.client'
-import { createProjectWithClient, type CreateProjectInput } from '@/lib/services/projectService.client'
+import CreatableCustomerSelect from '@/app/components/CreatableCustomerSelect'
+import CreatableProjectSelect from '@/app/components/CreatableProjectSelect'
+import CurrencyPicker from '@/app/components/CurrencyPicker'
+import { createProjectWithClient } from '@/lib/services/projectService.client'
+import type { Contact } from '@/lib/services/contactService.client'
 import type { Project } from '@/lib/services/projectService.client'
 import type { CreateTimeEntryInput, TimeEntry } from '@/lib/services/timeEntryService.client'
 
@@ -56,13 +53,19 @@ export default function ManualEntryModal({
   const { data: contacts = [] } = useContacts()
   const customers = contacts.filter(c => c.type === 'customer')
   
+  // Create Supabase client (memoized)
+  const supabase = useMemo(() => {
+    if (!session) return null
+    return createClientSupabaseClient(session)
+  }, [session])
+  
   const isEditMode = !!entry
   
   // Calculate hours and minutes from duration_minutes for edit mode
   const getHoursFromMinutes = (minutes: number) => Math.floor(minutes / 60).toString()
   const getMinutesFromDuration = (minutes: number) => (minutes % 60).toString()
   
-  // Get client from entry's project
+  // Get customer from entry's project
   const entryClientId = entry ? projects.find(p => p.id === entry.project_id)?.contact_id : null
   
   const [clientId, setClientId] = useState(() => entryClientId || '')
@@ -82,37 +85,23 @@ export default function ManualEntryModal({
     if (entry) {
       const project = projects.find(p => p.id === entry.project_id)
       if (!project?.hourly_rate || project.hourly_rate === 0) {
-        return entry.hourly_rate.toString()
+        return entry.hourly_rate?.toString() || ''
       }
     }
     return ''
   })
+  const [currency, setCurrency] = useState(() => {
+    // Get currency from project if available, otherwise default to CHF
+    if (entry) {
+      const project = projects.find(p => p.id === entry.project_id)
+      return project?.currency || 'CHF'
+    }
+    return 'CHF'
+  })
   const [error, setError] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  
-  // Modals for adding client/project
-  const [showAddClientModal, setShowAddClientModal] = useState(false)
-  const [showAddProjectModal, setShowAddProjectModal] = useState(false)
-  const [isCreatingClient, setIsCreatingClient] = useState(false)
-  const [isCreatingProject, setIsCreatingProject] = useState(false)
-  
-  // New client/project form data
-  const [newClientData, setNewClientData] = useState<CreateContactInput>({
-    type: 'customer',
-    name: '',
-    company_name: '',
-    email: '',
-    phone: '',
-  })
-  const [newProjectData, setNewProjectData] = useState<CreateProjectInput>({
-    name: '',
-    contact_id: '',
-    description: '',
-    status: 'active',
-    hourly_rate: undefined,
-  })
 
-  // Filter projects by selected client
+  // Filter projects by selected customer
   const filteredProjects = clientId 
     ? projects.filter(p => p.contact_id === clientId)
     : projects
@@ -147,14 +136,24 @@ export default function ManualEntryModal({
       setMinutes(getMinutesFromDuration(entry.duration_minutes))
       setDescription(entry.description || '')
       if (!project?.hourly_rate || project.hourly_rate === 0) {
-        setCustomRate(entry.hourly_rate.toString())
+        setCustomRate(entry.hourly_rate?.toString() || '')
       } else {
         setCustomRate('')
       }
+      setCurrency(project?.currency || 'CHF')
     }
   }, [entry, projects])
   
-  // Reset project when client changes
+  const selectedProject = projects.find(p => p.id === projectId)
+  
+  // Update currency when project changes
+  useEffect(() => {
+    if (selectedProject?.currency) {
+      setCurrency(selectedProject.currency)
+    }
+  }, [selectedProject])
+  
+  // Reset project when customer changes
   useEffect(() => {
     if (clientId && projectId) {
       const project = projects.find(p => p.id === projectId)
@@ -163,97 +162,25 @@ export default function ManualEntryModal({
       }
     }
   }, [clientId, projectId, projects])
-
-  const selectedProject = projects.find(p => p.id === projectId)
   const hasProjectRate = selectedProject?.hourly_rate && selectedProject.hourly_rate > 0
   const hourlyRate: number = hasProjectRate && selectedProject.hourly_rate 
     ? selectedProject.hourly_rate 
     : (parseFloat(customRate) || 0)
 
-  // Handle creating new client
-  const handleCreateClient = async () => {
-    if (!session || !user) {
-      setError('Please sign in to create a client')
-      return
-    }
-    
-    if (!newClientData.name.trim()) {
-      setError('Client name is required')
-      return
-    }
-    
-    setIsCreatingClient(true)
-    setError(null)
-    
-    try {
-      const supabase = createClientSupabaseClient(session)
-      const newClient = await saveContactWithClient(supabase, user.id, newClientData)
-      
-      // Invalidate contacts query
-      await queryClient.invalidateQueries({ queryKey: ['contacts', user.id] })
-      
-      // Set the new client as selected
-      setClientId(newClient.id)
-      setShowAddClientModal(false)
-      setNewClientData({
-        type: 'customer',
-        name: '',
-        company_name: '',
-        email: '',
-        phone: '',
-      })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create client')
-    } finally {
-      setIsCreatingClient(false)
-    }
+  // Handle creating new customer
+  const handleCustomerCreated = async (contact: Contact) => {
+    // Invalidate contacts query to refresh the list
+    await queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    // Auto-select the newly created customer
+    setClientId(contact.id)
   }
 
   // Handle creating new project
-  const handleCreateProject = async () => {
-    if (!session || !user) {
-      setError('Please sign in to create a project')
-      return
-    }
-    
-    if (!newProjectData.name.trim()) {
-      setError('Project name is required')
-      return
-    }
-    
-    if (!clientId) {
-      setError('Please select a client first')
-      return
-    }
-    
-    setIsCreatingProject(true)
-    setError(null)
-    
-    try {
-      const supabase = createClientSupabaseClient(session)
-      const newProject = await createProjectWithClient(supabase, user.id, {
-        ...newProjectData,
-        contact_id: clientId,
-      })
-      
-      // Invalidate projects query
-      await queryClient.invalidateQueries({ queryKey: ['projects', user.id] })
-      
-      // Set the new project as selected
-      setProjectId(newProject.id)
-      setShowAddProjectModal(false)
-      setNewProjectData({
-        name: '',
-        contact_id: '',
-        description: '',
-        status: 'active',
-        hourly_rate: undefined,
-      })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create project')
-    } finally {
-      setIsCreatingProject(false)
-    }
+  const handleProjectCreated = (newProject: Project) => {
+    // Invalidate projects query to refresh the list
+    queryClient.invalidateQueries({ queryKey: ['projects'] })
+    // Auto-select the newly created project
+    setProjectId(newProject.id)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -261,7 +188,7 @@ export default function ManualEntryModal({
     setError(null)
     
     if (!clientId) {
-      setError('Please select a client')
+      setError('Please select a customer')
       return
     }
 
@@ -340,113 +267,76 @@ export default function ManualEntryModal({
   }
 
   return (
-    <>
-      <Dialog open onOpenChange={onClose}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{isEditMode ? 'Edit Time Entry' : 'Add Manual Entry'}</DialogTitle>
-          </DialogHeader>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md flex items-start gap-2">
-                <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-destructive">{error}</p>
+    <Modal 
+      isOpen={true} 
+      onClose={onClose} 
+      title={isEditMode ? 'Edit Time Entry' : 'Add Manual Entry'}
+    >
+      <form onSubmit={handleSubmit}>
+        <ModalBody>
+          {error && (
+            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
+
+          {/* Customer Field - Mandatory */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[13px] font-medium text-design-content-weak">Customer *</label>
+            {supabase && user ? (
+              <CreatableCustomerSelect
+                value={clientId}
+                onChange={(value) => {
+                  setClientId(value)
+                  setProjectId('') // Reset project when customer changes
+                  setError(null)
+                }}
+                customers={customers}
+                supabase={supabase}
+                userId={user.id}
+                onCustomerCreated={handleCustomerCreated}
+                placeholder="Select a customer"
+                error={error && !clientId ? 'Please select a customer' : undefined}
+              />
+            ) : (
+              <div className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default flex items-center">
+                Loading...
               </div>
             )}
+          </div>
 
-            {/* Client Field - Mandatory */}
-            <div>
-              <Select
-                label="Client"
-                value={clientId || ''}
-                onChange={(e) => {
-                  setClientId(e.target.value === '__no_clients__' ? '' : e.target.value)
-                  setProjectId('') // Reset project when client changes
+          {/* Project Field - Optional */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[13px] font-medium text-design-content-weak">Project (optional)</label>
+            {supabase && user ? (
+              <CreatableProjectSelect
+                value={projectId || undefined}
+                onChange={(value) => {
+                  setProjectId(value)
                   setError(null)
                 }}
-                options={customers.length === 0 
-                  ? [{ value: '__no_clients__', label: 'No clients available' }]
-                  : customers.map(client => ({
-                      value: client.id,
-                      label: client.company_name || client.name
-                    }))
-                }
-                placeholder="Select a client"
-                error={error && !clientId ? 'Please select a client' : undefined}
-              />
-              <button
-                type="button"
-                onClick={() => setShowAddClientModal(true)}
-                className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
-              >
-                <Plus size={12} />
-                Add Client
-              </button>
-              {customers.length === 0 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  No clients found. Click &quot;Add Client&quot; to create one.
-                </p>
-              )}
-            </div>
-
-            {/* Project Field - Optional */}
-            <div>
-              <Select
-                label="Project (optional)"
-                value={projectId || '__none__'}
-                onChange={(e) => {
-                  setProjectId(e.target.value === '__none__' ? '' : e.target.value)
-                  setError(null)
-                }}
-                options={(() => {
-                  if (!clientId) {
-                    return [{ value: '__disabled_no_client__', label: 'Select a client first' }]
-                  } else if (filteredProjects.length === 0) {
-                    return [{ value: '__disabled_no_projects__', label: 'No projects available' }]
-                  } else {
-                    return [
-                      { value: '__none__', label: 'None (General)' },
-                      ...filteredProjects.map((project) => {
-                        const hasRate = project.hourly_rate && project.hourly_rate > 0
-                        return {
-                          value: project.id,
-                          label: hasRate 
-                            ? `${project.name} (${project.hourly_rate} CHF/h)`
-                            : `${project.name} (No rate)`
-                        }
-                      })
-                    ]
-                  }
-                })()}
-                placeholder={clientId ? "Select a project (optional)" : "Select a client first"}
+                projects={filteredProjects}
+                supabase={supabase}
+                userId={user.id}
+                customerId={clientId}
+                onProjectCreated={handleProjectCreated}
                 disabled={!clientId}
+                placeholder={!clientId ? "Select a customer first" : filteredProjects.length === 0 ? "No projects yet" : "Select a project (optional)"}
               />
-              {clientId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNewProjectData(prev => ({ ...prev, contact_id: clientId }))
-                    setShowAddProjectModal(true)
-                  }}
-                  className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
-                >
-                  <Plus size={12} />
-                  Add Project
-                </button>
-              )}
-              {!projectId && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  If no project is selected, a default &quot;General&quot; project will be created.
-                </p>
-              )}
-            </div>
+            ) : (
+              <div className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default flex items-center">
+                {!clientId ? "Select a customer first" : "Loading..."}
+              </div>
+            )}
+          </div>
 
-            {/* Show hourly rate input if project doesn't have one */}
-            {(!selectedProject || !hasProjectRate) && (
+          {/* Show hourly rate input if project doesn't have one */}
+          {(!selectedProject || !hasProjectRate) && (
+            <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
               <div>
                 <Input
-                  label="Hourly Rate (CHF)"
+                  label="Hourly Rate"
                   type="number"
                   min="0"
                   step="0.01"
@@ -458,183 +348,85 @@ export default function ManualEntryModal({
                   placeholder="e.g., 150"
                   required
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {selectedProject 
-                    ? "This project doesn't have an hourly rate. Enter the rate for this entry."
-                    : "Enter the hourly rate for this entry."
-                  }
-                </p>
               </div>
-            )}
-
-            <DatePicker
-              label="Date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Input
-                  label="Hours"
-                  type="number"
-                  min="0"
-                  step="0.25"
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <Input
-                  label="Minutes"
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={minutes}
-                  onChange={(e) => setMinutes(e.target.value)}
-                  placeholder="0"
+              <div className="pb-0">
+                <CurrencyPicker
+                  value={currency}
+                  onChange={(value) => {
+                    setCurrency(value)
+                    setError(null)
+                  }}
+                  noLabel
                 />
               </div>
             </div>
+          )}
 
-            <div>
-              <Input
-                label="Description (optional)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="What did you work on?"
-              />
-            </div>
+          <DatePicker
+            label="Date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
 
-            <div className="flex justify-between gap-2">
-              {isEditMode && entry && onDelete && (
-                <Button 
-                  type="button" 
-                  variant="destructive" 
-                  onClick={handleDelete}
-                  disabled={isDeleting || isProcessing}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
-              )}
-              <div className="flex gap-2 ml-auto">
-                <Button type="button" variant="outline" onClick={onClose} disabled={isDeleting || isProcessing}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={!clientId || isProcessing || isDeleting}>
-                  {isEditMode ? 'Update Entry' : 'Add Entry'}
-                </Button>
-              </div>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Client Modal */}
-      <Dialog open={showAddClientModal} onOpenChange={setShowAddClientModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New Client</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Input
-                label="Name *"
-                value={newClientData.name}
-                onChange={(e) => setNewClientData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Client name"
-                required
-              />
-            </div>
-            <div>
-              <Input
-                label="Company Name"
-                value={newClientData.company_name || ''}
-                onChange={(e) => setNewClientData(prev => ({ ...prev, company_name: e.target.value }))}
-                placeholder="Company name (optional)"
-              />
-            </div>
-            <div>
-              <Input
-                label="Email"
-                type="email"
-                value={newClientData.email || ''}
-                onChange={(e) => setNewClientData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="email@example.com"
-              />
-            </div>
-            <div>
-              <Input
-                label="Phone"
-                value={newClientData.phone || ''}
-                onChange={(e) => setNewClientData(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Phone number"
-              />
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="outline" onClick={() => setShowAddClientModal(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateClient} disabled={isCreatingClient || !newClientData.name.trim()}>
-                {isCreatingClient ? 'Creating...' : 'Create Client'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Project Modal */}
-      <Dialog open={showAddProjectModal} onOpenChange={setShowAddProjectModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New Project</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Input
-                label="Project Name *"
-                value={newProjectData.name}
-                onChange={(e) => setNewProjectData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Project name"
-                required
-              />
-            </div>
-            <div>
-              <Input
-                label="Hourly Rate (CHF)"
+                label="Hours"
                 type="number"
                 min="0"
-                step="0.01"
-                value={newProjectData.hourly_rate !== undefined ? newProjectData.hourly_rate.toString() : ''}
-                onChange={(e) => setNewProjectData(prev => ({ 
-                  ...prev, 
-                  hourly_rate: e.target.value ? parseFloat(e.target.value) : undefined 
-                }))}
-                placeholder="150.00"
+                step="0.25"
+                value={hours}
+                onChange={(e) => setHours(e.target.value)}
+                placeholder="0"
               />
             </div>
             <div>
               <Input
-                label="Description"
-                value={newProjectData.description || ''}
-                onChange={(e) => setNewProjectData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Project description (optional)"
+                label="Minutes"
+                type="number"
+                min="0"
+                max="59"
+                value={minutes}
+                onChange={(e) => setMinutes(e.target.value)}
+                placeholder="0"
               />
             </div>
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="outline" onClick={() => setShowAddProjectModal(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreateProject} disabled={isCreatingProject || !newProjectData.name.trim()}>
-                {isCreatingProject ? 'Creating...' : 'Create Project'}
-              </Button>
-            </div>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+
+          <div>
+            <Input
+              label="Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What did you work on?"
+            />
+          </div>
+        </ModalBody>
+
+        <ModalFooter className="justify-between">
+          {isEditMode && entry && onDelete ? (
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={handleDelete}
+              disabled={isDeleting || isProcessing}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          ) : (
+            <div />
+          )}
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isDeleting || isProcessing}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" disabled={!clientId || isProcessing || isDeleting}>
+              {isEditMode ? 'Update Entry' : 'Add Entry'}
+            </Button>
+          </div>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
 }

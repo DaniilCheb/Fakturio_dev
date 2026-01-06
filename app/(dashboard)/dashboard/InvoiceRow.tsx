@@ -95,3 +95,4 @@ export default function InvoiceRow({ invoice }: { invoice: Invoice }) {
   )
 }
 
+

@@ -258,7 +258,7 @@ export default function AddCustomerModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add New Customer">
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 p-4 sm:p-5">
         {/* Company search */}
         <div className="flex flex-col gap-1">
           <label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">

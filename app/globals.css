@@ -1,5 +1,13 @@
 @import 'react-big-calendar/lib/css/react-big-calendar.css';
 
+/* Override react-big-calendar default today color immediately after import - use chart-2 green hue */
+.rbc-today,
+.rbc-day-bg.rbc-today,
+.rbc-day-slot.rbc-today {
+  background-color: hsl(173 58% 39% / 0.08) !important;
+  background: hsl(173 58% 39% / 0.08) !important;
+}
+
 @tailwind base;
 
 @custom-variant dark (&:is(.dark *));
@@ -429,7 +437,10 @@
     background: transparent !important;
     color: hsl(var(--foreground));
     border: none !important;
+    border-top: none !important;
     border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
     padding: 8px 8px !important;
     font-weight: 600;
     text-align: center;
@@ -666,6 +677,11 @@
     border-left: none !important;
     border-right: none !important;
     border-bottom: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    height: auto !important;
+    max-height: none !important;
   }
   
   /* Add 1px bottom border to rbc-time-header rbc-overflowing instead */
@@ -741,7 +757,7 @@
   .rbc-agenda-view {
     border: none !important;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible !important;
   }
   
   /* Specifically target rbc-time-view to remove outer border */
@@ -758,6 +774,7 @@
   /* Also target with wrapper for maximum specificity */
   .big-calendar-wrapper .rbc-time-view,
   .big-calendar-wrapper div.rbc-time-view {
+    overflow: visible !important;
     border: none !important;
     border-top: none !important;
     border-bottom: none !important;
@@ -836,8 +853,15 @@
   }
 
   /* Special States */
-  .rbc-today {
-    background-color: hsl(var(--primary) / 0.1);
+  .rbc-today,
+  .rbc-day-bg.rbc-today,
+  .rbc-day-slot.rbc-today,
+  .rbc-time-view .rbc-day-bg.rbc-today,
+  .rbc-time-view .rbc-day-slot.rbc-today,
+  .rbc-time-content .rbc-day-bg.rbc-today,
+  .rbc-time-content .rbc-day-slot.rbc-today {
+    background-color: hsl(173 58% 39% / 0.08) !important;
+    background: hsl(173 58% 39% / 0.08) !important;
   }
 
   .rbc-off-range-bg {
@@ -854,9 +878,60 @@
     background: hsl(var(--muted) / 0.2);
   }
 
-  .dark .rbc-today {
-    background-color: hsl(var(--primary) / 0.15);
+  .dark .rbc-today,
+  .dark .rbc-day-bg.rbc-today,
+  .dark .rbc-day-slot.rbc-today,
+  .dark .rbc-time-view .rbc-day-bg.rbc-today,
+  .dark .rbc-time-view .rbc-day-slot.rbc-today,
+  .dark .rbc-time-content .rbc-day-bg.rbc-today,
+  .dark .rbc-time-content .rbc-day-slot.rbc-today {
+    background-color: hsl(160 60% 45% / 0.08) !important;
+    background: hsl(160 60% 45% / 0.08) !important;
   }
+
+  /* Current time indicator */
+  .rbc-now {
+    stroke: #000000;
+    stroke-width: 4px;
+  }
+}
+
+/* Date Picker Calendar - Current Day Styling - use chart-2 green hue */
+[data-slot="calendar"] .rdp-day_today button,
+.group\/calendar .rdp-day_today button {
+  background-color: hsl(173 58% 39% / 0.08) !important;
+}
+
+.dark [data-slot="calendar"] .rdp-day_today button,
+.dark .group\/calendar .rdp-day_today button {
+  background-color: hsl(160 60% 45% / 0.08) !important;
+}
+
+/* Big Calendar - Today Background Override (Maximum Specificity) */
+.big-calendar-wrapper .rbc-today,
+.big-calendar-wrapper .rbc-day-bg.rbc-today,
+.big-calendar-wrapper .rbc-day-slot.rbc-today,
+.big-calendar-wrapper .rbc-time-view .rbc-day-bg.rbc-today,
+.big-calendar-wrapper .rbc-time-view .rbc-day-slot.rbc-today,
+.big-calendar-wrapper .rbc-time-content .rbc-day-bg.rbc-today,
+.big-calendar-wrapper .rbc-time-content .rbc-day-slot.rbc-today,
+.big-calendar-wrapper .rbc-time-content table .rbc-day-bg.rbc-today,
+.big-calendar-wrapper .rbc-time-content table .rbc-day-slot.rbc-today {
+  background-color: hsl(173 58% 39% / 0.08) !important;
+  background: hsl(173 58% 39% / 0.08) !important;
+}
+
+.dark .big-calendar-wrapper .rbc-today,
+.dark .big-calendar-wrapper .rbc-day-bg.rbc-today,
+.dark .big-calendar-wrapper .rbc-day-slot.rbc-today,
+.dark .big-calendar-wrapper .rbc-time-view .rbc-day-bg.rbc-today,
+.dark .big-calendar-wrapper .rbc-time-view .rbc-day-slot.rbc-today,
+.dark .big-calendar-wrapper .rbc-time-content .rbc-day-bg.rbc-today,
+.dark .big-calendar-wrapper .rbc-time-content .rbc-day-slot.rbc-today,
+.dark .big-calendar-wrapper .rbc-time-content table .rbc-day-bg.rbc-today,
+.dark .big-calendar-wrapper .rbc-time-content table .rbc-day-slot.rbc-today {
+  background-color: hsl(160 60% 45% / 0.08) !important;
+  background: hsl(160 60% 45% / 0.08) !important;
 }
 
 /* Calendar Layout and Alignment - Outside layer for proper specificity */
@@ -944,6 +1019,11 @@
   width: 100%;
   box-sizing: border-box;
   padding: 8px 8px !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
 }
 
 .rbc-day-bg,
@@ -1141,4 +1221,36 @@
 .rbc-time-header-gutter .rbc-label {
   text-align: right;
   padding-right: 8px;
+}
+
+/* Remove scrolling from big calendar - show full day */
+.big-calendar-wrapper {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.big-calendar-wrapper .rbc-calendar {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.big-calendar-wrapper .rbc-time-content {
+  overflow: visible !important;
+  overflow-y: visible !important;
+  overflow-x: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+.big-calendar-wrapper .rbc-time-view {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.big-calendar-wrapper .rbc-time-view .rbc-time-content {
+  overflow: visible !important;
+  overflow-y: visible !important;
+  overflow-x: visible !important;
+  height: auto !important;
+  max-height: none !important;
 }

@@ -12,7 +12,6 @@ import { Checkbox } from '@/app/components/ui/checkbox'
 import { Button } from '@/app/components/ui/button'
 import { Badge } from '@/app/components/ui/badge'
 import { EditIcon, DeleteIcon } from '@/app/components/Icons'
-import BackLink from '@/app/components/BackLink'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { type Project, deleteProjectWithClient } from '@/lib/services/projectService.client'
 import { type Invoice, getInvoiceStatus } from '@/lib/services/invoiceService.client'
@@ -188,6 +187,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       const userId = session.user.id
 
       await deleteProjectWithClient(supabase, userId, project.id)
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
       router.push('/dashboard/projects')
     } catch (error) {
       console.error("Error deleting project:", error)
@@ -195,6 +195,28 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
     } finally {
       setIsDeleting(false)
     }
+  }
+
+  const getProjectStatusBadge = (status: string) => {
+    const isActive = status === 'active'
+    const variants = {
+      active: { 
+        className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+        label: "Active" 
+      },
+      inactive: { 
+        className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100",
+        label: "Inactive" 
+      },
+    }
+
+    const { className, label } = isActive ? variants.active : variants.inactive
+
+    return (
+      <Badge variant="outline" className={className}>
+        {label}
+      </Badge>
+    )
   }
 
   const getStatusBadge = (invoice: Invoice) => {
@@ -251,20 +273,13 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
     <>
       {DialogComponent}
       
-      {/* Back Link */}
-      <BackLink to="/dashboard/projects" label="Back to Projects" />
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight mb-1">
             {project.name}
           </h1>
-          {project.status && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-              {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
-            </span>
-          )}
+          {project.status && getProjectStatusBadge(project.status)}
         </div>
         {actionButtons}
       </div>
@@ -283,7 +298,26 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
             </div>
             <div>
               <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                Total Invoiced
+                Time Tracked
+              </p>
+              <p className="text-[15px] text-foreground font-medium">
+                {formatDuration(totalTimeTracked)}
+              </p>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                Hourly Rate
+              </p>
+              <p className="text-[15px] text-foreground font-medium">
+                {project.hourly_rate 
+                  ? `${formatCurrency(project.hourly_rate, project.currency || 'CHF')} / hour`
+                  : <span className="text-muted-foreground">Not set</span>
+                }
+              </p>
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                Amount
               </p>
               <p className="text-[15px] text-foreground font-medium">
                 {formatCurrency(totalAmount)}
@@ -297,26 +331,8 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
                 {invoices.length}
               </p>
             </div>
-            <div>
-              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                Time Tracked
-              </p>
-              <p className="text-[15px] text-foreground font-medium">
-                {formatDuration(totalTimeTracked)}
-              </p>
-            </div>
-            {project.hourly_rate && (
-              <div>
-                <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                  Hourly Rate
-                </p>
-                <p className="text-[15px] text-foreground font-medium">
-                  {formatCurrency(project.hourly_rate, project.currency || 'CHF')} / hour
-                </p>
-              </div>
-            )}
             {project.description && (
-              <div className={project.hourly_rate ? "md:col-span-2" : "md:col-span-3"}>
+              <div className="md:col-span-3">
                 <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
                   Description
                 </p>

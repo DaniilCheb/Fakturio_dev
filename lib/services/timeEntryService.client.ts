@@ -15,7 +15,7 @@ export interface TimeEntry {
   start_time?: string;    // ISO timestamp
   end_time?: string;      // ISO timestamp
   duration_minutes: number;
-  hourly_rate: number;
+  hourly_rate: number | null;
   is_billable: boolean;
   status: 'unbilled' | 'invoiced' | 'paid';
   is_running: boolean;
@@ -34,14 +34,14 @@ export interface CreateTimeEntryInput {
   start_time?: string;  // ISO timestamp
   end_time?: string;    // ISO timestamp
   duration_minutes: number;
-  hourly_rate: number;
+  hourly_rate?: number | null;
   is_billable?: boolean;
 }
 
 export interface StartTimerInput {
   project_id: string;
   description?: string;
-  hourly_rate: number;
+  hourly_rate?: number | null;
   date?: string;
 }
 
@@ -222,7 +222,7 @@ export async function startTimerWithClient(
       date: entryDate,
       start_time: now,
       duration_minutes: 0,
-      hourly_rate: input.hourly_rate,
+      hourly_rate: input.hourly_rate ?? null,
       is_running: true,
       is_billable: true,
       status: 'unbilled',

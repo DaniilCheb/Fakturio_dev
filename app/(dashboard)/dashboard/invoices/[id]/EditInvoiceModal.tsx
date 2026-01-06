@@ -2,14 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/app/components/ui/dialog"
-import { Button } from "@/app/components/ui/button"
+import Modal, { ModalBody, ModalFooter } from "@/app/components/Modal"
+import Button from "@/app/components/Button"
 import {
   Select,
   SelectContent,
@@ -165,13 +159,13 @@ export default function EditInvoiceModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Invoice</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-6 py-4">
+    <Modal 
+      isOpen={open} 
+      onClose={() => onOpenChange(false)} 
+      title="Edit Invoice"
+    >
+      <ModalBody>
+        <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Input
@@ -256,17 +250,16 @@ export default function EditInvoiceModal({
             />
           </div>
         </div>
+      </ModalBody>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <ModalFooter>
+        <Button variant="outline" onClick={() => onOpenChange(false)}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
+      </ModalFooter>
+    </Modal>
   )
 }
-

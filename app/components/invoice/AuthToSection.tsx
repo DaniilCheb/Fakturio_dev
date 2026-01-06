@@ -1,22 +1,13 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { PlusIcon } from '../Icons'
 import { Loader2 } from 'lucide-react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getContactsWithClient, Contact } from '@/lib/services/contactService.client'
-import { getProjectsByCustomerWithClient, createProjectWithClient, Project, CreateProjectInput } from '@/lib/services/projectService.client'
-import AddCustomerModal from './AddCustomerModal'
-import AddProjectModal from '@/app/(dashboard)/dashboard/projects/AddProjectModal'
-import {
-  Select as ShadcnSelect,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/app/components/ui/select'
+import { getProjectsByCustomerWithClient, Project } from '@/lib/services/projectService.client'
+import CreatableCustomerSelect from '@/app/components/CreatableCustomerSelect'
+import CreatableProjectSelect from '@/app/components/CreatableProjectSelect'
 import { Label } from '@/app/components/ui/label'
-import { cn } from '@/lib/utils'
 
 export interface AuthToInfo {
   contact_id: string
@@ -54,11 +45,8 @@ export default function AuthToSection({
 }: AuthToSectionProps) {
   const [contacts, setContacts] = useState<Contact[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [showAddModal, setShowAddModal] = useState(false)
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoadingProjects, setIsLoadingProjects] = useState(false)
-  const [showAddProjectModal, setShowAddProjectModal] = useState(false)
-  const [isCreatingProject, setIsCreatingProject] = useState(false)
 
   // Load contacts on mount
   useEffect(() => {
@@ -77,14 +65,6 @@ export default function AuthToSection({
 
     loadContacts()
   }, [supabase, userId])
-
-  // Format contact for display
-  const formatContactDisplay = (contact: Contact): string => {
-    if (contact.company_name && contact.company_name !== contact.name) {
-      return `${contact.company_name} (${contact.name})`
-    }
-    return contact.company_name || contact.name
-  }
 
   // Get the selected contact
   const selectedContact = useMemo(() => {
@@ -145,32 +125,12 @@ export default function AuthToSection({
     onProjectChange?.(selectedProjectId === '' ? null : selectedProjectId)
   }
 
-  const handleProjectCreated = async (projectData: CreateProjectInput) => {
-    if (!toInfo.contact_id) {
-      return
-    }
-
-    setIsCreatingProject(true)
-    try {
-      // Ensure contact_id is set from selected customer
-      const newProject = await createProjectWithClient(supabase, userId, {
-        ...projectData,
-        contact_id: projectData.contact_id || toInfo.contact_id
-      })
-      
-      // Add to local list
-      setProjects(prev => [newProject, ...prev])
-      
-      // Auto-select the new project
-      onProjectChange?.(newProject.id)
-      
-      setShowAddProjectModal(false)
-    } catch (error) {
-      console.error('Error creating project:', error)
-      alert('Failed to create project. Please try again.')
-    } finally {
-      setIsCreatingProject(false)
-    }
+  const handleProjectCreated = (newProject: Project) => {
+    // Add to local list
+    setProjects(prev => [newProject, ...prev])
+    
+    // Auto-select the new project
+    onProjectChange?.(newProject.id)
   }
 
   const handleCustomerCreated = (contact: Contact) => {
@@ -215,42 +175,18 @@ export default function AuthToSection({
                 <span className="text-[14px] text-design-content-weak">Loading customers...</span>
               </div>
             ) : (
-              <ShadcnSelect
-                value={toInfo.contact_id || ''}
-                onValueChange={handleContactSelect}
-              >
-                <SelectTrigger className={cn(
-                  "w-full",
-                  hasError && "border-destructive focus:ring-destructive"
-                )}>
-                  <SelectValue placeholder={contacts.length === 0 ? "No customers yet" : "Select a customer..."} />
-                </SelectTrigger>
-                <SelectContent>
-                  {contacts.map((contact) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {formatContactDisplay(contact)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </ShadcnSelect>
-            )}
-            
-            {hasError && (
-              <p className="text-destructive text-[12px] mt-1">
-                {errors.contact_id || errors.toName || 'Please select a customer'}
-              </p>
+              <CreatableCustomerSelect
+                value={toInfo.contact_id}
+                onChange={handleContactSelect}
+                customers={contacts}
+                supabase={supabase}
+                userId={userId}
+                onCustomerCreated={handleCustomerCreated}
+                placeholder={contacts.length === 0 ? "No customers yet" : "Select a customer..."}
+                error={hasError ? (errors.contact_id || errors.toName || 'Please select a customer') : undefined}
+              />
             )}
           </div>
-
-          {/* Create New Customer Button */}
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
-          >
-            <PlusIcon size={12} />
-            Create new customer
-          </button>
 
           {/* Project Dropdown - Only show when customer is selected */}
           {selectedContact && (
@@ -265,33 +201,16 @@ export default function AuthToSection({
                   <span className="text-[14px] text-design-content-weak">Loading projects...</span>
                 </div>
               ) : (
-                <ShadcnSelect
-                  value={projectId || ''}
-                  onValueChange={handleProjectSelect}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={projects.length === 0 ? "No projects yet" : "Select a project..."} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </ShadcnSelect>
-              )}
-
-              {/* Create New Project Button */}
-              {selectedContact && (
-                <button
-                  type="button"
-                  onClick={() => setShowAddProjectModal(true)}
-                  className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors mt-1"
-                >
-                  <PlusIcon size={12} />
-                  Create new project
-                </button>
+                <CreatableProjectSelect
+                  value={projectId || undefined}
+                  onChange={handleProjectSelect}
+                  projects={projects}
+                  supabase={supabase}
+                  userId={userId}
+                  customerId={toInfo.contact_id}
+                  onProjectCreated={handleProjectCreated}
+                  placeholder={projects.length === 0 ? "No projects yet" : "Select a project..."}
+                />
               )}
             </div>
           )}
@@ -317,33 +236,6 @@ export default function AuthToSection({
         </div>
       </div>
 
-      {/* Add Customer Modal */}
-      <AddCustomerModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onCustomerCreated={handleCustomerCreated}
-        supabase={supabase}
-        userId={userId}
-      />
-
-      {/* Add Project Modal */}
-      {showAddProjectModal && (
-        <AddProjectModal
-          isOpen={showAddProjectModal}
-          onClose={() => setShowAddProjectModal(false)}
-          onSave={handleProjectCreated}
-          isLoading={isCreatingProject}
-          initialData={toInfo.contact_id ? {
-            id: '',
-            user_id: userId,
-            contact_id: toInfo.contact_id,
-            name: '',
-            status: 'active',
-            created_at: '',
-            updated_at: ''
-          } as Project : undefined}
-        />
-      )}
     </div>
   )
 }

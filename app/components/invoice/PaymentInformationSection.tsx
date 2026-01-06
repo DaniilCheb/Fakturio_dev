@@ -1,20 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
-import { PlusIcon } from '../Icons'
+import React from 'react'
 import { Loader2 } from 'lucide-react'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
-import {
-  Select as ShadcnSelect,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/app/components/ui/select'
+import { BankAccount } from '@/lib/services/bankAccountService.client'
 import { Label } from '@/app/components/ui/label'
-import { cn } from '@/lib/utils'
-import AddBankAccountModal from './AddBankAccountModal'
+import CreatableBankAccountSelect from '@/app/components/CreatableBankAccountSelect'
 import { Switch } from '@/app/components/ui/switch'
 
 interface PaymentInformationSectionProps {
@@ -46,16 +37,6 @@ export default function PaymentInformationSection({
   enableQR = true,
   onEnableQRChange
 }: PaymentInformationSectionProps) {
-  const [showAddModal, setShowAddModal] = useState(false)
-
-  // Format bank account for display
-  const formatBankAccountDisplay = (account: BankAccount): string => {
-    if (account.iban) {
-      return `${account.name} - ${account.iban}`
-    }
-    return account.name
-  }
-
   const handleBankAccountSelect = (accountId: string) => {
     onChange(accountId)
     onClearError?.('bank_account_id')
@@ -93,42 +74,18 @@ export default function PaymentInformationSection({
                 <span className="text-[14px] text-design-content-weak">Loading bank accounts...</span>
               </div>
             ) : (
-              <ShadcnSelect
-                value={selectedBankAccountId || ''}
-                onValueChange={handleBankAccountSelect}
-              >
-                <SelectTrigger className={cn(
-                  "w-full",
-                  hasError && "border-destructive focus:ring-destructive"
-                )}>
-                  <SelectValue placeholder={bankAccounts.length === 0 ? "No bank accounts yet" : "Select a bank account..."} />
-                </SelectTrigger>
-                <SelectContent>
-                  {bankAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {formatBankAccountDisplay(account)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </ShadcnSelect>
-            )}
-            
-            {hasError && (
-              <p className="text-destructive text-[12px] mt-1">
-                {errors.bank_account_id || 'Please select a bank account'}
-              </p>
+              <CreatableBankAccountSelect
+                value={selectedBankAccountId}
+                onChange={handleBankAccountSelect}
+                bankAccounts={bankAccounts}
+                supabase={supabase}
+                userId={userId}
+                onAccountAdded={handleAccountAdded}
+                placeholder={bankAccounts.length === 0 ? "No bank accounts yet" : "Select a bank account..."}
+                error={hasError ? (errors.bank_account_id || 'Please select a bank account') : undefined}
+              />
             )}
           </div>
-
-          {/* Add Bank Account Button */}
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 text-[13px] font-medium text-[#141414] dark:text-white hover:text-[#666666] dark:hover:text-[#aaa] transition-colors"
-          >
-            <PlusIcon size={12} />
-            Add bank account
-          </button>
 
           {/* QR Code Toggle */}
           {onEnableQRChange && (
@@ -148,16 +105,6 @@ export default function PaymentInformationSection({
           )}
         </div>
       </div>
-
-      {/* Add Bank Account Modal */}
-      <AddBankAccountModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAccountAdded={handleAccountAdded}
-        existingBankAccounts={bankAccounts}
-        supabase={supabase}
-        userId={userId}
-      />
     </div>
   )
 }
