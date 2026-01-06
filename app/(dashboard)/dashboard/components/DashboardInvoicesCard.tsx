@@ -90,7 +90,7 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
     })
 
     return { monthlyData: months, periodInvoices: filtered }
-  }, [invoices, currentYear])
+  }, [invoices, currentYear, defaultCurrency])
 
   const totalAmount = periodInvoices.reduce((sum, inv) => {
     // Determine the amount to use in account currency

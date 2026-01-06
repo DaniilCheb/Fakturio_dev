@@ -214,7 +214,7 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
     })
 
     return { monthlyData: months, periodInvoices: filtered }
-  }, [invoices, timePeriod])
+  }, [invoices, timePeriod, defaultCurrency])
 
   const totalAmount = periodInvoices.reduce((sum, inv) => {
     // Determine the amount to use in account currency
