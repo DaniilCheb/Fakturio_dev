@@ -467,6 +467,7 @@ export default function Home() {
                   invoiceNumber={invoiceNumber}
                   issuedOn={issuedOn}
                   dueDate={dueDate}
+                  currency={currency}
                   onChange={handleHeaderChange}
                   errors={validationErrors}
                   onClearError={clearError}
