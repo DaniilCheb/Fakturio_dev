@@ -14,7 +14,7 @@ export interface CustomerWithStats extends Contact {
 
 function CustomersPageSkeleton() {
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-32" />
         <Skeleton className="h-10 w-32" />

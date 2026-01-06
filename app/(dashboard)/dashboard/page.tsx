@@ -103,7 +103,7 @@ function EmptyState() {
 // Loading skeleton component
 function DashboardSkeleton() {
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-32" />
         <Skeleton className="h-10 w-32" />
@@ -188,7 +188,7 @@ export default function DashboardPage() {
   const defaultCurrency = Object.entries(currencyCount).sort((a, b) => b[1] - a[1])[0]?.[0] || "CHF"
 
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header */}
       <Header 
         title="Invoices" 

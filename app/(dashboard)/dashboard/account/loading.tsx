@@ -2,7 +2,7 @@ import { Skeleton } from "@/app/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[920px] mx-auto">
       {/* Header */}
       <div className="mb-8">
         <Skeleton className="h-8 w-32" />

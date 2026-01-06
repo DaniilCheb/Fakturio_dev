@@ -39,7 +39,7 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[920px] mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">

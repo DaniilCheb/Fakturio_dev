@@ -116,7 +116,7 @@ export default function EditProjectPage() {
   // Loading state
   if (!session || !user || !supabase || isLoadingProject) {
     return (
-      <div className="max-w-[800px] mx-auto">
+      <div className="max-w-[920px] mx-auto">
         <BackLink to="/dashboard/projects" label="Back to Projects" />
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-design-content-weak" />
@@ -127,7 +127,7 @@ export default function EditProjectPage() {
 
   if (!project) {
     return (
-      <div className="max-w-[800px] mx-auto">
+      <div className="max-w-[920px] mx-auto">
         <BackLink to="/dashboard/projects" label="Back to Projects" />
         <div className="text-center py-20">
           <p className="text-muted-foreground">Project not found</p>
@@ -137,7 +137,7 @@ export default function EditProjectPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[920px] mx-auto">
       {/* Back Link */}
       <BackLink to={`/dashboard/projects/${projectId}`} label="Back to Project" />
 

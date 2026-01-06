@@ -413,7 +413,7 @@ export default function TimeTrackingPage() {
 
   if (isLoadingEntries) {
     return (
-      <div className="max-w-[800px] mx-auto space-y-8">
+      <div className="max-w-[920px] mx-auto space-y-8">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-[700px] w-full" />
       </div>
@@ -421,7 +421,7 @@ export default function TimeTrackingPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       <Header 
         title="Time Tracking" 
         actions={

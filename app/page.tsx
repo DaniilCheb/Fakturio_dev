@@ -440,7 +440,7 @@ export default function Home() {
       <div className="flex-1 lg:ml-[292px] ml-0 pt-7 lg:pt-7 pt-20 pb-8 w-full">
         <div className="flex gap-8 h-full">
           {/* Form Section */}
-          <div className="flex-1 px-4 lg:px-8 max-w-[800px] mx-auto">
+          <div className="flex-1 px-4 lg:px-8 max-w-[920px] mx-auto">
             {/* Header (mobile only — desktop headline lives in sidebar) */}
             <div className="mt-[64px] mb-8 px-4 lg:hidden">
               <h1 className="text-[30px] leading-[38px] font-semibold text-design-content-default tracking-[-0.512px]">

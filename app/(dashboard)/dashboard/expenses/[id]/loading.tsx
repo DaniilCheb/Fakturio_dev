@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/app/components/ui/card"
 
 export default function Loading() {
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header with Actions */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
         <div className="flex flex-col gap-1">

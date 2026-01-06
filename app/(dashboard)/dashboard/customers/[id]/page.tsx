@@ -27,7 +27,7 @@ export default function CustomerDetailPage() {
   const customerProjects = allProjects.filter(proj => proj.contact_id === customer.id)
 
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       <CustomerDetailClient 
         customer={customer}
         invoices={customerInvoices}

@@ -252,7 +252,7 @@ export default function EditExpensePage({
   // Loading state
   if (!session || !user || !supabase || isLoading) {
     return (
-      <div className="max-w-[800px] mx-auto">
+      <div className="max-w-[920px] mx-auto">
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-design-content-weak" />
         </div>
@@ -261,7 +261,7 @@ export default function EditExpensePage({
   }
 
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[920px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>

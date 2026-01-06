@@ -11,7 +11,7 @@ import {
 
 export default function Loading() {
   return (
-    <div className="max-w-[800px] mx-auto space-y-8">
+    <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-32" />

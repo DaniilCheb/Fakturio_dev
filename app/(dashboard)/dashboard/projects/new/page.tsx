@@ -108,7 +108,7 @@ export default function NewProjectPage() {
   // Loading state
   if (!session || !user || !supabase) {
     return (
-      <div className="max-w-[800px] mx-auto">
+      <div className="max-w-[920px] mx-auto">
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-design-content-weak" />
         </div>
@@ -117,7 +117,7 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[920px] mx-auto">
       {/* Back Link */}
       <BackLink to="/dashboard/projects" label="Back to Projects" />
 

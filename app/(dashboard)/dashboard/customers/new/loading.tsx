@@ -3,7 +3,7 @@ import { Card } from "@/app/components/ui/card"
 
 export default function NewCustomerLoading() {
   return (
-    <div className="max-w-[800px] mx-auto">
+    <div className="max-w-[920px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <Skeleton className="h-8 w-48" />
