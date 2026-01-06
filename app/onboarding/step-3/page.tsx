@@ -28,6 +28,7 @@ interface ValidationErrors {
   country?: string
   currency?: string
   company?: string
+  company_uid?: string
   street?: string
   postal_code?: string
   city?: string
