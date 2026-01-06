@@ -66,7 +66,7 @@ export default function Select({
   const selectElement = (
     <>
       <ShadcnSelect
-        value={value || undefined}
+        value={value ? value : undefined}
         onValueChange={handleValueChange}
         disabled={disabled}
       >

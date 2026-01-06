@@ -67,7 +67,7 @@ export default function SignUpPage() {
         )}
         <SignUp 
           appearance={clerkAppearance}
-          forceRedirectUrl="/dashboard"
+          forceRedirectUrl="/onboarding/step-3"
         />
       </div>
     </AuthPageShell>

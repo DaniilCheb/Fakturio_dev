@@ -51,7 +51,7 @@ export default function CurrencyPicker({ label, value, onChange, error, required
 
   const selectElement = (
     <ShadcnSelect
-      value={value || undefined}
+      value={value ? value : undefined}
       onValueChange={handleValueChange}
     >
       <SelectTrigger className={cn(

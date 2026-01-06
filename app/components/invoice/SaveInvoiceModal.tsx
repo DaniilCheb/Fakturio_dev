@@ -73,7 +73,7 @@ export default function SaveInvoiceModal({
   // If user is authenticated, show simplified modal without signup prompts
   if (isSignedIn) {
     return (
-      <Modal isOpen={isOpen} onClose={onClose} title="Save Invoice" maxWidth="md">
+      <Modal isOpen={isOpen} onClose={onClose} title="Save Invoice" maxWidth="640px">
         <ModalBody>
           <p className="text-[14px] text-[#141414] dark:text-white mb-3">
             Choose how you want to save your invoice.
@@ -126,7 +126,7 @@ export default function SaveInvoiceModal({
 
   // For unauthenticated users, show signup prompts
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Keep your invoices in one place" maxWidth="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Keep your invoices in one place" maxWidth="640px">
       <ModalBody>
         <p className="text-[14px] text-[#141414] dark:text-white mb-3">
           Create a free account to access your invoices anytime.

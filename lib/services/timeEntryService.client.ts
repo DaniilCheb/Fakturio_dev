@@ -351,23 +351,20 @@ export async function getRunningTimerWithClient(
   supabase: SupabaseClient,
   userId: string
 ): Promise<TimeEntry | null> {
+  // Use maybeSingle() instead of single() to gracefully handle 0 rows without HTTP 406 error
   const { data, error } = await supabase
     .from("time_entries")
     .select("*, projects(name)")
     .eq("user_id", userId)
     .eq("is_running", true)
-    .single();
-  
-  if (error?.code === "PGRST116") {
-    return null; // Not found
-  }
+    .maybeSingle();
   
   if (error) {
     console.error("Error fetching running timer:", error);
     // Check if table doesn't exist
     if (error.code === '42P01' || error.message?.includes('does not exist')) {
       console.warn("time_entries table does not exist. Please run the migration: add-time-entries-table.sql");
-      return null; // Return null instead of throwing
+      return null;
     }
     throw new Error(`Failed to fetch running timer: ${error.message || JSON.stringify(error)}`);
   }

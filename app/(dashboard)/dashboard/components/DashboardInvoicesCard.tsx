@@ -71,9 +71,6 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
             // Fallback: use original total (may be in wrong currency for old data)
             amount = inv.total
           }
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DashboardInvoicesCard.tsx:57',message:'Using invoice amount for dashboard',data:{invoiceId:inv.id,currency:inv.currency,defaultCurrency:defaultCurrency,total:inv.total,amountInAccountCurrency:inv.amount_in_account_currency,exchangeRate:inv.exchange_rate,usingAmount:amount},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-          // #endregion
           return sum + amount
         }
         return sum
@@ -111,9 +108,6 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
       // Fallback: use original total (may be in wrong currency for old data)
       amount = inv.total
     }
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DashboardInvoicesCard.tsx:90',message:'Calculating total amount',data:{invoiceId:inv.id,currency:inv.currency,defaultCurrency:defaultCurrency,total:inv.total,amountInAccountCurrency:inv.amount_in_account_currency,exchangeRate:inv.exchange_rate,usingAmount:amount},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     return sum + amount
   }, 0)
   

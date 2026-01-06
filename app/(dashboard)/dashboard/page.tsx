@@ -75,9 +75,6 @@ function DashboardContent() {
   
   // Prepare invoice data for chart
   const chartInvoices = invoices.map((inv) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/page.tsx:77',message:'Preparing invoice for chart',data:{invoiceId:inv.id,currency:inv.currency,accountCurrency:accountCurrency,total:inv.total,amountInAccountCurrency:inv.amount_in_account_currency,exchangeRate:inv.exchange_rate},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     return {
       id: inv.id,
       issued_on: inv.issued_on,

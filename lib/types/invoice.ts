@@ -4,6 +4,8 @@ export interface FromInfo {
   zip: string
   iban: string
   logo_url?: string
+  company_name?: string
+  uid?: string
 }
 
 export interface ToInfo {
