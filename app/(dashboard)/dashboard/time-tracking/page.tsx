@@ -207,8 +207,10 @@ export default function TimeTrackingPage() {
   }
 
   // Handle event selection (click on time entry)
-  const handleSelectEvent = (event: CalendarEvent) => {
-    const entry = event.resource?.entry
+  const handleSelectEvent = (event: BigCalendarEvent) => {
+    // Narrow to CalendarEvent to access the specific resource type
+    const calendarEvent = event as CalendarEvent
+    const entry = calendarEvent.resource?.entry
     if (entry) {
       setSelectedEntry(entry)
       setShowEditModal(true)
@@ -216,10 +218,12 @@ export default function TimeTrackingPage() {
   }
 
   // Handle event drop (drag to new time)
-  const handleEventDrop = async ({ event, start, end, allDay }: { event: CalendarEvent; start: Date; end: Date; allDay?: boolean }) => {
+  const handleEventDrop = async ({ event, start, end, allDay }: { event: BigCalendarEvent; start: Date; end: Date; allDay?: boolean }) => {
     if (!session) return
     
-    const entry = event.resource?.entry
+    // Narrow to CalendarEvent to access the specific resource type
+    const calendarEvent = event as CalendarEvent
+    const entry = calendarEvent.resource?.entry
     if (!entry) return
 
     // Don't allow dragging running timers
@@ -264,10 +268,12 @@ export default function TimeTrackingPage() {
   }
 
   // Handle event resize (drag to change duration)
-  const handleEventResize = async ({ event, start, end, allDay }: { event: CalendarEvent; start: Date; end: Date; allDay?: boolean }) => {
+  const handleEventResize = async ({ event, start, end, allDay }: { event: BigCalendarEvent; start: Date; end: Date; allDay?: boolean }) => {
     if (!session) return
     
-    const entry = event.resource?.entry
+    // Narrow to CalendarEvent to access the specific resource type
+    const calendarEvent = event as CalendarEvent
+    const entry = calendarEvent.resource?.entry
     if (!entry) return
 
     // Don't allow resizing running timers
