@@ -230,7 +230,18 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
     }
     return sum + amount
   }, 0)
-  const monthlyAverage = totalAmount / 12
+  
+  // Calculate monthly average based on time period
+  const now = new Date()
+  let monthlyAverage: number
+  if (timePeriod === "this-year") {
+    // For current year, divide by current month (1-12)
+    const currentMonth = now.getMonth() + 1
+    monthlyAverage = totalAmount / currentMonth
+  } else {
+    // For past years and last-12-months, divide by 12
+    monthlyAverage = totalAmount / 12
+  }
 
   const getTimePeriodLabel = (period: TimePeriod) => {
     if (period === "this-year") return "This Year"

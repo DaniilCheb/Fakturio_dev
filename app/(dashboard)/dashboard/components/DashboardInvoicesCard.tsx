@@ -116,7 +116,10 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
     // #endregion
     return sum + amount
   }, 0)
-  const monthlyAverage = totalAmount / 12
+  
+  // Calculate monthly average based on current month (this card always shows current year)
+  const currentMonth = new Date().getMonth() + 1
+  const monthlyAverage = totalAmount / currentMonth
 
   const displayAmount = hoveredMonth !== null 
     ? monthlyData[hoveredMonth]?.amount ?? 0 

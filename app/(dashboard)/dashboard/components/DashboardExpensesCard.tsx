@@ -142,7 +142,10 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
   }, [expenses, currentYear, accountCurrency])
 
   const totalAmount = monthlyData.reduce((sum, month) => sum + month.amount, 0)
-  const monthlyAverage = totalAmount / 12
+  
+  // Calculate monthly average based on current month (this card always shows current year)
+  const currentMonth = new Date().getMonth() + 1
+  const monthlyAverage = totalAmount / currentMonth
 
   const displayAmount = hoveredMonth !== null 
     ? monthlyData[hoveredMonth]?.amount ?? 0 
