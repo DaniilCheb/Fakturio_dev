@@ -27,6 +27,7 @@ interface SelectProps {
   className?: string
   error?: string
   noLabel?: boolean // When true, renders just the select without label wrapper
+  onErrorClear?: () => void // Callback to clear error when user selects an option
 }
 
 /**
@@ -53,9 +54,14 @@ export default function Select({
   disabled = false,
   className = '',
   error,
-  noLabel = false
+  noLabel = false,
+  onErrorClear
 }: SelectProps) {
   const handleValueChange = (newValue: string) => {
+    // Clear error when user selects an option
+    if (error && onErrorClear) {
+      onErrorClear()
+    }
     // Create a synthetic event to match the expected onChange signature
     const syntheticEvent = {
       target: { value: newValue }
