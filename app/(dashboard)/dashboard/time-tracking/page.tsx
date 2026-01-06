@@ -2,6 +2,7 @@
 
 import { useTimeEntries, useRunningTimer, useProjects } from "@/lib/hooks/queries"
 import { useState, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { useSession } from "@clerk/nextjs"
 import { createClientSupabaseClient } from "@/lib/supabase-client"
 import { useQueryClient } from "@tanstack/react-query"
@@ -17,13 +18,28 @@ import Header from "@/app/components/Header"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Skeleton } from "@/app/components/ui/skeleton"
 import { Button } from "@/app/components/ui/button"
-import { BigCalendar, type BigCalendarEvent } from "@/app/components/ui/big-calendar"
 import ActiveTimerBanner from "./components/ActiveTimerBanner"
 import StartTimerModal from "./components/StartTimerModal"
 import ManualEntryModal from "./components/ManualEntryModal"
 import { formatDateISO } from "@/lib/utils/dateUtils"
 import type { TimeEntry } from "@/lib/services/timeEntryService.client"
 import type { View } from 'react-big-calendar'
+import type { BigCalendarEvent } from "@/app/components/ui/big-calendar"
+
+// Dynamically import BigCalendar to reduce initial bundle size
+const BigCalendar = dynamic(
+  () => import("@/app/components/ui/big-calendar").then((mod) => ({ default: mod.BigCalendar })),
+  {
+    loading: () => (
+      <Card className="h-[600px]">
+        <CardContent className="h-full flex items-center justify-center">
+          <Skeleton className="h-full w-full" />
+        </CardContent>
+      </Card>
+    ),
+    ssr: false,
+  }
+)
 
 // Calendar event type
 interface CalendarEvent extends BigCalendarEvent {

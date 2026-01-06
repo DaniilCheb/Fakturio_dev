@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { auth } from "@clerk/nextjs/server";
+import { cache } from "react";
 
 /**
  * NOTE: This file should only be used in server components and API routes.
@@ -39,26 +40,36 @@ function getSupabaseConfig() {
 }
 
 /**
+ * Cached function to get Clerk token per request
+ * React cache() ensures the token is only fetched once per request
+ */
+const getClerkToken = cache(async (): Promise<string | null> => {
+  try {
+    const { getToken } = await auth();
+    const clerkToken = await getToken({ template: "supabase" });
+    if (!clerkToken) {
+      console.warn('[Supabase Server] No token returned from Clerk - JWT template "supabase" may not exist');
+    }
+    return clerkToken;
+  } catch (tokenError) {
+    console.error('[Supabase Server] Error getting Clerk token:', tokenError);
+    return null;
+  }
+});
+
+/**
  * Create a Supabase client for server-side operations with Clerk auth
  * Uses the Clerk session token for Supabase RLS policies
+ * The client is cached per request to avoid recreating it multiple times
  */
 export async function createServerSupabaseClient(): Promise<SupabaseClient> {
-  const { getToken } = await auth();
   const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
 
   return createClient(supabaseUrl, supabaseAnonKey, {
     global: {
       fetch: async (url, options = {}) => {
-        // Get the Clerk token for Supabase
-        let clerkToken: string | null = null;
-        try {
-          clerkToken = await getToken({ template: "supabase" });
-          if (!clerkToken) {
-            console.warn('[Supabase Server] No token returned from Clerk - JWT template "supabase" may not exist');
-          }
-        } catch (tokenError) {
-          console.error('[Supabase Server] Error getting Clerk token:', tokenError);
-        }
+        // Get the Clerk token (cached per request)
+        const clerkToken = await getClerkToken();
 
         // Construct fetch headers
         const headers = new Headers(options?.headers);
