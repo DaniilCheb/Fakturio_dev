@@ -155,8 +155,10 @@ export default function TimeTrackingPage() {
   }, [timeEntries, projects])
 
   // Custom event style
-  const eventStyleGetter = (event: CalendarEvent) => {
-    const isRunning = event.resource?.isRunning
+  const eventStyleGetter = (event: BigCalendarEvent) => {
+    // Narrow to CalendarEvent to access the specific resource type
+    const calendarEvent = event as CalendarEvent
+    const isRunning = calendarEvent.resource?.isRunning
     return {
       style: {
         backgroundColor: isRunning ? '#22c55e' : '#3b82f6',
@@ -306,8 +308,10 @@ export default function TimeTrackingPage() {
   }
 
   // Determine if an event is draggable (not running)
-  const isEventDraggable = (event: CalendarEvent) => {
-    return !event.resource?.isRunning
+  const isEventDraggable = (event: BigCalendarEvent) => {
+    // Narrow to CalendarEvent to access the specific resource type
+    const calendarEvent = event as CalendarEvent
+    return !calendarEvent.resource?.isRunning
   }
 
   // Handle timer start
