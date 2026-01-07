@@ -15,39 +15,7 @@ import AddProjectModal from './AddProjectModal'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { EditIcon, DeleteIcon, ProjectsIcon } from '@/app/components/Icons'
 import { formatCurrency } from '@/lib/utils/formatters'
-
-// Format duration helper
-function formatDuration(minutes: number): string {
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  if (hours === 0) return `${mins}m`
-  if (mins === 0) return `${hours}h`
-  return `${hours}h ${mins}m`
-}
-
-// Get project status badge
-function getProjectStatusBadge(status: string) {
-  const isActive = status === 'active'
-  const variants = {
-    active: { 
-      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
-      label: "Active" 
-    },
-    inactive: { 
-      className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100",
-      label: "Inactive" 
-    },
-  }
-
-  const { className, label } = isActive ? variants.active : variants.inactive
-
-  return (
-    <Badge variant="outline" className={className}>
-      {label}
-    </Badge>
-  )
-}
-import TableRowLabel from '@/app/components/TableRowLabel'
+import ListRow, { type ListRowColumn } from '@/app/components/ListRow'
 import { Card, CardContent } from '@/app/components/ui/card'
 import {
   Table,
@@ -58,9 +26,17 @@ import {
   TableRow,
 } from '@/app/components/ui/table'
 import { Button } from '@/app/components/ui/button'
-import { Badge } from '@/app/components/ui/badge'
 import { Folder } from 'lucide-react'
 import type { ProjectWithStats } from './page'
+
+// Format duration helper
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours === 0) return `${mins}m`
+  if (mins === 0) return `${hours}h`
+  return `${hours}h ${mins}m`
+}
 
 interface ProjectsListProps {
   initialProjects: ProjectWithStats[]
@@ -101,57 +77,54 @@ function ProjectRow({
   onDelete: () => void
   isLoading: boolean
 }) {
+  const columns: ListRowColumn[] = [
+    { type: 'badge', variant: (project.status || 'inactive') as 'active' | 'inactive', className: 'hidden sm:table-cell' },
+    { type: 'text', value: `${project.invoiceCount} ${project.invoiceCount !== 1 ? 'invoices' : 'invoice'}`, muted: true, className: 'hidden sm:table-cell' },
+    { type: 'text', value: formatDuration(project.timeTracked), muted: true, className: 'hidden sm:table-cell' },
+    { type: 'currency', value: project.totalAmount, className: 'hidden sm:table-cell' },
+  ]
+
+  const actionsContent = (
+    <div className="flex items-center justify-end gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+      <button
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onEdit()
+        }}
+        disabled={isLoading}
+        className="h-[46px] w-[46px] sm:h-auto sm:w-auto sm:p-2 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors disabled:opacity-50"
+        title="Edit project"
+      >
+        <EditIcon size={16} />
+      </button>
+      <button
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onDelete()
+        }}
+        disabled={isLoading}
+        className="h-[46px] w-[46px] sm:h-auto sm:w-auto sm:p-2 flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors disabled:opacity-50"
+        title="Delete project"
+      >
+        <DeleteIcon size={16} />
+      </button>
+    </div>
+  )
+
   return (
-    <TableRow className="group cursor-pointer hover:bg-muted/50">
-      <TableCell className="font-medium px-6">
-        <Link href={`/dashboard/projects/${project.id}`} className="block">
-          <TableRowLabel 
-            mainText={project.name} 
-            labelText={project.customerName}
-          />
-        </Link>
-      </TableCell>
-      <TableCell className="text-[14px] px-6">
-        {project.status && getProjectStatusBadge(project.status)}
-      </TableCell>
-      <TableCell className="text-[14px] text-muted-foreground px-6">
-        {project.invoiceCount} {project.invoiceCount !== 1 ? 'invoices' : 'invoice'}
-      </TableCell>
-      <TableCell className="text-[14px] text-muted-foreground px-6">
-        {formatDuration(project.timeTracked)}
-      </TableCell>
-      <TableCell className="text-[14px] font-medium px-6">
-        {formatCurrency(project.totalAmount)}
-      </TableCell>
-      <TableCell className="text-right px-6">
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onEdit()
-            }}
-            disabled={isLoading}
-            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors disabled:opacity-50"
-            title="Edit project"
-          >
-            <EditIcon size={16} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onDelete()
-            }}
-            disabled={isLoading}
-            className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors disabled:opacity-50"
-            title="Delete project"
-          >
-            <DeleteIcon size={16} />
-          </button>
-        </div>
-      </TableCell>
-    </TableRow>
+    <ListRow
+      href={`/dashboard/projects/${project.id}`}
+      primary={{
+        text: project.name,
+        label: project.customerName,
+      }}
+      columns={columns}
+      actions={{
+        custom: actionsContent,
+      }}
+    />
   )
 }
 
@@ -254,11 +227,11 @@ export default function ProjectsList({
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-[13px] font-medium px-6">Project</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Invoices</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Time Tracked</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
-                  <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Status</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Invoices</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Time Tracked</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Amount</TableHead>
+                  <TableHead className="text-right text-[13px] font-medium px-3.5">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

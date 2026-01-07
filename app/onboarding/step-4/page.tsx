@@ -262,11 +262,10 @@ export default function OnboardingStep4Page() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <div className="flex-1 h-1 bg-design-border-default rounded-full overflow-hidden">
-            <div className="h-full bg-design-button-primary rounded-full" style={{ width: '100%' }} />
+            <div className="h-full bg-[#F8DA44] rounded-full" style={{ width: '80%' }} />
           </div>
-          <span className="text-[12px] text-design-content-weak">Step 2 of 2</span>
         </div>
-        <h1 className="text-[32px] font-semibold text-design-content-default tracking-[-0.512px]">
+        <h1 className="text-[32px] font-semibold text-design-content-default tracking-[-0.512px] pt-4">
           Add bank details
         </h1>
         <p className="text-[16px] text-design-content-weak mt-2 tracking-[-0.256px]">

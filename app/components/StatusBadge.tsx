@@ -1,38 +1,70 @@
 'use client'
 
-import React from 'react'
+import { Badge } from '@/app/components/ui/badge'
 
-type StatusType = 'issued' | 'paid' | 'overdue'
+export type InvoiceStatus = 'paid' | 'overdue' | 'pending' | 'draft' | 'cancelled'
+export type ProjectStatus = 'active' | 'inactive'
+export type ExpenseType = 'one-time' | 'recurring' | 'asset'
 
 interface StatusBadgeProps {
-  status: StatusType
+  variant: InvoiceStatus | ProjectStatus | ExpenseType
+  label?: string
+  frequency?: string // For recurring expenses
 }
 
-const statusStyles: Record<StatusType, { bg: string; text: string; label: string }> = {
-  issued: {
-    bg: 'bg-[#e3f2fd] dark:bg-[#1a3a5c]',
-    text: 'text-[#1976d2] dark:text-[#64b5f6]',
-    label: 'Issued'
-  },
-  paid: {
-    bg: 'bg-[#e8f5e9] dark:bg-[#1b4332]',
-    text: 'text-[#2e7d32] dark:text-[#4ade80]',
-    label: 'Paid'
-  },
-  overdue: {
-    bg: 'bg-[#ffebee] dark:bg-[#4a1c1c]',
-    text: 'text-[#c62828] dark:text-[#f87171]',
-    label: 'Overdue'
+export default function StatusBadge({ variant, label, frequency }: StatusBadgeProps) {
+  const variants: Record<string, { className: string; label: string }> = {
+    // Invoice statuses
+    paid: { 
+      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+      label: "Paid" 
+    },
+    pending: { 
+      className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-transparent hover:bg-yellow-100",
+      label: "Issued" 
+    },
+    overdue: { 
+      className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent hover:bg-red-100",
+      label: "Overdue" 
+    },
+    draft: { 
+      className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100",
+      label: "Draft" 
+    },
+    cancelled: { 
+      className: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 border-transparent hover:bg-gray-100",
+      label: "Cancelled" 
+    },
+    // Project statuses
+    active: { 
+      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+      label: "Active" 
+    },
+    inactive: { 
+      className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-transparent hover:bg-gray-100",
+      label: "Inactive" 
+    },
+    // Expense types
+    'one-time': { 
+      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
+      label: "One-time"
+    },
+    'recurring': { 
+      className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-transparent hover:bg-blue-100",
+      label: frequency || "Recurring"
+    },
+    'asset': { 
+      className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-transparent hover:bg-amber-100",
+      label: "Asset"
+    },
   }
-}
 
-export default function StatusBadge({ status }: StatusBadgeProps) {
-  const style = statusStyles[status] || statusStyles.issued
-  
+  const style = variants[variant] || variants.draft
+  const displayLabel = label || style.label
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal ${style.bg} ${style.text}`}>
-      {style.label}
-    </span>
+    <Badge variant="outline" className={style.className}>
+      {displayLabel}
+    </Badge>
   )
 }
-

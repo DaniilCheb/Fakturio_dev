@@ -23,7 +23,7 @@ function DashboardSkeleton() {
     <div className="max-w-[920px] mx-auto space-y-8 px-4">
       <Skeleton className="h-8 w-32" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="p-5 space-y-5">
+        <Card className="px-3.5 py-5 space-y-5">
           <Skeleton className="h-4 w-32" />
           <div className="flex gap-5">
             <div className="flex-1 space-y-2">
@@ -37,7 +37,7 @@ function DashboardSkeleton() {
           </div>
           <Skeleton className="h-20 w-full" />
         </Card>
-        <Card className="p-5 space-y-5">
+        <Card className="px-3.5 py-5 space-y-5">
           <Skeleton className="h-4 w-32" />
           <div className="flex gap-5">
             <div className="flex-1 space-y-2">
@@ -98,15 +98,15 @@ function DashboardContent() {
   }
 
   return (
-    <div className="max-w-[920px] mx-auto space-y-8 px-4">
+    <div className="max-w-[920px] mx-auto space-y-6 sm:space-y-8 w-full">
       {/* Title */}
       <div className="flex items-center justify-between">
-        <h1 className="text-[32px] font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-[24px] sm:text-[32px] font-semibold tracking-tight">Dashboard</h1>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button className="w-[120px] sm:w-[140px] text-[12px] sm:text-sm">
+              <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               Create new
             </Button>
           </DropdownMenuTrigger>
@@ -132,7 +132,7 @@ function DashboardContent() {
       </div>
 
       {/* Invoices and Expenses Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 px-0 w-full">
         <DashboardInvoicesCard 
           invoices={chartInvoices} 
           defaultCurrency={defaultCurrency}

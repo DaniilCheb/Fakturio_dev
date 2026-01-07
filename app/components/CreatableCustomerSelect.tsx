@@ -134,10 +134,10 @@ export default function CreatableCustomerSelect({
               )}
             >
               <span className="truncate">{displayName}</span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-black" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[400px] p-0" align="start">
+          <PopoverContent className="w-full p-0" align="start">
             <Command shouldFilter={false}>
               <CommandInput
                 placeholder="Search customers or type to create one"

@@ -261,7 +261,7 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
     <Card className="overflow-hidden">
       <SectionHeader>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-0 text-[12px] font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors focus:outline-none">
+          <DropdownMenuTrigger className="flex items-center gap-0 text-[12px] font-medium text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors focus:outline-none">
             {getTimePeriodLabel(timePeriod)}
             <ChevronDown className="h-4 w-4" />
           </DropdownMenuTrigger>
@@ -294,7 +294,7 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
         {/* Stats Row */}
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1 space-y-1">
-            <p className="text-[14px] text-muted-foreground transition-all duration-150">
+            <p className="text-[14px] text-muted-foreground font-light transition-all duration-150">
               {displayLabel}
             </p>
             <p className="text-[28px] md:text-[32px] font-semibold tracking-tight transition-all duration-150">
@@ -302,7 +302,7 @@ export default function DashboardChart({ invoices, defaultCurrency = "CHF" }: Da
             </p>
           </div>
           <div className="flex-1 space-y-1">
-            <p className="text-[14px] text-muted-foreground">Monthly Average</p>
+            <p className="text-[14px] text-muted-foreground font-light">Monthly Average</p>
             <p className="text-[28px] md:text-[32px] font-semibold tracking-tight">
               {formatCurrency(monthlyAverage, defaultCurrency)}
             </p>

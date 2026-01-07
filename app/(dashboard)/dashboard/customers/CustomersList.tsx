@@ -14,7 +14,7 @@ import AddCustomerModal from './AddCustomerModal'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { EditIcon, DeleteIcon, CustomersIcon } from '@/app/components/Icons'
 import { formatCurrency } from '@/lib/utils/formatters'
-import TableRowLabel from '@/app/components/TableRowLabel'
+import ListRow, { type ListRowColumn } from '@/app/components/ListRow'
 import { Card, CardContent } from '@/app/components/ui/card'
 import {
   Table,
@@ -69,54 +69,53 @@ function CustomerRow({
 }) {
   const displayName = customer.company_name || customer.name || 'N/A'
 
+  const columns: ListRowColumn[] = [
+    { type: 'text', value: `${customer.projectCount} ${customer.projectCount !== 1 ? 'projects' : 'project'}`, muted: true, className: 'hidden sm:table-cell' },
+    { type: 'text', value: `${customer.invoiceCount} ${customer.invoiceCount !== 1 ? 'invoices' : 'invoice'}`, muted: true, className: 'hidden sm:table-cell' },
+    { type: 'currency', value: customer.totalAmount, className: 'hidden sm:table-cell' },
+  ]
+
+  const actionsContent = (
+    <div className="flex items-center justify-end gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+      <button
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onEdit()
+        }}
+        disabled={isLoading}
+        className="h-[46px] w-[46px] sm:h-auto sm:w-auto sm:p-2 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors disabled:opacity-50"
+        title="Edit customer"
+      >
+        <EditIcon size={16} />
+      </button>
+      <button
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onDelete()
+        }}
+        disabled={isLoading}
+        className="h-[46px] w-[46px] sm:h-auto sm:w-auto sm:p-2 flex items-center justify-center text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors disabled:opacity-50"
+        title="Delete customer"
+      >
+        <DeleteIcon size={16} />
+      </button>
+    </div>
+  )
+
   return (
-    <TableRow className="group cursor-pointer hover:bg-muted/50">
-      <TableCell className="font-medium px-6">
-        <Link href={`/dashboard/customers/${customer.id}`} className="block">
-          <TableRowLabel 
-            mainText={displayName} 
-            labelText={customer.email}
-          />
-        </Link>
-      </TableCell>
-      <TableCell className="text-[14px] text-muted-foreground px-6">
-        {customer.projectCount} {customer.projectCount !== 1 ? 'projects' : 'project'}
-      </TableCell>
-      <TableCell className="text-[14px] text-muted-foreground px-6">
-        {customer.invoiceCount} {customer.invoiceCount !== 1 ? 'invoices' : 'invoice'}
-      </TableCell>
-      <TableCell className="text-[14px] font-medium px-6">
-        {formatCurrency(customer.totalAmount)}
-      </TableCell>
-      <TableCell className="text-right px-6">
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onEdit()
-            }}
-            disabled={isLoading}
-            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors disabled:opacity-50"
-            title="Edit customer"
-          >
-            <EditIcon size={16} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onDelete()
-            }}
-            disabled={isLoading}
-            className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors disabled:opacity-50"
-            title="Delete customer"
-          >
-            <DeleteIcon size={16} />
-          </button>
-        </div>
-      </TableCell>
-    </TableRow>
+    <ListRow
+      href={`/dashboard/customers/${customer.id}`}
+      primary={{
+        text: displayName,
+        label: customer.email,
+      }}
+      columns={columns}
+      actions={{
+        custom: actionsContent,
+      }}
+    />
   )
 }
 
@@ -214,10 +213,10 @@ export default function CustomersList({
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-[13px] font-medium px-6">Customer</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Projects</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Invoices</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
-                  <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Projects</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Invoices</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Amount</TableHead>
+                  <TableHead className="text-right text-[13px] font-medium px-3.5">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

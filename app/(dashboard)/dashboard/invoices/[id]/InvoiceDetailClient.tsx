@@ -315,7 +315,7 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
   return (
     <>
       {/* Header with Actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+      <div className="flex flex-row items-center justify-between gap-4 mb-2">
         <div className="flex flex-col gap-1">
           <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight">
             {title}

@@ -264,11 +264,11 @@ export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
   return (
     <>
       {DialogComponent}
-      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-[46px] w-[46px] sm:h-8 sm:w-8"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -282,7 +282,7 @@ export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-destructive hover:text-destructive"
+          className="h-[46px] w-[46px] sm:h-8 sm:w-8 text-destructive hover:text-destructive"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()

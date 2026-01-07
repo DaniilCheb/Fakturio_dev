@@ -246,9 +246,6 @@ export default function NewProjectPage() {
                   />
                 </div>
               </div>
-              <p className="text-[12px] text-design-content-weak mt-1">
-                Set the hourly rate for this project (e.g., 150.00)
-              </p>
             </div>
 
             {/* Description */}
@@ -272,7 +269,8 @@ export default function NewProjectPage() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
+            size="lg"
             onClick={() => {
               const returnTo = searchParams.get('returnTo')
               if (returnTo) {
@@ -288,6 +286,7 @@ export default function NewProjectPage() {
           <Button
             type="submit"
             variant="default"
+            size="lg"
             disabled={isSaving || !formData.name?.trim() || !formData.contact_id}
             className="w-full sm:w-auto"
           >

@@ -21,6 +21,7 @@ import {
 } from '@/app/components/ui/table'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { ProjectsIcon } from '@/app/components/Icons'
+import ListRow, { type ListRowColumn } from '@/app/components/ListRow'
 import type { Project } from '@/lib/services/projectService.client'
 import type { TimeEntry } from '@/lib/services/timeEntryService.client'
 
@@ -135,22 +136,39 @@ function ProjectRow({
     }
   }
 
-  return (
-    <TableRow 
-      className="cursor-pointer hover:bg-muted/50"
-      onClick={handleRowClick}
+  const timerButton = (
+    <button
+      onClick={handleTimerClick}
+      disabled={isProcessing}
+      className={`
+        inline-flex items-center gap-2 px-2 py-[9px] rounded-[32px] text-[13px] font-medium
+        transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+        min-w-[110px] min-h-[46px] sm:min-h-0 justify-center
+        ${isTimerRunning 
+          ? 'bg-foreground text-background hover:opacity-90' 
+          : 'border border-border hover:bg-muted'
+        }
+      `}
     >
-      <TableCell className="px-5 py-3">
-        <div className="flex flex-col gap-0.5">
-          <p className="text-[14px] font-medium text-foreground">
-            {project.name}
-          </p>
-          <p className="text-[12px] text-muted-foreground capitalize">
-            {project.customerName}
-          </p>
-        </div>
-      </TableCell>
-      <TableCell className="px-5 py-3">
+      {isTimerRunning ? (
+        <>
+          <Pause className="h-3 w-3" />
+          {formatTime(elapsedSeconds)}
+        </>
+      ) : (
+        <>
+          <PlayIcon size={13} />
+          Start timer
+        </>
+      )}
+    </button>
+  )
+
+  const columns: ListRowColumn[] = [
+    {
+      type: 'custom',
+      className: 'hidden sm:table-cell',
+      content: (
         <div className="flex flex-col gap-0.5">
           <p className="text-[14px] font-medium text-foreground">
             {formatCurrency(realTimeMoney, project.currency || 'CHF')}
@@ -159,44 +177,41 @@ function ProjectRow({
             {Math.floor(realTimeTrackedMinutes / 60)} hours
           </p>
         </div>
-      </TableCell>
-      <TableCell className="px-5 py-3">
+      ),
+    },
+    {
+      type: 'custom',
+      className: 'hidden sm:table-cell',
+      content: (
         <p className="text-[14px] font-medium text-foreground">
           {formatCurrency(project.billedAmount, project.currency || 'CHF')}
         </p>
-      </TableCell>
-      <TableCell className="px-5 py-3">
+      ),
+    },
+    {
+      type: 'custom',
+      className: 'hidden sm:table-cell',
+      content: (
         <p className="text-[14px] font-medium text-foreground">
           {project.hourly_rate ? formatCurrency(project.hourly_rate, project.currency || 'CHF') : '-'}
         </p>
-      </TableCell>
-      <TableCell className="px-5 py-3 text-right">
-        <button
-          onClick={handleTimerClick}
-          disabled={isProcessing}
-          className={`
-            inline-flex items-center gap-2 px-2 py-2 rounded-md text-[12px] font-medium
-            transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-            ${isTimerRunning 
-              ? 'bg-foreground text-background hover:opacity-90' 
-              : 'border border-border hover:bg-muted'
-            }
-          `}
-        >
-          {isTimerRunning ? (
-            <>
-              <Pause className="h-3 w-3" />
-              {formatTime(elapsedSeconds)}
-            </>
-          ) : (
-            <>
-              <PlayIcon size={13} />
-              Start timer
-            </>
-          )}
-        </button>
-      </TableCell>
-    </TableRow>
+      ),
+    },
+  ]
+
+  return (
+    <ListRow
+      onClick={handleRowClick}
+      primary={{
+        text: project.name,
+        label: project.customerName,
+      }}
+      columns={columns}
+      actions={{
+        custom: timerButton,
+      }}
+      padding="compact"
+    />
   )
 }
 
@@ -218,7 +233,7 @@ function ActiveProjectsEmptyState() {
       <Button 
         variant="default" 
         onClick={() => router.push('/dashboard/projects/new?returnTo=/dashboard')}
-        className="gap-2"
+        className="gap-4 text-[13px] pt-[14px] pb-[14px] pl-6 pr-8 font-light w-fit"
       >
         <ProjectsIcon size={16} />
         Create a new project
@@ -312,21 +327,7 @@ export default function DashboardProjectsTable() {
   }
 
   return (
-    <Card className="overflow-hidden group">
-      <div className="border-b border-border px-5 py-2 flex items-center justify-between">
-        <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
-          ACTIVE PROJECTS
-        </p>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.push('/dashboard/projects/new?returnTo=/dashboard')}
-          className="opacity-0 group-hover:opacity-100 transition-opacity h-auto py-1.5 px-2 text-[12px]"
-        >
-          <Plus className="h-3.5 w-3.5 mr-1.5" />
-          New Project
-        </Button>
-      </div>
+    <Card className="overflow-hidden">
       <CardContent className="p-0">
         {projectsWithStats.length === 0 ? (
           <ActiveProjectsEmptyState />
@@ -334,19 +335,19 @@ export default function DashboardProjectsTable() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b border-border">
-                <TableHead className="px-5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="px-3.5 py-3 text-[12px] font-medium capitalize" style={{ color: 'rgba(61, 61, 61, 1)' }}>
                   Projects
                 </TableHead>
-                <TableHead className="px-5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="hidden sm:table-cell px-3.5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
                   Time tracked
                 </TableHead>
-                <TableHead className="px-5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="hidden sm:table-cell px-3.5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
                   Billed
                 </TableHead>
-                <TableHead className="px-5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="hidden sm:table-cell px-3.5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
                   Hourly rate
                 </TableHead>
-                <TableHead className="px-5 py-3 text-right text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="px-3.5 py-3 text-right text-[12px] font-medium text-muted-foreground capitalize">
                   Time tracking
                 </TableHead>
               </TableRow>

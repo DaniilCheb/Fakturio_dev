@@ -13,7 +13,7 @@ export default function TableRowLabel({
     <div className={`flex flex-col ${className}`}>
       <span className="font-medium text-[14px]">{mainText}</span>
       {labelText && (
-        <span className="text-[13px] text-muted-foreground font-normal w-[200px]">
+        <span className="text-[12px] text-muted-foreground font-light w-[200px]">
           {labelText}
         </span>
       )}

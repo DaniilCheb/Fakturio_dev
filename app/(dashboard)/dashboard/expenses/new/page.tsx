@@ -431,13 +431,13 @@ export default function NewExpensePage() {
               {/* Expense Type Segmented Control */}
               <div className="flex flex-col gap-1">
                 <label className="font-medium text-[13px] text-[#474743] dark:text-[#999]">Type</label>
-                <div className="flex items-center bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg p-1 h-[40px]">
+                <div className="flex items-center bg-[#F8F7F6] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg p-1 h-[40px]">
                   {EXPENSE_TYPES.map((expenseType) => (
                     <button
                       key={expenseType.value}
                       type="button"
                       onClick={() => setType(expenseType.value as any)}
-                      className={`flex-1 h-full rounded-md text-[14px] font-medium transition-all ${
+                      className={`flex-1 h-full rounded-md text-[14px] font-normal transition-all ${
                         type === expenseType.value
                           ? 'bg-white dark:bg-[#333] text-[#141414] dark:text-white shadow-sm border border-[#e0e0e0] dark:border-[#444]'
                           : 'text-[#666666] dark:text-[#999] hover:text-[#141414] dark:hover:text-white'

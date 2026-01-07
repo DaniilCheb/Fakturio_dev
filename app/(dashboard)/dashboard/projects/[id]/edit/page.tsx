@@ -261,9 +261,6 @@ export default function EditProjectPage() {
                   />
                 </div>
               </div>
-              <p className="text-[12px] text-design-content-weak mt-1">
-                Set the hourly rate for this project (e.g., 150.00)
-              </p>
             </div>
 
             {/* Description */}

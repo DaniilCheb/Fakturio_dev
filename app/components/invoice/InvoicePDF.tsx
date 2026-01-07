@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   partyName: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
     color: colors.contentDefault,
     marginBottom: 4,

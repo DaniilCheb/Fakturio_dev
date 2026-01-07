@@ -5,7 +5,7 @@ export default function Loading() {
   return (
     <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header with Actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+      <div className="flex flex-row items-center justify-between gap-4 mb-2">
         <div className="flex flex-col gap-1">
           <Skeleton className="h-8 w-48" />
           <div className="flex items-center gap-3">

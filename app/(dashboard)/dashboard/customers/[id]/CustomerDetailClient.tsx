@@ -184,7 +184,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
       <BackLink to="/dashboard/customers" label="Customers" />
 
       {/* Header with Actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+      <div className="flex flex-row items-center justify-between gap-4 mb-2">
         <div className="flex flex-col gap-1">
           <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight">
             {displayName}
@@ -402,7 +402,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
       {/* Projects Section */}
       <Card>
         <div className="px-6 py-3 border-b flex items-center justify-between">
-          <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Projects</p>
+          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">Projects</p>
           <Link 
             href={`/dashboard/projects/new?contactId=${customer.id}`}
             className="flex items-center gap-2 text-[13px] font-medium text-foreground hover:text-muted-foreground transition-colors"
@@ -436,7 +436,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
       {/* Invoices Section */}
       <Card>
         <div className="px-6 py-3 border-b">
-          <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Invoices</p>
+          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">Invoices</p>
         </div>
         <CardContent className="p-0">
           {invoices.length === 0 ? (
@@ -448,7 +448,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
               <div className="w-full min-w-[600px]">
                 {/* Table header */}
                 <div 
-                  className="grid px-6 py-3 border-b text-[12px] font-semibold text-muted-foreground uppercase tracking-wide"
+                  className="grid px-6 py-3 border-b text-[12px] font-medium text-muted-foreground uppercase tracking-wide"
                   style={{ gridTemplateColumns: '1fr 120px 100px 110px 80px' }}
                 >
                   <p>Invoice</p>

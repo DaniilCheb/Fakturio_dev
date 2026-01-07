@@ -449,6 +449,7 @@ export default function TimeTrackingPage() {
           <Button
             variant="default"
             onClick={() => setShowStartTimerModal(true)}
+            className="text-[14px] h-[42px] py-3.5 w-[140px]"
           >
             <PlayIcon className="mr-2 h-4 w-4" />
             Start Timer

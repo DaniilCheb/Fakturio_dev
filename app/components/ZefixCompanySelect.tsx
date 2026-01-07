@@ -106,16 +106,16 @@ export default function ZefixCompanySelect({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              'w-full h-[40px] justify-between bg-design-surface-field border border-design-border-default rounded-lg text-[14px] font-normal hover:bg-design-surface-field',
+              'w-full h-[40px] justify-between bg-design-surface-field border border-design-border-default rounded-lg text-[14px] font-normal hover:bg-design-surface-field px-2',
               error && 'border-red-500 focus:ring-red-500',
               !value && 'text-[#9D9B9A]'
             )}
           >
             <span className="truncate">{displayValue}</span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-black" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[400px] p-0" align="start">
+        <PopoverContent className="w-full p-0" align="start">
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search companies..."

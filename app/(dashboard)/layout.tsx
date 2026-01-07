@@ -36,7 +36,7 @@ export default async function DashboardLayout({
         <AuthenticatedSidebar />
         
         {/* Main Content */}
-        <div className="flex-1 lg:ml-[292px] ml-0 pt-20 lg:pt-8 pb-8 px-4 lg:px-8">
+        <div className="flex-1 lg:ml-[292px] ml-0 pt-20 lg:pt-8 pb-8 px-4 lg:px-8 w-full">
           <Suspense fallback={<PageLoading />}>
             <GuestMigrationWrapper>
               {children}

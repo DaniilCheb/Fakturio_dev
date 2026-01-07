@@ -74,7 +74,7 @@ export default function DatePicker({
             variant="outline"
             disabled={disabled}
             className={cn(
-              "w-full justify-start text-left font-normal h-auto px-2 py-2 rounded-md text-[15px] bg-design-surface-field",
+              "w-full justify-start text-left font-normal h-[40px] px-2 py-2 rounded-md text-[14px] bg-design-surface-field",
               !date && "text-muted-foreground",
               error && "border-destructive focus:ring-destructive",
               className
@@ -115,7 +115,6 @@ export default function DatePicker({
       {label && (
         <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
           {label}
-          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
       {datePickerElement}

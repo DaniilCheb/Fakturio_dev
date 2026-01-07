@@ -100,6 +100,9 @@
 }
 
 @layer base {
+  html {
+    font-size: 14px;
+  }
   * {
     @apply border-border;
   }
@@ -188,6 +191,12 @@
     shadow: none !important;
   }
   
+  /* Add spacing above form field content (label + input container) */
+  .cl-formField > div:first-child,
+  [data-clerk-element="formField"] > div:first-child {
+    padding-top: 16px !important;
+  }
+
   /* Hide firstName and lastName fields in sign-up */
   [data-clerk-element="formFieldFirstName"],
   [data-clerk-element="formFieldLastName"],
@@ -264,6 +273,14 @@
   [data-clerk-element="form"] button[type="submit"][aria-hidden="true"] {
     display: none !important;
     pointer-events: none !important;
+  }
+  
+  /* Set pricing table width to 100% */
+  div[class*="cl-pricingTable"],
+  div[class*="pricingTable"],
+  [class*="cl-pricingTable"],
+  [class*="pricingTable"] {
+    width: 100% !important;
   }
   
   /* Remove shadows and add only external border to pricing table cards */
@@ -444,13 +461,19 @@
     padding: 8px 8px !important;
     font-weight: 600;
     text-align: center;
+    border-radius: 4px 4px 0px 0px;
   }
   
   /* Remove header row background and borders */
-  .rbc-time-header-content {
+  .rbc-time-header-content,
+  div.rbc-time-header-content {
     background: transparent !important;
     border: none !important;
     border-left: none !important;
+    border-left-width: 0px !important;
+    border-left-color: rgba(0, 0, 0, 0) !important;
+    border-left-style: none !important;
+    border-image: none !important;
   }
   
   .rbc-time-header {
@@ -660,8 +683,13 @@
     border-top: 1px solid hsl(var(--border) / 0.5);
   }
 
-  .rbc-time-header-content {
+  .rbc-time-header-content,
+  div.rbc-time-header-content {
     border-left: none !important;
+    border-left-width: 0px !important;
+    border-left-color: rgba(0, 0, 0, 0) !important;
+    border-left-style: none !important;
+    border-image: none !important;
   }
   
   /* Remove left border from first day column that might appear as time column border */
@@ -894,6 +922,11 @@
     stroke: #000000;
     stroke-width: 4px;
   }
+
+  .rbc-current-time-indicator {
+    height: 4px !important;
+    background-color: rgba(0, 0, 0, 1) !important;
+  }
 }
 
 /* Date Picker Calendar - Current Day Styling - use chart-2 green hue */
@@ -905,6 +938,15 @@
 .dark [data-slot="calendar"] .rdp-day_today button,
 .dark .group\/calendar .rdp-day_today button {
   background-color: hsl(160 60% 45% / 0.08) !important;
+}
+
+/* Big Calendar - Current Time Indicator Override (Maximum Specificity) */
+.big-calendar-wrapper .rbc-current-time-indicator,
+.big-calendar-wrapper div.rbc-current-time-indicator,
+.big-calendar-wrapper .rbc-time-view .rbc-current-time-indicator,
+.big-calendar-wrapper .rbc-time-content .rbc-current-time-indicator {
+  height: 4px !important;
+  background-color: rgba(0, 0, 0, 1) !important;
 }
 
 /* Big Calendar - Today Background Override (Maximum Specificity) */
@@ -1009,10 +1051,15 @@
 }
 
 /* Day Columns - Equal width distribution */
-.rbc-time-header-content {
+.rbc-time-header-content,
+div.rbc-time-header-content {
   width: 0;
   min-width: 0;
   box-sizing: border-box;
+  border-left-width: 0px !important;
+  border-left-color: rgba(0, 0, 0, 0) !important;
+  border-left-style: none !important;
+  border-image: none !important;
 }
 
 .rbc-time-header-content .rbc-header {

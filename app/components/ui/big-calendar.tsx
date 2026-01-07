@@ -101,7 +101,7 @@ function CustomToolbar<TEvent extends object>({
       </div>
 
       {/* Right: View switcher - Segmented Control */}
-      <div className="flex items-center bg-[#F7F5F2] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg p-1 h-[40px]">
+      <div className="flex items-center bg-[#F0F0F0] dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] rounded-lg p-1 h-[40px]">
         {VIEW_OPTIONS.map((option) => (
           <button
             key={option.value}

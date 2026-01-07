@@ -84,10 +84,10 @@ function InvoicesTableContent({ invoices }: { invoices: Invoice[] }) {
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-[13px] font-medium px-6">Client</TableHead>
-              <TableHead className="text-[13px] font-medium px-6">Date</TableHead>
-              <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
-              <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
-              <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
+              <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Date</TableHead>
+              <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Amount</TableHead>
+              <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Status</TableHead>
+              <TableHead className="text-right text-[13px] font-medium px-3.5">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

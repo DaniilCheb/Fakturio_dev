@@ -6,7 +6,6 @@ import Link from "next/link"
 import { Plus, Wallet } from "lucide-react"
 
 import { Card, CardContent } from "@/app/components/ui/card"
-import { Badge } from "@/app/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -22,46 +21,8 @@ import SectionHeader from "@/app/components/SectionHeader"
 import ExpensesChart from "./ExpensesChart"
 import ExpenseRowActions from "./ExpenseRowActions"
 import type { Expense } from "@/lib/services/expenseService.client"
-import TableRowLabel from "@/app/components/TableRowLabel"
+import ListRow, { type ListRowColumn } from "@/app/components/ListRow"
 import { formatDate } from "@/lib/utils/dateUtils"
-import { formatCurrency } from "@/lib/utils/formatters"
-
-// Format currency for display
-function formatCurrencyDisplay(amount: number, currency: string): string {
-  return new Intl.NumberFormat("de-CH", {
-    style: "currency",
-    currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount)
-}
-
-// Type badge component
-function TypeBadge({ expense }: { expense: Expense }) {
-  const type = expense.type
-  const styles: Record<string, { className: string; label: string }> = {
-    'one-time': { 
-      className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
-      label: "One-time"
-    },
-    'recurring': { 
-      className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-transparent hover:bg-blue-100",
-      label: expense.frequency || "Recurring"
-    },
-    'asset': { 
-      className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-transparent hover:bg-amber-100",
-      label: "Asset"
-    }
-  }
-  
-  const style = styles[type] || styles['one-time']
-  
-  return (
-    <Badge variant="outline" className={style.className}>
-      {style.label}
-    </Badge>
-  )
-}
 
 // Empty state component
 function EmptyState() {
@@ -117,30 +78,26 @@ function ExpensesSkeleton() {
 function ExpenseRow({ expense, accountCurrency }: { expense: Expense; accountCurrency: string }) {
   const displayAmount = parseFloat(String(expense.amount)) || 0
   const displayCurrency = expense.currency || accountCurrency
+  const expenseType = (expense.type || 'one-time') as 'one-time' | 'recurring' | 'asset'
+
+  const columns: ListRowColumn[] = [
+    { type: 'text', value: formatDate(expense.date || expense.created_at), muted: true, className: 'hidden sm:table-cell' },
+    { type: 'currency', value: displayAmount, currency: displayCurrency, className: 'hidden sm:table-cell' },
+    { type: 'badge', variant: expenseType, frequency: expense.frequency, className: 'hidden sm:table-cell' },
+  ]
 
   return (
-    <TableRow className="group cursor-pointer hover:bg-muted/50">
-      <TableCell className="font-medium px-6">
-        <Link href={`/dashboard/expenses/${expense.id}`} className="block">
-          <TableRowLabel 
-            mainText={expense.name} 
-            labelText={expense.category || "Other"}
-          />
-        </Link>
-      </TableCell>
-      <TableCell className="text-[14px] text-muted-foreground px-6">
-        {formatDate(expense.date)}
-      </TableCell>
-      <TableCell className="text-[14px] font-medium px-6">
-        {formatCurrencyDisplay(displayAmount, displayCurrency)}
-      </TableCell>
-      <TableCell className="px-6">
-        <TypeBadge expense={expense} />
-      </TableCell>
-      <TableCell className="text-right px-6">
-        <ExpenseRowActions expense={expense} />
-      </TableCell>
-    </TableRow>
+    <ListRow
+      href={`/dashboard/expenses/${expense.id}`}
+      primary={{
+        text: expense.name,
+        label: expense.category || "Other",
+      }}
+      columns={columns}
+      actions={{
+        custom: <ExpenseRowActions expense={expense} />,
+      }}
+    />
   )
 }
 
@@ -194,10 +151,10 @@ export default function ExpensesPage() {
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-[13px] font-medium px-6">Name / Category</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Date</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Type</TableHead>
-                  <TableHead className="text-right text-[13px] font-medium px-6">Actions</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Date</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Amount</TableHead>
+                  <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Type</TableHead>
+                  <TableHead className="text-right text-[13px] font-medium px-3.5">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

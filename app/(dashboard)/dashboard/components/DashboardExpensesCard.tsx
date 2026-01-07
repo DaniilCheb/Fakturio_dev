@@ -156,9 +156,9 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
     : "Total"
 
   return (
-    <Card className="overflow-hidden group">
-      <div className="border-b border-border px-5 py-2 flex items-center justify-between">
-        <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
+    <Card className="overflow-hidden group w-full">
+      <div className="border-b border-border px-3 sm:px-4 py-2 flex items-center justify-between">
+        <p className="text-[11px] sm:text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
           {currentYear} EXPENSES
         </p>
         <Button
@@ -173,27 +173,27 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
           </Link>
         </Button>
       </div>
-      <CardContent className="p-5 space-y-5">
+      <CardContent className="px-3 sm:px-3.5 py-4 sm:py-5 space-y-4 sm:space-y-5">
         {/* Stats Row */}
-        <div className="flex gap-5">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
           <div className="flex-1 space-y-1">
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[12px] sm:text-[13px] text-muted-foreground font-light">
               {displayLabel}
             </p>
-            <p className="text-[24px] font-medium tracking-tight">
+            <p className="text-[20px] sm:text-[24px] font-semibold tracking-tight">
               {formatCurrency(displayAmount, accountCurrency)}
             </p>
           </div>
           <div className="flex-1 space-y-1">
-            <p className="text-[13px] text-muted-foreground">Monthly Average</p>
-            <p className="text-[24px] font-medium tracking-tight">
+            <p className="text-[12px] sm:text-[13px] text-muted-foreground font-light">Monthly Average</p>
+            <p className="text-[20px] sm:text-[24px] font-semibold tracking-tight">
               {formatCurrency(monthlyAverage, accountCurrency)}
             </p>
           </div>
         </div>
 
         {/* Bar Chart */}
-        <ChartContainer config={chartConfig} className="h-[80px] w-full">
+        <ChartContainer config={chartConfig} className="h-[80px] w-full max-[400px]:hidden">
           <BarChart
             data={monthlyData}
             margin={{ top: 0, right: 0, left: 0, bottom: 0 }}

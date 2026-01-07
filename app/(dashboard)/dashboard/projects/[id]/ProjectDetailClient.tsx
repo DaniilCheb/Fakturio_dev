@@ -289,7 +289,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                 Customer
               </p>
               <p className="text-[15px] text-foreground">
@@ -297,7 +297,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                 Time Tracked
               </p>
               <p className="text-[15px] text-foreground font-medium">
@@ -305,7 +305,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                 Hourly Rate
               </p>
               <p className="text-[15px] text-foreground font-medium">
@@ -316,7 +316,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                 Amount
               </p>
               <p className="text-[15px] text-foreground font-medium">
@@ -324,7 +324,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                 Invoices
               </p>
               <p className="text-[15px] text-foreground">
@@ -333,7 +333,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
             </div>
             {project.description && (
               <div className="md:col-span-3">
-                <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
                   Description
                 </p>
                 <p className="text-[15px] text-foreground">
@@ -348,7 +348,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       {/* Time Entries List */}
       <Card>
         <div className="px-6 py-3 border-b flex items-center justify-between">
-          <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
+          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
             Time Entries
           </p>
           {selectedEntryIds.size > 0 && (
@@ -428,7 +428,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       {/* Invoices List */}
       <Card>
         <div className="px-6 py-3 border-b">
-          <p className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">
+          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
             Invoices
           </p>
         </div>

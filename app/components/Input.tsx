@@ -51,7 +51,7 @@ export default function Input({
       onChange={handleChange}
       placeholder={placeholder}
       className={cn(
-        "h-auto px-2 py-2 text-[15px]",
+        "h-[40px] px-2 py-2 text-[14px]",
         hasError && "border-destructive focus-visible:ring-destructive",
         className
       )}

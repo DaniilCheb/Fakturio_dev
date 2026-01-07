@@ -5,7 +5,7 @@ export default function CustomerDetailSkeleton() {
   return (
     <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-row items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-8 w-48" />
         </div>
