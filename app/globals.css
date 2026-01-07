@@ -134,6 +134,46 @@
 }
 
 @theme inline {
+  /* Core colors for Tailwind v4 */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  
+  /* Design System colors */
+  --color-design-background: hsl(var(--design-background));
+  --color-design-content-default: hsl(var(--design-content-default));
+  --color-design-content-weak: hsl(var(--design-content-weak));
+  --color-design-content-weakest: hsl(var(--design-content-weakest));
+  --color-design-border-default: hsl(var(--design-border-default));
+  --color-design-surface-field: hsl(var(--design-surface-field));
+  --color-design-button-primary: hsl(var(--design-button-primary));
+  --color-design-surface-inverted: hsl(var(--design-surface-inverted));
+  --color-design-surface-default: hsl(var(--design-surface-default));
+  --color-design-on-button-content: hsl(var(--design-on-button-content));
+  --color-design-on-button-content-inverted: hsl(var(--design-on-button-content-inverted));
+  
+  /* Sidebar colors */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
