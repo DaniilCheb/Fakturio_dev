@@ -10,7 +10,18 @@ import { generateInvoiceQRCodeBuffer } from './qrCodeService.server'
 import InvoiceEmail from '../../app/emails/InvoiceEmail'
 import type { Invoice } from './invoiceService'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization of Resend to avoid build-time errors when API key is missing
+let resendInstance: Resend | null = null
+
+function getResend(): Resend | null {
+  if (!process.env.RESEND_API_KEY) {
+    return null
+  }
+  if (!resendInstance) {
+    resendInstance = new Resend(process.env.RESEND_API_KEY)
+  }
+  return resendInstance
+}
 
 /**
  * Generate a secure view token (32 bytes = 256 bits)
@@ -143,6 +154,12 @@ export async function sendInvoiceEmail(
 
     const senderEmail = profile?.email || process.env.RESEND_FROM_EMAIL || 'invoices@fakturio.ch'
     const senderName = invoice.from_info?.company_name || invoice.from_info?.name || 'Fakturio'
+
+    // Get Resend instance (lazy initialization)
+    const resend = getResend()
+    if (!resend) {
+      throw new Error('Email service is not configured. RESEND_API_KEY is missing.')
+    }
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({

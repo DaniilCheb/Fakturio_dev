@@ -101,9 +101,6 @@ export default function OnboardingStep3Page() {
           postal_code: existingProfile?.postal_code || guestData.profile?.postal_code || '',
           city: existingProfile?.city || guestData.profile?.city || '',
         }
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:95',message:'Initial data loaded',data:{hasExistingProfile:!!existingProfile,existingCompanyName:existingProfile?.company_name,existingAddress:existingProfile?.address,existingPostalCode:existingProfile?.postal_code,existingCity:existingProfile?.city,hasGuestCompany:!!guestData.profile?.company,guestCompany:guestData.profile?.company,initialCompany:initialData.company,initialCountry:initialData.country,initialCurrency:initialData.currency},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'AB'})}).catch(()=>{});
-        // #endregion
         
         setFormData(initialData)
         previousCountryRef.current = initialData.country
@@ -189,14 +186,8 @@ export default function OnboardingStep3Page() {
 
   // Handle company name change with Zefix search
   const handleCompanyNameChange = (value: string) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:185',message:'Company name changed',data:{newValue:value,previousValue:formData.company},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'W'})}).catch(()=>{});
-    // #endregion
     setFormData(prev => {
       const newData = { ...prev, company: value, company_uid: '' }
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:190',message:'Form data company updated',data:{company:newData.company,companyUid:newData.company_uid},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'X'})}).catch(()=>{});
-      // #endregion
       return newData
     })
     setErrors(prev => ({ ...prev, company: undefined }))
@@ -279,9 +270,6 @@ export default function OnboardingStep3Page() {
     try {
       const company = await lookupByUid(result.uid)
       if (company) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:260',message:'Zefix company selected',data:{companyName:company.name,companyUid:company.uid,companyAddress:company.address,companyZip:company.zip,companyCity:company.city},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'U'})}).catch(()=>{});
-        // #endregion
         setFormData(prev => {
           const newData = {
             ...prev,
@@ -291,9 +279,6 @@ export default function OnboardingStep3Page() {
             postal_code: company.zip,
             city: company.city,
           }
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:275',message:'Form data updated with company',data:{company:newData.company,companyUid:newData.company_uid},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'V'})}).catch(()=>{});
-          // #endregion
           return newData
         })
         setIsCompanySelected(true)
@@ -386,15 +371,9 @@ export default function OnboardingStep3Page() {
     setError(null)
 
     try {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:364',message:'handleSubmit entry',data:{hasUser:!!user,userId:user?.id,userEmail:user?.emailAddresses?.[0]?.emailAddress,userPrimaryEmail:user?.primaryEmailAddress?.emailAddress,hasSession:!!session},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       const supabase = createClientSupabaseClient(session)
       
       const userEmail = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || null
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:370',message:'Extracted user email',data:{userEmail,hasEmail:!!userEmail},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       
       const profileUpdates = {
         email: userEmail || undefined,
@@ -406,25 +385,13 @@ export default function OnboardingStep3Page() {
         country: formData.country,
         account_currency: formData.currency,
       }
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:381',message:'Profile updates before API call',data:{hasEmail:!!profileUpdates.email,email:profileUpdates.email,hasName:!!profileUpdates.name,hasCountry:!!profileUpdates.country,hasCompany:!!profileUpdates.company_name,companyName:profileUpdates.company_name,formDataCompany:formData.company},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'P'})}).catch(()=>{});
-      // #endregion
       
       const savedProfile = await updateUserProfileWithClient(supabase, user.id, profileUpdates)
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:391',message:'Profile save completed',data:{hasProfile:!!savedProfile,profileId:savedProfile?.id,profileName:savedProfile?.name,profileAddress:savedProfile?.address,profilePostalCode:savedProfile?.postal_code,profileCity:savedProfile?.city,hasCompanyName:!!savedProfile?.company_name,companyName:savedProfile?.company_name},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'Q'})}).catch(()=>{});
-      // #endregion
       
       // Verify profile was saved correctly before navigating
-      // #region agent log
       const verifyProfile = await supabase.from("profiles").select("name, address, postal_code, city, company_name").eq("id", user.id).maybeSingle();
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:395',message:'Profile verification after save',data:{hasProfile:!!verifyProfile.data,profileName:verifyProfile.data?.name,profileAddress:verifyProfile.data?.address,profilePostalCode:verifyProfile.data?.postal_code,profileCity:verifyProfile.data?.city,hasCompanyName:!!verifyProfile.data?.company_name,companyName:verifyProfile.data?.company_name,hasError:!!verifyProfile.error},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'R'})}).catch(()=>{});
-      // #endregion
       
       // Navigate to Step 4
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-3/page.tsx:396',message:'Navigating to step-4',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'J'})}).catch(()=>{});
-      // #endregion
       router.push('/onboarding/step-4')
     } catch (error: any) {
       console.error('Error saving profile:', error)

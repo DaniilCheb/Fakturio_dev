@@ -141,9 +141,6 @@ export default function OnboardingStep4Page() {
 
     // If no IBAN provided, skip to dashboard
     if (!formData.iban.trim()) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:145',message:'No IBAN provided, using full page navigation to dashboard',data:{userId:user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'AA'})}).catch(()=>{});
-      // #endregion
       window.location.href = '/dashboard'
       return
     }
@@ -166,9 +163,6 @@ export default function OnboardingStep4Page() {
         iban: normalizedIban,
         is_default: isFirstAccount, // First account is default
       })
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:165',message:'Bank account saved, verifying profile before navigation',data:{userId:user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'S'})}).catch(()=>{});
-      // #endregion
       
       // Verify profile is complete before navigating to dashboard
       // Use a fresh query with cache-busting to ensure we get the latest data
@@ -178,14 +172,7 @@ export default function OnboardingStep4Page() {
         .eq("id", user.id)
         .maybeSingle();
       
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:173',message:'Profile check before dashboard navigation',data:{hasProfile:!!profileCheck,profileName:profileCheck?.name,profileAddress:profileCheck?.address,profilePostalCode:profileCheck?.postal_code,profileCity:profileCheck?.city,isComplete:!!(profileCheck?.name && profileCheck?.address && profileCheck?.postal_code && profileCheck?.city)},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'T'})}).catch(()=>{});
-      // #endregion
-      
       if (!profileCheck || !profileCheck.name || !profileCheck.address || !profileCheck.postal_code || !profileCheck.city) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:182',message:'Profile incomplete, redirecting to step-3',data:{hasProfile:!!profileCheck},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'AC'})}).catch(()=>{});
-        // #endregion
         router.push('/onboarding/step-3')
         return
       }
@@ -195,9 +182,6 @@ export default function OnboardingStep4Page() {
       await new Promise(resolve => setTimeout(resolve, 200))
       
       // Navigate to dashboard using full page reload to ensure middleware sees updated profile
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:191',message:'Using full page navigation to dashboard after delay',data:{userId:user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'Y'})}).catch(()=>{});
-      // #endregion
       window.location.href = '/dashboard'
     } catch (error: any) {
       console.error('Error saving bank account:', error)
@@ -223,14 +207,7 @@ export default function OnboardingStep4Page() {
         .eq("id", user.id)
         .maybeSingle();
       
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:197',message:'Skip: Profile check before dashboard navigation',data:{hasProfile:!!profileCheck,profileName:profileCheck?.name,profileAddress:profileCheck?.address,profilePostalCode:profileCheck?.postal_code,profileCity:profileCheck?.city,isComplete:!!(profileCheck?.name && profileCheck?.address && profileCheck?.postal_code && profileCheck?.city)},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'AD'})}).catch(()=>{});
-      // #endregion
-      
       if (!profileCheck || !profileCheck.name || !profileCheck.address || !profileCheck.postal_code || !profileCheck.city) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:206',message:'Skip: Profile incomplete, redirecting to step-3',data:{hasProfile:!!profileCheck},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'AE'})}).catch(()=>{});
-        // #endregion
         router.push('/onboarding/step-3')
         return
       }
@@ -238,9 +215,6 @@ export default function OnboardingStep4Page() {
       // Small delay to ensure database transaction is fully committed
       await new Promise(resolve => setTimeout(resolve, 200))
       
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'onboarding/step-4/page.tsx:214',message:'Skip: Using full page navigation to dashboard after delay',data:{userId:user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'Z'})}).catch(()=>{});
-      // #endregion
       window.location.href = '/dashboard'
     } catch (error: any) {
       console.error('Error in handleSkip:', error)

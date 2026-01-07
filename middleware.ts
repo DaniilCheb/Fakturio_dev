@@ -25,22 +25,6 @@ function createMiddlewareSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  // #region agent log
-  console.log('[DEBUG]', JSON.stringify({
-    location: 'middleware.ts:27',
-    message: 'Creating middleware Supabase client',
-    data: {
-      hasUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey,
-      serviceKeyLength: supabaseServiceKey?.length || 0
-    },
-    timestamp: Date.now(),
-    sessionId: 'debug-session',
-    runId: 'run5',
-    hypothesisId: 'AI'
-  }));
-  // #endregion
-  
   if (!supabaseUrl || !supabaseServiceKey) {
     console.error('[Middleware] Missing Supabase environment variables - SUPABASE_SERVICE_ROLE_KEY is required');
     return null;
@@ -75,34 +59,6 @@ async function checkProfileComplete(userId: string): Promise<boolean> {
       .eq("id", userId)
       .maybeSingle();
     
-    // #region agent log
-    const logData = {
-      location: 'middleware.ts:55',
-      message: 'Profile completeness check result (using service role)',
-      data: {
-        userId,
-        hasError: !!error,
-        errorCode: error?.code,
-        errorMessage: error?.message,
-        hasProfile: !!profile,
-        profileName: profile?.name,
-        profileAddress: profile?.address,
-        profilePostalCode: profile?.postal_code,
-        profileCity: profile?.city,
-        namePresent: !!profile?.name,
-        addressPresent: !!profile?.address,
-        postalCodePresent: !!profile?.postal_code,
-        cityPresent: !!profile?.city,
-      },
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      runId: 'run5',
-      hypothesisId: 'AF'
-    };
-    // Note: Can't use fetch in middleware, will log via console and file write if possible
-    console.log('[DEBUG]', JSON.stringify(logData));
-    // #endregion
-    
     if (error) {
       console.error("Error checking profile completeness:", error);
       // On error, allow access (fail open) to avoid blocking users
@@ -120,18 +76,6 @@ async function checkProfileComplete(userId: string): Promise<boolean> {
       profile.postal_code &&
       profile.city
     );
-    
-    // #region agent log
-    console.log('[DEBUG]', JSON.stringify({
-      location: 'middleware.ts:106',
-      message: 'Profile completeness final result',
-      data: { userId, isComplete },
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      runId: 'run5',
-      hypothesisId: 'AG'
-    }));
-    // #endregion
     
     return isComplete;
   } catch (error) {
@@ -162,23 +106,6 @@ export default clerkMiddleware(async (auth, request) => {
       
       // Check if profile is complete
       const isComplete = await checkProfileComplete(userId);
-      
-      // #region agent log
-      console.log('[DEBUG]', JSON.stringify({
-        location: 'middleware.ts:149',
-        message: 'Middleware redirect decision',
-        data: {
-          pathname: request.nextUrl.pathname,
-          userId,
-          isComplete,
-          willRedirect: !isComplete
-        },
-        timestamp: Date.now(),
-        sessionId: 'debug-session',
-        runId: 'run5',
-        hypothesisId: 'AH'
-      }));
-      // #endregion
       
       // If profile is incomplete, redirect to onboarding
       if (!isComplete) {
