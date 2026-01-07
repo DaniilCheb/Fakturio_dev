@@ -159,3 +159,4 @@ export async function generateInvoiceQRCodeBuffer(
   return generateSimpleQRCodeBuffer(paymentInfo)
 }
 
+

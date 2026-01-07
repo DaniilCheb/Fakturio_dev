@@ -303,3 +303,4 @@ export async function generateInvoiceFromRecurring(
   return invoice.id
 }
 
+

@@ -8,3 +8,4 @@ ALTER TABLE time_entries
   ALTER COLUMN hourly_rate DROP NOT NULL;
 
 
+
