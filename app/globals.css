@@ -174,8 +174,8 @@
   --color-design-on-button-content-inverted: hsl(var(--design-on-button-content-inverted));
   
   /* Font families */
-  --font-family-sans: var(--font-radio-canada-big), 'Radio Canada Big', sans-serif;
-  --font-family-inter: var(--font-inter), 'Inter', sans-serif;
+  --font-sans: var(--font-radio-canada-big), 'Radio Canada Big', sans-serif;
+  --font-inter: var(--font-inter), 'Inter', sans-serif;
   
   /* Border radius */
   --radius-lg: var(--radius);
