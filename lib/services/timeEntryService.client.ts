@@ -137,6 +137,38 @@ export async function getBillableEntriesByProjectWithClient(
 }
 
 /**
+ * Get time entries by IDs
+ */
+export async function getTimeEntriesByIdsWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+  entryIds: string[]
+): Promise<TimeEntry[]> {
+  if (entryIds.length === 0) {
+    return [];
+  }
+  
+  const { data, error } = await supabase
+    .from("time_entries")
+    .select("*")
+    .eq("user_id", userId)
+    .in("id", entryIds)
+    .order("date", { ascending: true });
+  
+  if (error) {
+    console.error("Error fetching time entries by IDs:", error);
+    // Check if table doesn't exist
+    if (error.code === '42P01' || error.message?.includes('does not exist')) {
+      console.warn("time_entries table does not exist. Please run the migration: add-time-entries-table.sql");
+      return [];
+    }
+    throw new Error(`Failed to fetch time entries: ${error.message || JSON.stringify(error)}`);
+  }
+  
+  return data || [];
+}
+
+/**
  * Manual time entry
  */
 export async function createTimeEntryWithClient(

@@ -6,7 +6,7 @@ import { useSession } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useLoadingBar } from '@/app/components/LoadingBarContext'
 import Link from 'next/link'
-import { FileText, Trash2 } from 'lucide-react'
+import { FileText, Trash2, Pencil } from 'lucide-react'
 import { Card, CardContent } from '@/app/components/ui/card'
 import { Checkbox } from '@/app/components/ui/checkbox'
 import { Button } from '@/app/components/ui/button'
@@ -16,10 +16,12 @@ import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { type Project, deleteProjectWithClient } from '@/lib/services/projectService.client'
 import { type Invoice, getInvoiceStatus } from '@/lib/services/invoiceService.client'
 import { type Contact } from '@/lib/services/contactService.client'
-import { type TimeEntry, calculateTimeEntrySummary, deleteTimeEntryWithClient } from '@/lib/services/timeEntryService.client'
+import { type TimeEntry, calculateTimeEntrySummary, deleteTimeEntryWithClient, updateTimeEntryWithClient, type CreateTimeEntryInput } from '@/lib/services/timeEntryService.client'
 import { formatDate } from '@/lib/utils/dateUtils'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
+import { useProjects } from '@/lib/hooks/queries'
+import ManualEntryModal from '@/app/(dashboard)/dashboard/time-tracking/components/ManualEntryModal'
 import {
   Table,
   TableBody,
@@ -41,9 +43,13 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
   const { session } = useSession()
   const queryClient = useQueryClient()
   const { start: startLoadingBar } = useLoadingBar()
+  const { data: projects = [] } = useProjects()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeletingEntries, setIsDeletingEntries] = useState(false)
   const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set())
+  const [selectedEntry, setSelectedEntry] = useState<TimeEntry | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const { confirm, DialogComponent } = useConfirmDialog()
 
   const customerName = customer?.company_name || customer?.name || 'Unknown Customer'
@@ -96,6 +102,18 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       return next
     })
   }
+
+  // Handle select all
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEntryIds(new Set(timeEntries.map(entry => entry.id)))
+    } else {
+      setSelectedEntryIds(new Set())
+    }
+  }
+
+  // Check if all entries are selected
+  const allSelected = timeEntries.length > 0 && selectedEntryIds.size === timeEntries.length
 
   // Handle invoice creation from selected entries
   const handleCreateInvoiceFromEntries = () => {
@@ -166,6 +184,64 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
     } finally {
       setIsDeletingEntries(false)
     }
+  }
+
+  // Handle entry update
+  const handleUpdateEntry = async (entryId: string, input: CreateTimeEntryInput) => {
+    if (!session) return
+    
+    setIsProcessing(true)
+    try {
+      const supabase = createClientSupabaseClient(session)
+      await updateTimeEntryWithClient(supabase, session.user.id, entryId, input)
+      
+      await queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
+      await queryClient.invalidateQueries({ queryKey: ['timeEntries', 'project', project.id] })
+      setShowEditModal(false)
+      setSelectedEntry(null)
+    } catch (error) {
+      console.error('Error updating entry:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(errorMessage)
+      throw error // Re-throw to let modal handle it
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Handle entry deletion from edit modal
+  const handleDeleteEntry = async (entryId: string) => {
+    if (!session) return
+    
+    setIsProcessing(true)
+    try {
+      const supabase = createClientSupabaseClient(session)
+      await deleteTimeEntryWithClient(supabase, session.user.id, entryId)
+      
+      await queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
+      await queryClient.invalidateQueries({ queryKey: ['timeEntries', 'project', project.id] })
+      setShowEditModal(false)
+      setSelectedEntry(null)
+      // Remove from selection if it was selected
+      setSelectedEntryIds(prev => {
+        const next = new Set(prev)
+        next.delete(entryId)
+        return next
+      })
+    } catch (error) {
+      console.error('Error deleting entry:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(errorMessage)
+      throw error // Re-throw to let modal handle it
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Handle edit button click
+  const handleEditEntry = (entry: TimeEntry) => {
+    setSelectedEntry(entry)
+    setShowEditModal(true)
   }
 
   const handleDelete = async () => {
@@ -385,12 +461,16 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-[13px] font-medium px-6 w-12">
-                    <span className="sr-only">Select</span>
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={handleSelectAll}
+                    />
                   </TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Date</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Duration</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Description</TableHead>
                   <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
+                  <TableHead className="text-[13px] font-medium px-6 w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -417,6 +497,20 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
                     <TableCell className="px-6">
                       {getTimeEntryStatusBadge(entry)}
                     </TableCell>
+                    <TableCell className="px-6">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEditEntry(entry)
+                        }}
+                        title="Edit time entry"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -424,6 +518,22 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Time Entry Modal */}
+      {showEditModal && selectedEntry && (
+        <ManualEntryModal
+          projects={projects}
+          onCreate={() => {}} // Not used in edit mode
+          onUpdate={handleUpdateEntry}
+          onDelete={handleDeleteEntry}
+          onClose={() => {
+            setShowEditModal(false)
+            setSelectedEntry(null)
+          }}
+          isProcessing={isProcessing}
+          entry={selectedEntry}
+        />
+      )}
 
       {/* Invoices List */}
       <Card>

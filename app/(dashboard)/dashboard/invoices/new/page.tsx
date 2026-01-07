@@ -11,7 +11,7 @@ import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { saveInvoiceWithClient } from '@/lib/services/invoiceService.client'
 import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
 import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
-import { markEntriesAsInvoicedWithClient } from '@/lib/services/timeEntryService.client'
+import { markEntriesAsInvoicedWithClient, getTimeEntriesByIdsWithClient } from '@/lib/services/timeEntryService.client'
 import { getProjectByIdWithClient } from '@/lib/services/projectService.client'
 import { getContactByIdWithClient } from '@/lib/services/contactService.client'
 import { useSearchParams } from 'next/navigation'
@@ -121,23 +121,53 @@ export default function NewInvoicePage() {
       const fromTimeEntries = searchParams.get('fromTimeEntries')
       if (fromTimeEntries === 'true' && supabase && user) {
         const entryIds = searchParams.get('entryIds')?.split(',').filter(Boolean) || []
-        const description = searchParams.get('description')
-        const hours = searchParams.get('hours')
-        const rate = searchParams.get('rate')
         const projectIdParam = searchParams.get('projectId')
         
         if (entryIds.length > 0) {
           setTimeEntryIds(entryIds)
           
-          // Pre-fill invoice item
-          if (description && hours && rate) {
+          // Fetch the actual time entries and convert each to an invoice item
+          try {
+            const timeEntries = await getTimeEntriesByIdsWithClient(supabase, user.id, entryIds)
+            
+            if (timeEntries.length > 0) {
+              // Convert each time entry to an invoice item
+              const invoiceItems: InvoiceItem[] = timeEntries.map((entry) => {
+                const hours = Math.round((entry.duration_minutes / 60) * 100) / 100 // Round to 2 decimals
+                const hourlyRate = entry.hourly_rate || 0
+                
+                // Create description from time entry
+                const date = new Date(entry.date).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })
+                const description = entry.description 
+                  ? `${entry.description} (${date})`
+                  : `Time entry - ${date}`
+                
+                return {
+                  id: `item_${entry.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  quantity: hours.toString(),
+                  um: '1', // 1 hour = 1 unit
+                  description: description,
+                  pricePerUm: hourlyRate.toString(),
+                  vat: '8.1' // Default VAT
+                }
+              })
+              
+              setItems(invoiceItems)
+            }
+          } catch (error) {
+            console.error('Error loading time entries:', error)
+            // Fallback to empty items if fetching fails
             setItems([{
               id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              quantity: hours,
-              um: '1', // 1 hour = 1 unit
-              description: description,
-              pricePerUm: rate,
-              vat: '8.1' // Default VAT
+              quantity: '',
+              um: 'pcs',
+              description: '',
+              pricePerUm: '',
+              vat: '0'
             }])
           }
           

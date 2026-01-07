@@ -22,7 +22,7 @@ interface DashboardExpensesCardProps {
 const chartConfig = {
   amount: {
     label: "Amount",
-    color: "#ff812e", // Orange color
+    color: "#46937e", // Teal color (matching invoices)
   },
 } satisfies ChartConfig
 

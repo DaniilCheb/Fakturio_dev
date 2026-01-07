@@ -123,18 +123,48 @@ export default function ProductsSection({
         <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-4 sm:p-5">
           <div className="flex flex-col gap-5">
             {/* Product Items */}
-            <div className="flex flex-col gap-[26px]">
-              {items.map((item) => {
+            <div className="flex flex-col gap-[13px]">
+              {items.map((item, index) => {
                 const lineTotal = calculateItemTotal(item)
+                const isFirstItem = index === 0
                 
                 return (
                   <div key={item.id} className="flex flex-col gap-2 sm:gap-[10px] group relative">
                     {/* Mobile: Two rows, Desktop: Single row with all fields */}
-                    <div className="grid grid-cols-[1fr_1.25fr_1fr_1fr] md:grid-cols-[0.7fr_1fr_2fr_0.8fr_1fr] gap-[12px] sm:gap-[14px] items-start">
+                    <div className={`grid ${items.length > 1 ? 'grid-cols-[auto_1.25fr_1fr_1.25fr_1fr_1fr] sm:grid-cols-[auto_2fr_0.7fr_1fr_0.8fr_1fr]' : 'grid-cols-[1.25fr_1fr_1.25fr_1fr_1fr] sm:grid-cols-[2fr_0.7fr_1fr_0.8fr_1fr]'} gap-[12px] sm:gap-[14px] items-start`}>
+                      {/* Remove Button */}
+                      {items.length > 1 && (
+                        <div className={`flex items-center ${isFirstItem ? 'pt-[20px]' : ''}`}>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            className="text-[#9e9e9e] dark:text-[#666] hover:text-[#141414] dark:hover:text-white transition-colors flex items-center justify-center w-6 h-6 rounded hover:bg-[#f5f5f5] dark:hover:bg-[#333] mt-3"
+                            aria-label="Remove item"
+                          >
+                            <XIcon />
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Description - First field in the row */}
+                      <div>
+                        <Input
+                          label={isFirstItem ? "Description" : undefined}
+                          noLabel={!isFirstItem}
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                          placeholder="Enter description"
+                          error={hasInvalidItems && !isItemValid(item) && !isDescriptionValid(item) ? 'Required' : undefined}
+                          className="h-[40px]"
+                        />
+                      </div>
+                      
                       {/* Qty */}
                       <div className="pl-0">
                         <Input
-                          label="Qty"
+                          label={isFirstItem ? "Qty" : undefined}
+                          noLabel={!isFirstItem}
                           type="number"
                           min="0"
                           step="1"
@@ -149,7 +179,8 @@ export default function ProductsSection({
                       {/* Price/UM */}
                       <div>
                         <Input
-                          label="Price/UM"
+                          label={isFirstItem ? "Price/UM" : undefined}
+                          noLabel={!isFirstItem}
                           type="number"
                           min="0"
                           step="0.01"
@@ -161,26 +192,14 @@ export default function ProductsSection({
                         />
                       </div>
                       
-                      {/* Description - Hidden on mobile, shown inline on desktop */}
-                      <div className="hidden md:block md:order-none order-last">
-                        <Input
-                          label="Description"
-                          type="text"
-                          value={item.description}
-                          onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                          placeholder="Enter description"
-                          error={hasInvalidItems && !isItemValid(item) && !isDescriptionValid(item) ? 'Required' : undefined}
-                          className="h-[40px]"
-                        />
-                      </div>
-                      
                       {/* VAT */}
                       <div>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div>
                               <Select
-                                label="VAT"
+                                label={isFirstItem ? "VAT" : undefined}
+                                noLabel={!isFirstItem}
                                 value={String(item.vat ?? '0')}
                                 onChange={(e) => updateItem(item.id, 'vat', e.target.value)}
                                 options={SWISS_VAT_RATES}
@@ -208,37 +227,17 @@ export default function ProductsSection({
                       
                       {/* Total */}
                       <div className="flex flex-col gap-1 relative">
-                        <label className="text-[13px] font-medium text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px] text-right">
-                          Total
-                        </label>
+                        {isFirstItem && (
+                          <label className="text-[13px] font-medium text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px] text-right">
+                            Total
+                          </label>
+                        )}
                         <div className="flex items-center justify-end gap-2 h-[40px]">
                           <div className="text-right font-normal text-[#141414] dark:text-white text-[14px]">
                             {formatNumber(lineTotal)}
                           </div>
-                          {items.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeItem(item.id)}
-                              className="opacity-0 group-hover:opacity-100 text-[#9e9e9e] dark:text-[#666] hover:text-[#141414] dark:hover:text-white transition-all absolute right-0"
-                            >
-                              <XIcon />
-                            </button>
-                          )}
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* Description - Shown only on mobile (full width below) */}
-                    <div className="md:hidden">
-                      <Input
-                        label="Description"
-                        type="text"
-                        value={item.description}
-                        onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                        placeholder="Enter description"
-                        error={hasInvalidItems && !isItemValid(item) && !isDescriptionValid(item) ? 'Required' : undefined}
-                        className="h-[40px]"
-                      />
                     </div>
                   </div>
                 )
