@@ -173,6 +173,21 @@
   --color-design-on-button-content: hsl(var(--design-on-button-content));
   --color-design-on-button-content-inverted: hsl(var(--design-on-button-content-inverted));
   
+  /* Font families */
+  --font-family-sans: var(--font-radio-canada-big), 'Radio Canada Big', sans-serif;
+  --font-family-inter: var(--font-inter), 'Inter', sans-serif;
+  
+  /* Border radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  /* Design system colors with slashes (alternative naming) */
+  --color-surface-inverted: hsl(var(--design-surface-inverted));
+  --color-content-default: hsl(var(--design-content-default));
+  --color-content-weak: hsl(var(--design-content-weakest));
+  --color-surface-gray: hsl(var(--design-surface-field));
+  
   /* Sidebar colors */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
