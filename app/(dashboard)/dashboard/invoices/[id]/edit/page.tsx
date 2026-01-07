@@ -9,7 +9,7 @@ import { InvoiceItem } from '@/lib/types/invoice'
 import { calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
-import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
+import { getUserProfileWithClient, Profile, getVatSettingsWithClient, VatSettings } from '@/lib/services/settingsService.client'
 import { useInvoice } from '@/lib/hooks/queries'
 import { useLoadingBar } from '@/app/components/LoadingBarContext'
 import { getExchangeRate, convertAmount } from '@/lib/services/exchangeRateService'
@@ -92,7 +92,11 @@ export default function EditInvoicePage() {
   const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('')
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [vatSettings, setVatSettings] = useState<VatSettings | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  
+  // Get default VAT rate from settings (fallback to 8.1)
+  const defaultVatRate = vatSettings?.default_rate ?? 8.1
 
   // UI state
   const [showPreviewModal, setShowPreviewModal] = useState(false)
@@ -171,14 +175,16 @@ export default function EditInvoicePage() {
       }
 
       try {
-        // Fetch profile and bank accounts in parallel
-        const [loadedProfile, loadedBankAccounts] = await Promise.all([
+        // Fetch profile, bank accounts, and VAT settings in parallel
+        const [loadedProfile, loadedBankAccounts, loadedVatSettings] = await Promise.all([
           getUserProfileWithClient(supabase, user.id).catch(() => null),
-          getBankAccountsWithClient(supabase, user.id).catch(() => [])
+          getBankAccountsWithClient(supabase, user.id).catch(() => []),
+          getVatSettingsWithClient(supabase, user.id).catch(() => null)
         ])
 
         setProfile(loadedProfile)
         setBankAccounts(loadedBankAccounts)
+        setVatSettings(loadedVatSettings)
         
         // Set bank account if not already set from invoice
         if (!selectedBankAccountId && loadedBankAccounts.length > 0) {
@@ -614,6 +620,7 @@ export default function EditInvoicePage() {
           onChangeDiscount={setDiscount}
           errors={validationErrors}
           onClearError={clearError}
+          defaultVatRate={defaultVatRate}
         />
 
         {/* Action Buttons */}

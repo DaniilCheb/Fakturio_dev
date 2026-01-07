@@ -10,7 +10,7 @@ import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { saveInvoiceWithClient } from '@/lib/services/invoiceService.client'
 import { getBankAccountsWithClient, BankAccount } from '@/lib/services/bankAccountService.client'
-import { getUserProfileWithClient, Profile } from '@/lib/services/settingsService.client'
+import { getUserProfileWithClient, Profile, getVatSettingsWithClient, VatSettings } from '@/lib/services/settingsService.client'
 import { markEntriesAsInvoicedWithClient, getTimeEntriesByIdsWithClient } from '@/lib/services/timeEntryService.client'
 import { getProjectByIdWithClient } from '@/lib/services/projectService.client'
 import { getContactByIdWithClient } from '@/lib/services/contactService.client'
@@ -85,6 +85,7 @@ export default function NewInvoicePage() {
   const [projectId, setProjectId] = useState<string | null>(null)
   
   const [description, setDescription] = useState('')
+  // Initialize items with default VAT rate (will be updated when VAT settings load)
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -92,7 +93,7 @@ export default function NewInvoicePage() {
       um: 'pcs',
       description: '',
       pricePerUm: '',
-      vat: '0'
+      vat: '8.1' // Default, will be updated when VAT settings load
     }
   ])
   const [discount, setDiscount] = useState<number | string>(0)
@@ -102,7 +103,31 @@ export default function NewInvoicePage() {
   const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>('')
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [vatSettings, setVatSettings] = useState<VatSettings | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  
+  // Get default VAT rate from settings (fallback to 8.1)
+  const defaultVatRate = vatSettings?.default_rate ?? 8.1
+  
+  // Update initial item VAT rate when VAT settings load (only if still using default)
+  useEffect(() => {
+    if (!vatSettings) return
+    
+    // Only update if we have exactly one item that's still in its initial empty state
+    setItems(prevItems => {
+      if (prevItems.length === 1 && 
+          prevItems[0].vat === '8.1' && 
+          prevItems[0].quantity === '' && 
+          prevItems[0].description === '' &&
+          prevItems[0].pricePerUm === '') {
+        return [{
+          ...prevItems[0],
+          vat: defaultVatRate.toString()
+        }]
+      }
+      return prevItems
+    })
+  }, [vatSettings, defaultVatRate])
 
   // UI state
   // Note: showSaveModal is not used for authenticated users - we save directly
@@ -116,6 +141,7 @@ export default function NewInvoicePage() {
   const [timeEntryIds, setTimeEntryIds] = useState<string[]>([])
 
   // Handle time entry parameters from URL
+  // Wait for VAT settings to load before processing time entries
   useEffect(() => {
     async function loadProjectAndContact() {
       const fromTimeEntries = searchParams.get('fromTimeEntries')
@@ -125,6 +151,20 @@ export default function NewInvoicePage() {
         
         if (entryIds.length > 0) {
           setTimeEntryIds(entryIds)
+          
+          // Ensure VAT settings are loaded before processing time entries
+          let vatRate = defaultVatRate
+          if (!vatSettings) {
+            try {
+              const loadedVatSettings = await getVatSettingsWithClient(supabase, user.id)
+              setVatSettings(loadedVatSettings)
+              vatRate = loadedVatSettings.default_rate ?? 8.1
+            } catch (error) {
+              console.error('Error loading VAT settings for time entries:', error)
+              // Use fallback
+              vatRate = 8.1
+            }
+          }
           
           // Fetch the actual time entries and convert each to an invoice item
           try {
@@ -152,7 +192,7 @@ export default function NewInvoicePage() {
                   um: '1', // 1 hour = 1 unit
                   description: description,
                   pricePerUm: hourlyRate.toString(),
-                  vat: '8.1' // Default VAT
+                  vat: vatRate.toString() // Use default VAT rate from settings
                 }
               })
               
@@ -167,7 +207,7 @@ export default function NewInvoicePage() {
               um: 'pcs',
               description: '',
               pricePerUm: '',
-              vat: '0'
+              vat: vatRate.toString()
             }])
           }
           
@@ -207,7 +247,7 @@ export default function NewInvoicePage() {
     }
     
     loadProjectAndContact()
-  }, [searchParams, supabase, user])
+  }, [searchParams, supabase, user, vatSettings, defaultVatRate])
 
   // Set project ID after customer is selected (for time entries flow)
   useEffect(() => {
@@ -334,14 +374,16 @@ export default function NewInvoicePage() {
       }
 
       try {
-        // Fetch profile and bank accounts in parallel
-        const [loadedProfile, loadedBankAccounts] = await Promise.all([
+        // Fetch profile, bank accounts, and VAT settings in parallel
+        const [loadedProfile, loadedBankAccounts, loadedVatSettings] = await Promise.all([
           getUserProfileWithClient(supabase, user.id).catch(() => null),
-          getBankAccountsWithClient(supabase, user.id).catch(() => [])
+          getBankAccountsWithClient(supabase, user.id).catch(() => []),
+          getVatSettingsWithClient(supabase, user.id).catch(() => null)
         ])
 
         setProfile(loadedProfile)
         setBankAccounts(loadedBankAccounts)
+        setVatSettings(loadedVatSettings)
         
         // Set default currency from profile
         if (loadedProfile?.account_currency) {
@@ -893,6 +935,7 @@ export default function NewInvoicePage() {
           onChangeDiscount={setDiscount}
           errors={validationErrors}
           onClearError={clearError}
+          defaultVatRate={defaultVatRate}
         />
 
         {/* Action Buttons */}

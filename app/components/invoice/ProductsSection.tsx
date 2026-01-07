@@ -39,6 +39,7 @@ interface ProductsSectionProps {
     items?: string
   }
   onClearError?: (field: string) => void
+  defaultVatRate?: number
 }
 
 export default function ProductsSection({
@@ -48,7 +49,8 @@ export default function ProductsSection({
   onChangeItems,
   onChangeDiscount,
   errors = {},
-  onClearError
+  onClearError,
+  defaultVatRate = 8.1
 }: ProductsSectionProps) {
   const addItem = () => {
     const newItem: InvoiceItem = {
@@ -57,7 +59,7 @@ export default function ProductsSection({
       um: 'pcs', // Default unit of measure
       description: '',
       pricePerUm: '',
-      vat: '0'
+      vat: defaultVatRate.toString()
     }
     onChangeItems([...items, newItem])
   }

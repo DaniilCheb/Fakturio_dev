@@ -116,4 +116,107 @@ export async function updateUserProfileWithClient(
   return result;
 }
 
+// ============ VAT Settings ============
+
+export interface VatSettings {
+  id: string;
+  user_id: string;
+  mode: "additive" | "inclusive";
+  vat_number?: string;
+  allow_custom_rate: boolean;
+  default_rate: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UpdateVatSettingsInput {
+  mode?: "additive" | "inclusive";
+  vat_number?: string;
+  allow_custom_rate?: boolean;
+  default_rate?: number;
+}
+
+/**
+ * Get VAT settings (with explicit client)
+ */
+export async function getVatSettingsWithClient(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<VatSettings> {
+  const { data, error } = await supabase
+    .from("vat_settings")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+  
+  if (error) {
+    console.error("Error fetching VAT settings:", error);
+    throw new Error("Failed to fetch VAT settings");
+  }
+  
+  // Return defaults if not found
+  if (!data) {
+    return {
+      id: "",
+      user_id: userId,
+      mode: "additive",
+      vat_number: "",
+      allow_custom_rate: false,
+      default_rate: 8.1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+  
+  return data;
+}
+
+/**
+ * Update VAT settings (with explicit client)
+ */
+export async function updateVatSettingsWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+  updates: UpdateVatSettingsInput
+): Promise<VatSettings> {
+  // Check if settings exist
+  const existing = await getVatSettingsWithClient(supabase, userId);
+  
+  if (existing.id) {
+    // Update existing
+    const { data, error } = await supabase
+      .from("vat_settings")
+      .update(updates)
+      .eq("user_id", userId)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error("Error updating VAT settings:", error);
+      throw new Error("Failed to update VAT settings");
+    }
+    
+    return data;
+  } else {
+    // Create new
+    const { data, error } = await supabase
+      .from("vat_settings")
+      .insert({
+        user_id: userId,
+        mode: updates.mode || "additive",
+        vat_number: updates.vat_number,
+        allow_custom_rate: updates.allow_custom_rate || false,
+        default_rate: updates.default_rate || 8.1,
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error("Error creating VAT settings:", error);
+      throw new Error("Failed to create VAT settings");
+    }
+    
+    return data;
+  }
+}
 

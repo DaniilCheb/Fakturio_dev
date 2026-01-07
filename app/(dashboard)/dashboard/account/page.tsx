@@ -1,15 +1,17 @@
-import { getUserProfileWithClient } from '@/lib/services/settingsService'
+import { getUserProfileWithClient, getVatSettingsWithClient, type VatSettings } from '@/lib/services/settingsService'
 import { getBankAccountsWithClient } from '@/lib/services/bankAccountService'
 import { createServerSupabaseClient, getCurrentUserId } from '@/lib/supabase-server'
 import { PricingTable } from '@clerk/nextjs'
 import AccountForm from './AccountForm'
 import BankAccountsSection from './BankAccountsSection'
+import VATSettingsForm from './VATSettingsForm'
 import PricingTableStyler from './PricingTableStyler'
 import LogoutButton from '@/app/components/LogoutButton'
 
 export default async function AccountPage() {
   let profile = null
   let bankAccounts: Awaited<ReturnType<typeof getBankAccountsWithClient>> = []
+  let vatSettings: VatSettings | null = null
   let error: string | null = null
 
   try {
@@ -19,14 +21,16 @@ export default async function AccountPage() {
       getCurrentUserId(),
     ])
 
-    // Run both queries in parallel with shared client
-    const [profileResult, bankAccountsResult] = await Promise.all([
+    // Run all queries in parallel with shared client
+    const [profileResult, bankAccountsResult, vatSettingsResult] = await Promise.all([
       getUserProfileWithClient(supabase, userId).catch(() => null),
       getBankAccountsWithClient(supabase, userId).catch(() => []),
+      getVatSettingsWithClient(supabase, userId).catch(() => null),
     ])
 
     profile = profileResult
     bankAccounts = bankAccountsResult
+    vatSettings = vatSettingsResult
     // If we successfully got empty data, that's fine - user just hasn't set up their account yet
   } catch (e) {
     // For new users who haven't set up their account yet, treat as empty state rather than error
@@ -36,6 +40,7 @@ export default async function AccountPage() {
     error = null // Don't show error to user - treat as empty state
     profile = null // Ensure profile is null
     bankAccounts = [] // Ensure bankAccounts is empty array
+    vatSettings = null // Ensure vatSettings is null
   }
 
   return (
@@ -68,6 +73,14 @@ export default async function AccountPage() {
           Bank Accounts
         </h2>
         <BankAccountsSection initialBankAccounts={bankAccounts} />
+      </div>
+
+      {/* VAT Settings */}
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
+        <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
+          VAT Settings
+        </h2>
+        <VATSettingsForm initialVatSettings={vatSettings} />
       </div>
 
       {/* Pricing */}
