@@ -35,14 +35,7 @@ export async function fetchExchangeRate(
   const url = `${FRANKFURTER_API_BASE}/${dateParam}?from=${from}&to=${to}`;
 
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:38',message:'Fetching from Frankfurter API',data:{url:url,from:from,to:to,date:dateParam},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     const response = await fetch(url);
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:41',message:'API response received',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     
     if (!response.ok) {
       // If API fails, throw error
@@ -51,24 +44,14 @@ export async function fetchExchangeRate(
 
     const data = await response.json();
     
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:49',message:'API data parsed',data:{hasRates:!!data.rates,rates:data.rates,targetRate:data.rates?.[to]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     // Frankfurter API returns rates in the format: { rates: { EUR: 0.92 } }
     if (data.rates && data.rates[to]) {
       const rate = parseFloat(data.rates[to]);
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:52',message:'Exchange rate extracted',data:{rate:rate,from:from,to:to},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       return rate;
     }
 
     throw new Error(`Exchange rate not found for ${from} to ${to}`);
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:57',message:'API fetch error',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     console.error("Error fetching exchange rate:", error);
     throw error;
   }
@@ -217,18 +200,12 @@ export function convertAmount(
   toCurrency: string,
   rate?: number
 ): number {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:196',message:'Converting amount',data:{amount:amount,fromCurrency:fromCurrency,toCurrency:toCurrency,rate:rate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
   if (fromCurrency === toCurrency) {
     return amount;
   }
 
   const exchangeRate = rate || 1;
   const converted = amount * exchangeRate;
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'exchangeRateService.ts:207',message:'Conversion result',data:{originalAmount:amount,convertedAmount:converted,rate:exchangeRate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
   return converted;
 }
 

@@ -15,24 +15,8 @@ export default function LogoutButton() {
   const { signOut } = useClerk()
 
   const handleSignOut = async () => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LogoutButton.tsx:handleSignOut:entry',message:'Sign out button clicked',data:{timestamp:new Date().toISOString()},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    try {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LogoutButton.tsx:handleSignOut:before-signOut',message:'About to call signOut with redirectUrl',data:{redirectUrl:'/'},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      // signOut with redirectUrl handles the navigation - no need for router.push
-      await signOut({ redirectUrl: '/' })
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LogoutButton.tsx:handleSignOut:after-signOut',message:'signOut completed successfully',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-    } catch (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LogoutButton.tsx:handleSignOut:error',message:'signOut threw an error',data:{error:error instanceof Error ? error.message : String(error), stack:error instanceof Error ? error.stack : undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      throw error
-    }
+    // signOut with redirectUrl handles the navigation - no need for router.push
+    await signOut({ redirectUrl: '/' })
   }
 
   return (

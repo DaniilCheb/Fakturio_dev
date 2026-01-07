@@ -579,39 +579,15 @@ export default function NewInvoicePage() {
     let exchangeRate: number | undefined
     let amountInAccountCurrency: number | undefined
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:498',message:'Currency conversion check',data:{invoiceCurrency:data.currency,accountCurrency:accountCurrency,profileCurrency:profile?.account_currency,total:totals.total,willConvert:data.currency && data.currency !== accountCurrency},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-
     if (data.currency && data.currency !== accountCurrency) {
       try {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:504',message:'Fetching exchange rate',data:{from:data.currency,to:accountCurrency,date:issuedOn},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         exchangeRate = await getExchangeRate(supabase, data.currency, accountCurrency, issuedOn)
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:506',message:'Exchange rate fetched',data:{exchangeRate:exchangeRate,originalAmount:totals.total},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         amountInAccountCurrency = convertAmount(totals.total, data.currency, accountCurrency, exchangeRate)
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:508',message:'Amount converted',data:{amountInAccountCurrency:amountInAccountCurrency,originalAmount:totals.total,rate:exchangeRate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
       } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:510',message:'Exchange rate fetch failed',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         console.error('Error fetching exchange rate:', error)
         // Continue without conversion - invoice will be saved with original currency
       }
-    } else {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:515',message:'No conversion needed',data:{invoiceCurrency:data.currency,accountCurrency:accountCurrency},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
     }
-
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:512',message:'Saving invoice with conversion data',data:{currency:data.currency,total:totals.total,exchangeRate:exchangeRate,amountInAccountCurrency:amountInAccountCurrency},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     const invoice = await saveInvoiceWithClient(supabase, user.id, {
       contact_id: data.contact_id,
       project_id: projectId || undefined,
@@ -633,9 +609,6 @@ export default function NewInvoicePage() {
       notes: data.description,
       payment_terms: paymentTerms
     })
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'invoices/new/page.tsx:533',message:'Invoice saved',data:{invoiceId:invoice.id,currency:invoice.currency,total:invoice.total,exchangeRate:invoice.exchange_rate,amountInAccountCurrency:invoice.amount_in_account_currency},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
 
     // Mark time entries as invoiced if this invoice was created from time entries
     if (timeEntryIds.length > 0) {
