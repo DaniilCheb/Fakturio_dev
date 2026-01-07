@@ -6,7 +6,7 @@ import { useSession } from "@clerk/nextjs"
 import Link from "next/link"
 import { Card, CardContent } from "@/app/components/ui/card"
 import StatusBadge from "@/app/components/StatusBadge"
-import { EditIcon, CopyIcon, PreviewIcon, DownloadIcon } from "@/app/components/Icons"
+import { EditIcon, CopyIcon, PreviewIcon, DownloadIcon, MailIcon } from "@/app/components/Icons"
 import { getInvoiceStatus, type Invoice } from "@/lib/services/invoiceService.client"
 import { type Project } from "@/lib/services/projectService"
 import { formatDate } from "@/lib/utils/dateUtils"
@@ -112,6 +112,9 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [isDuplicating, setIsDuplicating] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [emailInput, setEmailInput] = useState("")
   const [currentInvoice, setCurrentInvoice] = useState(invoice)
 
   const invoiceStatus = getInvoiceStatus(currentInvoice)
@@ -222,6 +225,39 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
     }
   }
 
+  const handleSendEmail = async () => {
+    const recipientEmail = invoice.to_info?.email || emailInput.trim()
+    
+    if (!recipientEmail) {
+      setShowEmailModal(true)
+      return
+    }
+
+    setIsSending(true)
+    try {
+      const response = await fetch(`/api/invoices/${currentInvoice.id}/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientEmail }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send email')
+      }
+
+      alert(`Invoice sent successfully to ${recipientEmail}!`)
+      setShowEmailModal(false)
+      setEmailInput("")
+    } catch (error) {
+      console.error('Error sending email:', error)
+      alert(error instanceof Error ? error.message : 'Failed to send email. Please try again.')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
   const handleDuplicate = async () => {
     setIsDuplicating(true)
     try {
@@ -275,6 +311,16 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
           <DownloadIcon size={18} />
         </div>
         <span className="text-[11px] font-medium">Download</span>
+      </button>
+      <button
+        onClick={handleSendEmail}
+        disabled={isSending}
+        className="flex flex-col items-center gap-1 text-[#555] dark:text-[#aaa] hover:text-[#141414] dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <div className="w-10 h-10 rounded-full bg-white dark:bg-[#2a2a2a] border border-[#e0e0e0] dark:border-[#444] flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#333] transition-colors">
+          <MailIcon size={18} />
+        </div>
+        <span className="text-[11px] font-medium">Send</span>
       </button>
       <button
         onClick={handleDuplicate}
@@ -454,6 +500,46 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
           </div>
         </div>
       </Card>
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-[#2a2a2a] rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-semibold mb-4 text-design-content-default">
+              Send Invoice
+            </h2>
+            <p className="text-sm text-design-content-weak mb-4">
+              Enter the recipient email address:
+            </p>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              placeholder="recipient@example.com"
+              className="w-full px-4 py-2 border border-design-border-default rounded-lg mb-4 bg-design-surface-field text-design-content-default"
+              autoFocus
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowEmailModal(false)
+                  setEmailInput("")
+                }}
+                className="px-4 py-2 text-design-content-weak hover:text-design-content-default"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendEmail}
+                disabled={isSending || !emailInput.trim()}
+                className="px-4 py-2 bg-design-button-primary text-design-on-button-content rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSending ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </>
   )

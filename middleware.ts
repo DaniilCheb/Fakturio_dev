@@ -8,6 +8,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/api/zefix(.*)", // Zefix API is public for now
+  "/invoice/view(.*)", // Public invoice view (token-based access)
 ]);
 
 // Define onboarding routes that don't require profile completion
