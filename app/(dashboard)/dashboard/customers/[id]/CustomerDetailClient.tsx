@@ -123,12 +123,8 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
 
   const getStatusBadge = (invoice: Invoice) => {
     const status = getInvoiceStatus(invoice)
-    const statusMap: Record<string, "paid" | "overdue" | "issued"> = {
-      paid: "paid",
-      overdue: "overdue",
-      pending: "issued"
-    }
-    return <StatusBadge status={statusMap[status] || "issued"} />
+    // StatusBadge expects 'variant' prop and uses 'pending' (which displays as "Issued")
+    return <StatusBadge variant={status} />
   }
 
   const actionButtons = (

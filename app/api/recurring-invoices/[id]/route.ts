@@ -8,7 +8,7 @@ import {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -16,7 +16,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const recurringInvoice = await getRecurringInvoiceById(params.id)
+    const { id } = await params
+    const recurringInvoice = await getRecurringInvoiceById(id)
     
     if (!recurringInvoice) {
       return NextResponse.json(
@@ -40,7 +41,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -48,8 +49,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
-    const recurringInvoice = await updateRecurringInvoice(params.id, body)
+    const recurringInvoice = await updateRecurringInvoice(id, body)
 
     return NextResponse.json(recurringInvoice)
   } catch (error) {
@@ -66,7 +68,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -74,7 +76,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await deleteRecurringInvoice(params.id)
+    const { id } = await params
+    await deleteRecurringInvoice(id)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[API] Error deleting recurring invoice:', error)

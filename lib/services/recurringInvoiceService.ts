@@ -57,6 +57,12 @@ export interface CreateRecurringInvoiceInput {
   auto_send?: boolean
 }
 
+export interface UpdateRecurringInvoiceInput extends Partial<CreateRecurringInvoiceInput> {
+  last_run_date?: string
+  invoices_created?: number
+  is_active?: boolean
+}
+
 /**
  * Calculate next run date based on frequency
  */
@@ -192,7 +198,7 @@ export async function createRecurringInvoice(
  */
 export async function updateRecurringInvoice(
   id: string,
-  updates: Partial<CreateRecurringInvoiceInput>
+  updates: UpdateRecurringInvoiceInput
 ): Promise<RecurringInvoice> {
   const supabase = await createServerSupabaseClient()
   const userId = await getCurrentUserId()

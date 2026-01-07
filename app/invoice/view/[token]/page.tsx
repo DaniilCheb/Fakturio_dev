@@ -23,7 +23,7 @@ function createPublicSupabaseClient() {
 export default async function PublicInvoicePage({
   params,
 }: {
-  params: { token: string }
+  params: Promise<{ token: string }>
 }) {
   const supabase = createPublicSupabaseClient()
 
@@ -31,11 +31,14 @@ export default async function PublicInvoicePage({
     notFound()
   }
 
+  // Await params (Next.js 15 requires params to be awaited)
+  const { token } = await params
+
   // Fetch invoice by token (bypasses RLS with service role)
   const { data: invoice, error } = await supabase
     .from('invoices')
     .select('*')
-    .eq('view_token', params.token)
+    .eq('view_token', token)
     .single()
 
   // Fetch project name if project_id exists
@@ -82,12 +85,14 @@ export default async function PublicInvoicePage({
       view_count: (invoice.view_count || 0) + 1,
     })
     .eq('id', invoice.id)
-    .then(() => {
-      // Silently handle errors
-    })
-    .catch(() => {
-      // Silently handle errors
-    })
+    .then(
+      () => {
+        // Silently handle success
+      },
+      () => {
+        // Silently handle errors
+      }
+    )
 
   return <PublicInvoiceView invoice={{ ...invoice, projects: projectName ? { name: projectName } : null }} />
 }

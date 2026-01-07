@@ -118,9 +118,6 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
   const [currentInvoice, setCurrentInvoice] = useState(invoice)
 
   const invoiceStatus = getInvoiceStatus(currentInvoice)
-  // Map "pending" to "issued" for StatusBadge component
-  const currentStatus: "paid" | "overdue" | "issued" = 
-    invoiceStatus === "pending" ? "issued" : invoiceStatus
   
   const getDaysUntilDue = (): number | null => {
     if (!currentInvoice.due_date) return null
@@ -332,7 +329,7 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
         </div>
         <span className="text-[11px] font-medium">Duplicate</span>
       </button>
-      {currentStatus !== "paid" ? (
+      {invoiceStatus !== "paid" ? (
         <button
           onClick={handleMarkAsPaid}
           disabled={isUpdatingStatus}
@@ -367,8 +364,8 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
             {title}
           </h1>
           <div className="flex items-center gap-3">
-            <StatusBadge status={currentStatus} />
-            {daysUntilDue !== null && currentStatus !== "paid" && (
+            <StatusBadge variant={invoiceStatus} />
+            {daysUntilDue !== null && invoiceStatus !== "paid" && (
               <span className="text-[13px] text-muted-foreground">
                 {daysUntilDue > 0
                   ? `Due in ${daysUntilDue} day${daysUntilDue === 1 ? "" : "s"}`

@@ -4,7 +4,7 @@ import { sendInvoiceEmail } from '@/lib/services/emailService'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify authentication
@@ -12,6 +12,9 @@ export async function POST(
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Await params (Next.js 15 requires params to be awaited)
+    const { id } = await params
 
     // Parse request body
     const body = await request.json()
@@ -34,7 +37,7 @@ export async function POST(
     }
 
     // Send email
-    const result = await sendInvoiceEmail(params.id, recipientEmail)
+    const result = await sendInvoiceEmail(id, recipientEmail)
 
     if (!result.success) {
       return NextResponse.json(

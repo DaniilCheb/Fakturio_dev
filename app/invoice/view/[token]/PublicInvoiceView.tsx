@@ -98,7 +98,7 @@ export default function PublicInvoiceView({ invoice }: PublicInvoiceViewProps) {
         const supabase = session
           ? createClientSupabaseClient(session)
           : null
-        const userId = session?.userId || null
+        const userId = session?.user.id || null
         const converted = await convertInvoiceToGuestInvoice(
           invoice,
           supabase,
