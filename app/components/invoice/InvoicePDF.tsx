@@ -329,9 +329,21 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
         <View style={styles.partiesRow}>
           <View style={styles.party}>
             <Text style={styles.partyLabel}>From</Text>
-            <Text style={styles.partyName}>{invoice.from_info.name}</Text>
+            {invoice.from_info.company_name ? (
+              <>
+                <Text style={styles.partyName}>{invoice.from_info.company_name}</Text>
+                {invoice.from_info.name && (
+                  <Text style={styles.partyText}>{invoice.from_info.name}</Text>
+                )}
+              </>
+            ) : (
+              <Text style={styles.partyName}>{invoice.from_info.name}</Text>
+            )}
             <Text style={styles.partyText}>{invoice.from_info.street}</Text>
             <Text style={styles.partyText}>{invoice.from_info.zip}</Text>
+            {invoice.from_info.uid && (
+              <Text style={[styles.partyText, { marginTop: 4 }]}>UID/VAT number: {invoice.from_info.uid}</Text>
+            )}
           </View>
           <View style={styles.party}>
             <Text style={styles.partyLabel}>Bill To</Text>
