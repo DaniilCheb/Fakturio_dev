@@ -173,6 +173,7 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
           city: company.city,
           postal_code: company.zip,
           country: 'Switzerland',
+          vat_number: company.uid,
         }))
         setIsCompanySelected(true)
         setSuccess(false)
@@ -376,7 +377,7 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
       {/* VAT Number */}
       <div className="flex flex-col gap-1">
         <label className="text-[13px] font-medium text-design-content-weak">
-          VAT Number (optional)
+          UID/VAT number
         </label>
         <input
           type="text"

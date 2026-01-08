@@ -7,6 +7,7 @@ import { useUser } from "@clerk/nextjs"
 import { Edit, Copy, Trash2 } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
 import { useConfirmDialog } from "@/app/components/useConfirmDialog"
+import { toast } from "sonner"
 import type { Expense } from "@/lib/services/expenseService.client"
 
 interface ExpenseRowActionsProps {
@@ -45,10 +46,16 @@ export default function ExpenseRowActions({ expense }: ExpenseRowActionsProps) {
       // Invalidate expenses query to refetch the list
       if (user?.id) {
         await queryClient.invalidateQueries({ queryKey: ['expenses', user.id] })
+      } else {
+        await queryClient.invalidateQueries({ queryKey: ['expenses'] })
       }
+      
+      toast.success("Expense deleted", {
+        description: `"${expense.name}" has been deleted.`,
+      })
     } catch (error) {
       console.error("Error deleting expense:", error)
-      alert("Failed to delete expense. Please try again.")
+      toast.error("Failed to delete expense. Please try again.")
     } finally {
       setIsDeleting(false)
     }

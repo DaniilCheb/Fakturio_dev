@@ -99,7 +99,7 @@
 
 @layer base {
   html {
-    font-size: 14px;
+    font-size: 15px;
   }
   * {
     @apply border-border;
@@ -183,22 +183,79 @@
     padding-top: 0px !important;
   }
   
-  /* Ensure email input field has correct height and padding */
+  /* Ensure all Clerk input fields have 40px height */
+  [data-clerk-element="formFieldInput"],
+  [data-clerk-element="formFieldInputContainer"] input,
+  .cl-formFieldInput input,
+  .cl-input,
+  /* Scope type-based selectors to Clerk only (avoid affecting app inputs like list search) */
+  [data-clerk-element] input[type="text"],
+  [data-clerk-element] input[type="email"],
+  [data-clerk-element] input[type="password"],
+  [data-clerk-element] input[type="tel"],
+  input#emailAddress-field,
+  input[name="emailAddress"],
+  input[name="password"],
+  input[name="code"],
+  input[name="identifier"],
+  .cl-formFieldInput__emailAddress,
+  .cl-input__emailAddress,
+  .cl-formFieldInput__password,
+  .cl-input__password {
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
+  /* Override global input height for list search inputs (Invoices/Expenses) */
+  input.list-search-input {
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+    border: none !important;
+    box-shadow: inset 0 0 0 1px hsl(var(--input)) !important;
+  }
+  
+  input.list-search-input:focus-visible {
+    box-shadow: inset 0 0 0 1px hsl(var(--ring)), 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+    outline: none !important;
+  }
+
+  /* Ensure email input field has correct padding */
   input#emailAddress-field,
   input[name="emailAddress"],
   .cl-formFieldInput__emailAddress,
   .cl-input__emailAddress {
-    height: 40px !important;
     padding-left: 16px !important;
     padding-right: 16px !important;
   }
 
-  /* Ensure password input field has correct height and padding */
+  /* Add 16px top margin above email field */
+  [data-clerk-element="formField"]:has(input[name="emailAddress"]),
+  [data-clerk-element="formField"]:has(input#emailAddress-field),
+  .cl-formField:has(input[name="emailAddress"]),
+  .cl-formField:has(input#emailAddress-field),
+  .cl-formField:has(.cl-formFieldInput__emailAddress),
+  .cl-formField:has(.cl-input__emailAddress) {
+    margin-top: 16px !important;
+  }
+
+  /* Fallback for browsers without :has() support - target email field container */
+  @supports not selector(:has(*)) {
+    [data-clerk-element="formFieldEmailAddress"],
+    .cl-formFieldEmailAddress {
+      margin-top: 16px !important;
+    }
+  }
+
+  /* Ensure password input field has correct padding */
   input#password-field,
   input[name="password"],
   .cl-formFieldInput__password,
   .cl-input__password {
-    height: 40px !important;
     padding-left: 16px !important;
     padding-right: 16px !important;
   }

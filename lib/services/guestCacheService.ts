@@ -55,12 +55,21 @@ function isCacheExpired(lastUpdated: string | null): boolean {
 function extractProfileFromInvoice(invoice: GuestInvoice): GuestProfileData {
   const fromInfo = invoice.from_info
   
-  // Parse zip and city from combined zip field
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'guestCacheService.ts:extractProfileFromInvoice',message:'Checking city extraction',data:{fromInfo_zip:fromInfo.zip,fromInfo_city:fromInfo.city,hasDirectCity:!!fromInfo.city},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
+  // #endregion
+  
+  // Parse zip and city from combined zip field OR use separate city field
   // Format is typically "8000 Zürich" or "8000" or "Zürich"
   let postal_code: string | null = null
   let city: string | null = null
   
-  if (fromInfo.zip) {
+  // First check if city is stored separately (new format)
+  if (fromInfo.city) {
+    city = fromInfo.city
+    postal_code = fromInfo.zip || null
+  } else if (fromInfo.zip) {
+    // Fall back to parsing combined zip field (legacy format)
     const zipParts = fromInfo.zip.trim().split(/\s+/)
     if (zipParts.length >= 2) {
       // Has both zip and city: "8000 Zürich"

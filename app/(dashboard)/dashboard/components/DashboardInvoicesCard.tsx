@@ -126,7 +126,7 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
   return (
     <Card className="overflow-hidden group w-full">
       <div className="border-b border-border px-3 sm:px-4 py-2 flex items-center justify-between">
-        <p className="text-[11px] sm:text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
+        <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
           {currentYear} INVOICES
         </p>
         <Button
@@ -145,16 +145,16 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
         {/* Stats Row */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
           <div className="flex-1 space-y-1">
-            <p className="text-[12px] sm:text-[13px] text-muted-foreground font-light">
+            <p className="text-[13px] text-muted-foreground font-light">
               {displayLabel}
             </p>
-            <p className="text-[20px] sm:text-[24px] font-semibold tracking-tight">
+            <p className="text-[24px] font-semibold tracking-tight">
               {formatCurrency(displayAmount, defaultCurrency)}
             </p>
           </div>
           <div className="flex-1 space-y-1">
-            <p className="text-[12px] sm:text-[13px] text-muted-foreground font-light">Monthly Average</p>
-            <p className="text-[20px] sm:text-[24px] font-semibold tracking-tight">
+            <p className="text-[13px] text-muted-foreground font-light">Monthly Average</p>
+            <p className="text-[24px] font-semibold tracking-tight">
               {formatCurrency(monthlyAverage, defaultCurrency)}
             </p>
           </div>

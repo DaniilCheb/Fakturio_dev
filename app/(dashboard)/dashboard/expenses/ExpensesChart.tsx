@@ -275,13 +275,13 @@ export default function ExpensesChart({ expenses, accountCurrency = "CHF" }: Exp
             <p className="text-[14px] text-muted-foreground font-light transition-all duration-150">
               {displayLabel}
             </p>
-            <p className="text-[28px] md:text-[32px] font-semibold tracking-tight transition-all duration-150">
+            <p className="text-[32px] font-semibold tracking-tight transition-all duration-150">
               {formatCurrency(displayAmount, accountCurrency)}
             </p>
           </div>
           <div className="flex-1 space-y-1">
             <p className="text-[14px] text-muted-foreground font-light">Monthly Average</p>
-            <p className="text-[28px] md:text-[32px] font-semibold tracking-tight">
+            <p className="text-[32px] font-semibold tracking-tight">
               {formatCurrency(monthlyAverage, accountCurrency)}
             </p>
           </div>

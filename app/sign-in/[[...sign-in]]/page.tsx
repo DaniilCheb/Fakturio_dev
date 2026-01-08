@@ -70,6 +70,14 @@ export default function SignInPage() {
           forceRedirectUrl="/dashboard"
         />
       </div>
+      <div className="mt-4 text-center">
+        <Link 
+          href="/forgot-password"
+          className="text-[13px] text-design-content-weak hover:text-design-content-default transition-colors"
+        >
+          Forgot your password?
+        </Link>
+      </div>
     </AuthPageShell>
   );
 }

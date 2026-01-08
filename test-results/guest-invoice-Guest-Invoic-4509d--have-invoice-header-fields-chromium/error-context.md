@@ -1,0 +1,141 @@
+# Page snapshot
+
+```yaml
+- main [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e6]:
+      - img "Fakturio" [ref=e9]
+      - generic [ref=e11]:
+        - heading "Simple invoice and expense tracking for freelancers and small teams." [level=1] [ref=e12]
+        - paragraph [ref=e13]: Create beautiful QR invoices, collect deductible expenses, have an overview of what your taxes will look like, and share everything easily with your accountant.
+        - generic [ref=e14]:
+          - link "Create free account" [ref=e15] [cursor=pointer]:
+            - /url: /sign-up
+            - button "Create free account" [ref=e16]
+          - link "Log in" [ref=e17] [cursor=pointer]:
+            - /url: /sign-in
+            - button "Log in" [ref=e18]
+      - generic [ref=e20]:
+        - img "Made in Switzerland" [ref=e21]
+        - generic [ref=e22]: MADE IN SWITZERLAND
+    - generic [ref=e26]:
+      - paragraph [ref=e27]: Create an invoice in less than 2 minutes.
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e32]:
+            - generic [ref=e33]: "Invoice #"
+            - textbox [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: Issued on
+            - button "08.01.2026" [ref=e39] [cursor=pointer]:
+              - img
+              - text: 08.01.2026
+        - generic [ref=e42]:
+          - generic [ref=e43]: Due
+          - combobox [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+          - combobox [ref=e47]
+      - generic [ref=e48]:
+        - heading "From" [level=2] [ref=e49]
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - generic [ref=e53]: Country
+            - combobox [ref=e54] [cursor=pointer]:
+              - generic [ref=e55]: Select country
+              - img
+          - generic [ref=e56]:
+            - generic [ref=e57]: Your name
+            - textbox "Name" [ref=e59]
+          - generic [ref=e60]:
+            - generic [ref=e61]: Company name (optional)
+            - combobox [ref=e62] [cursor=pointer]:
+              - generic [ref=e63]: Enter company name...
+              - img
+          - button "Enter manually" [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+            - text: Enter manually
+      - generic [ref=e66]:
+        - heading "To" [level=2] [ref=e67]
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]: Country
+            - combobox [ref=e72] [cursor=pointer]:
+              - generic [ref=e73]: Select country
+              - img
+          - generic [ref=e74]:
+            - generic [ref=e75]: Company name
+            - combobox [ref=e76] [cursor=pointer]:
+              - generic [ref=e77]: Enter company name...
+              - img
+          - button "Enter manually" [ref=e78] [cursor=pointer]:
+            - img [ref=e79]
+            - text: Enter manually
+      - generic [ref=e80]:
+        - heading "Description" [level=2] [ref=e81]
+        - textbox "Add a note or description for this invoice..." [ref=e84]
+      - generic [ref=e85]:
+        - heading "Payment Information" [level=2] [ref=e86]
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e91]:
+              - generic [ref=e92]: Currency*
+              - combobox [ref=e93] [cursor=pointer]:
+                - generic [ref=e94]: CHF - Swiss Franc
+                - img
+            - generic [ref=e95]:
+              - generic [ref=e96]: Payment method *
+              - generic [ref=e97]:
+                - button "Bank" [ref=e98] [cursor=pointer]
+                - button "Card" [ref=e99] [cursor=pointer]
+                - button "Cash" [ref=e100] [cursor=pointer]
+                - button "Other" [ref=e101] [cursor=pointer]
+          - generic [ref=e102]:
+            - generic [ref=e103]: IBAN
+            - textbox "CH00 0000 0000 0000 0000 0" [ref=e104]
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - generic [ref=e108]: Enable QR
+              - generic [ref=e109]: Get paid 3x faster
+            - switch [checked] [ref=e110] [cursor=pointer]
+            - checkbox [checked]
+      - generic [ref=e111]:
+        - heading "Products" [level=2] [ref=e112]
+        - generic [ref=e114]:
+          - generic [ref=e117]:
+            - generic [ref=e119]:
+              - generic [ref=e120]: Description
+              - textbox "Enter description" [ref=e122]
+            - generic [ref=e124]:
+              - generic [ref=e125]: Qty
+              - spinbutton [ref=e127]
+            - generic [ref=e129]:
+              - generic [ref=e130]: Price/UM
+              - spinbutton [ref=e132]
+            - generic [ref=e135]:
+              - generic [ref=e136]: VAT
+              - combobox [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+              - combobox [ref=e140]
+            - generic [ref=e141]:
+              - generic [ref=e142]: Total
+              - generic [ref=e144]: "0.00"
+          - generic [ref=e145]:
+            - button "Add item" [ref=e146] [cursor=pointer]:
+              - img [ref=e147]
+              - text: Add item
+            - generic [ref=e148]:
+              - generic [ref=e149]: Discount
+              - generic [ref=e150]:
+                - spinbutton [ref=e152]: "0"
+                - generic: "%"
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - generic [ref=e156]: Subtotal
+              - generic [ref=e157]: CHF 0.00
+            - generic [ref=e158]:
+              - generic [ref=e159]: Total (incl. VAT)
+              - generic [ref=e160]: CHF 0.00
+      - generic [ref=e161]:
+        - button "Preview" [ref=e162] [cursor=pointer]
+        - button "Save" [ref=e163] [cursor=pointer]
+```

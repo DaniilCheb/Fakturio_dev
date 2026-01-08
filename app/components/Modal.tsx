@@ -26,7 +26,7 @@ interface ModalProps {
  *   </ModalFooter>
  * </Modal>
  */
-export default function Modal({ isOpen, onClose, title, children, maxWidth = '640px' }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = '400px' }: ModalProps) {
   if (!isOpen) return null
 
   const modalContent = (

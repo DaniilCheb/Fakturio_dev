@@ -47,7 +47,7 @@ export default async function AccountPage() {
     <div className="max-w-[920px] mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">
+        <h1 className="text-[32px] font-semibold text-design-content-default tracking-tight">
           Account
         </h1>
       </div>

@@ -146,7 +146,7 @@ fontFamily: {
 
 ```jsx
 // Page Title
-<h1 className="font-semibold text-[24px] md:text-[32px] text-[#141414] dark:text-white tracking-tight">
+<h1 className="font-semibold text-[32px] text-[#141414] dark:text-white tracking-tight">
   Dashboard
 </h1>
 
@@ -522,8 +522,8 @@ className="hover:bg-[#f5f5f5] dark:hover:bg-[#333]"
 ### Common Responsive Patterns
 
 ```jsx
-// Mobile-first approach
-className="text-[24px] md:text-[32px]"
+// Font sizes (no responsive scaling)
+className="text-[32px]"
 
 // Padding responsive
 className="p-4 md:p-6"
@@ -539,7 +539,7 @@ className="hidden lg:block"
 
 | Component | Mobile | Tablet | Desktop |
 |-----------|--------|--------|---------|
-| **Page Title** | `24px` | `32px` | `32px` |
+| **Page Title** | `32px` | `32px` | `32px` |
 | **Card Padding** | `16px` | `24px` | `24px` |
 | **Sidebar** | Hidden (overlay) | Hidden | Visible |
 | **Modal Width** | Full width | `max-w-md` | `max-w-md` |

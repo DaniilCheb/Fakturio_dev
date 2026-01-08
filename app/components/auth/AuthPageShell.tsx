@@ -151,7 +151,7 @@ export const clerkAppearance = {
     formFieldOptionalIndicator: "hidden",
     formFieldHintText: "hidden",
     formFieldInput:
-      "h-[40px] rounded-xl bg-design-surface-default border border-design-border-default px-4 text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:ring-2 focus:ring-design-content-default/20 focus:border-design-content-default/30",
+      "h-[40px] !h-[40px] min-h-[40px] !min-h-[40px] max-h-[40px] !max-h-[40px] rounded-xl bg-design-surface-default border border-design-border-default px-4 text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:ring-2 focus:ring-design-content-default/20 focus:border-design-content-default/30",
 
     formButtonPrimary:
       "h-[44px] rounded-full bg-design-button-primary text-design-on-button-content hover:opacity-90 active:opacity-80 transition-opacity m-0 !m-0 p-0 !p-0 gap-0 !gap-0 [&>svg]:hidden [&>svg]:!hidden [&_svg]:hidden [&_svg]:!hidden [&::after]:content-none [&::after]:!content-none [&::after]:hidden [&::after]:!hidden",

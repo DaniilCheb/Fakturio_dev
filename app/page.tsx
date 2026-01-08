@@ -8,6 +8,7 @@ import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { validateInvoice, ValidationErrors } from '@/lib/utils/invoiceValidation'
 import { useInvoiceStorage } from '@/lib/hooks/useInvoiceStorage'
 import { getCurrencyForCountry } from '@/lib/utils/countryCurrency'
+import { toastError } from '@/lib/utils/toast'
 import InvoiceHeader from './components/invoice/InvoiceHeader'
 import FromSection from './components/invoice/FromSection'
 import ToSection from './components/invoice/ToSection'
@@ -15,7 +16,7 @@ import DescriptionSection from './components/invoice/DescriptionSection'
 import GuestPaymentInformationSection from './components/invoice/GuestPaymentInformationSection'
 import ProductsSection from './components/invoice/ProductsSection'
 import SaveInvoiceModal from './components/invoice/SaveInvoiceModal'
-import PreviewModal from './components/invoice/PreviewModal'
+import PDFPreviewModal from './components/invoice/PDFPreviewModal'
 import GuestSidebar from './components/GuestSidebar'
 
 // Priority order for error fields (top to bottom in form)
@@ -85,6 +86,8 @@ export default function Home() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null)
+  const [isPreviewingPDF, setIsPreviewingPDF] = useState(false)
 
   // Initialize invoice number and due date
   useEffect(() => {
@@ -195,7 +198,16 @@ export default function Home() {
     }
   }, [])
 
-  const handlePreview = () => {
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (pdfPreviewUrl && pdfPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(pdfPreviewUrl)
+      }
+    }
+  }, [pdfPreviewUrl])
+
+  const handlePreview = async () => {
     const invoice = buildInvoice()
     const validation = validateInvoice(invoice)
     
@@ -206,15 +218,38 @@ export default function Home() {
     }
     
     setValidationErrors({})
-    // Build full invoice for preview
-    const fullInvoice: GuestInvoice = {
-      id: generateInvoiceId(),
-      ...invoice as any,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    setIsPreviewingPDF(true)
+    
+    try {
+      // Dynamic import to avoid SSR issues with @react-pdf/renderer
+      const { generateInvoicePDFBlob } = await import('@/lib/services/pdfService')
+      
+      // Build full invoice for preview
+      const fullInvoice: GuestInvoice = {
+        id: generateInvoiceId(),
+        ...invoice as any,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      // Generate PDF blob
+      const blob = await generateInvoicePDFBlob(fullInvoice, {
+        includeQRCode: enableQR
+      })
+      
+      const url = URL.createObjectURL(blob)
+      setPdfPreviewUrl(url)
+      setPreviewInvoice(fullInvoice) // Keep for download handler
+      setShowPreviewModal(true)
+    } catch (error) {
+      console.error('Error generating PDF preview:', error)
+      toastError(
+        'Failed to generate PDF preview',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
+    } finally {
+      setIsPreviewingPDF(false)
     }
-    setPreviewInvoice(fullInvoice)
-    setShowPreviewModal(true)
   }
 
   const handleSave = () => {
@@ -310,60 +345,88 @@ export default function Home() {
       }, 3000)
     } catch (error) {
       console.error('Error generating PDF:', error)
-      alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toastError(
+        'Failed to generate PDF',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
     } finally {
       setIsGeneratingPDF(false)
     }
   }
 
   const handlePreviewDownload = async () => {
-    if (previewInvoice) {
-      setIsGeneratingPDF(true)
-      try {
-        // Dynamic import to avoid SSR issues with @react-pdf/renderer
-        const { generateInvoicePDF } = await import('@/lib/services/pdfService')
-        
-        // Generate PDF with QR code based on toggle
-        await generateInvoicePDF(previewInvoice, {
-          includeQRCode: enableQR,
-          qrCodeDataUrl: undefined
-        })
-        
-        // Try to save to localStorage after successful PDF
-        try {
-          await saveToStorage({
-            invoice_number: previewInvoice.invoice_number,
-            issued_on: previewInvoice.issued_on,
-            due_date: previewInvoice.due_date,
-            currency: previewInvoice.currency,
-            payment_method: previewInvoice.payment_method,
-            from_info: previewInvoice.from_info,
-            to_info: previewInvoice.to_info,
-            description: previewInvoice.description,
-            items: previewInvoice.items,
-            discount: previewInvoice.discount,
-            subtotal: previewInvoice.subtotal,
-            vat_amount: previewInvoice.vat_amount,
-            total: previewInvoice.total
-          })
-        } catch (saveError) {
-          console.warn('Failed to save to localStorage:', saveError)
-        }
-        
-        setSaveSuccess(true)
-        setShowPreviewModal(false)
-        setPreviewInvoice(null)
-        
-        setTimeout(() => {
-          setSaveSuccess(false)
-        }, 3000)
-      } catch (error) {
-        console.error('Error generating PDF:', error)
-        alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
-      } finally {
-        setIsGeneratingPDF(false)
-      }
+    // Build invoice from current form state (in case user made changes)
+    const invoice = buildInvoice()
+    const validation = validateInvoice(invoice)
+    
+    if (!validation.isValid) {
+      toastError('Validation Error', 'Please fix validation errors before downloading')
+      return
     }
+    
+    setIsGeneratingPDF(true)
+    try {
+      // Dynamic import to avoid SSR issues with @react-pdf/renderer
+      const { generateInvoicePDF } = await import('@/lib/services/pdfService')
+      
+      // Build full invoice from current form state
+      const fullInvoice: GuestInvoice = {
+        id: generateInvoiceId(),
+        ...invoice as any,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      // Generate PDF with QR code based on toggle
+      await generateInvoicePDF(fullInvoice, {
+        includeQRCode: enableQR,
+        qrCodeDataUrl: undefined
+      })
+      
+      // Try to save to localStorage after successful PDF
+      try {
+        await saveToStorage({
+          invoice_number: fullInvoice.invoice_number,
+          issued_on: fullInvoice.issued_on,
+          due_date: fullInvoice.due_date,
+          currency: fullInvoice.currency,
+          payment_method: fullInvoice.payment_method,
+          from_info: fullInvoice.from_info,
+          to_info: fullInvoice.to_info,
+          description: fullInvoice.description,
+          items: fullInvoice.items,
+          discount: fullInvoice.discount,
+          subtotal: fullInvoice.subtotal,
+          vat_amount: fullInvoice.vat_amount,
+          total: fullInvoice.total
+        })
+      } catch (saveError) {
+        console.warn('Failed to save to localStorage:', saveError)
+      }
+      
+      setSaveSuccess(true)
+      
+      setTimeout(() => {
+        setSaveSuccess(false)
+      }, 3000)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      toastError(
+        'Failed to generate PDF',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
+    } finally {
+      setIsGeneratingPDF(false)
+    }
+  }
+
+  const handleClosePDFPreview = () => {
+    if (pdfPreviewUrl && pdfPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(pdfPreviewUrl)
+    }
+    setPdfPreviewUrl(null)
+    setPreviewInvoice(null)
+    setShowPreviewModal(false)
   }
 
   // Handle save only (without download)
@@ -405,7 +468,10 @@ export default function Home() {
       }, 3000)
     } catch (error) {
       console.error('Error saving invoice:', error)
-      alert(`Failed to save invoice: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toastError(
+        'Failed to save invoice',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
     } finally {
       setIsSaving(false)
     }
@@ -586,17 +652,13 @@ export default function Home() {
         isSaving={isSaving}
       />
 
-      {previewInvoice && (
-        <PreviewModal
-          isOpen={showPreviewModal}
-          onClose={() => {
-            setShowPreviewModal(false)
-            setPreviewInvoice(null)
-          }}
-          invoice={previewInvoice}
-          onDownload={handlePreviewDownload}
-        />
-      )}
+      <PDFPreviewModal
+        isOpen={showPreviewModal}
+        onClose={handleClosePDFPreview}
+        pdfUrl={pdfPreviewUrl}
+        isLoading={isPreviewingPDF}
+        onDownload={handlePreviewDownload}
+      />
     </div>
   )
 }

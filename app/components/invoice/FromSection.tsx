@@ -211,6 +211,7 @@ export default function FromSection({ fromInfo, onChange, errors = {}, onClearEr
   const fillFormWithCompany = (company: CompanyInfo) => {
     onChange({
       ...fromInfo,
+      company_name: company.name,
       street: company.address,
       zip: company.zip,
       city: company.city,

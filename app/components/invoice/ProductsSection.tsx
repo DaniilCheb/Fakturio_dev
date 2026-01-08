@@ -288,7 +288,7 @@ export default function ProductsSection({
                   <span className="text-[14px] font-medium text-[#141414] dark:text-white whitespace-nowrap">
                     Total (incl. VAT)
                   </span>
-                  <span className="text-[18px] sm:text-[20px] font-semibold text-[#141414] dark:text-white min-w-[100px] sm:min-w-[140px] text-right whitespace-nowrap">
+                  <span className="text-[20px] font-semibold text-[#141414] dark:text-white min-w-[100px] sm:min-w-[140px] text-right whitespace-nowrap">
                     {formatSwissCurrency(totals.total, currency)}
                   </span>
                 </div>

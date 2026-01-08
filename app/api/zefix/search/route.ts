@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { zefixRateLimiter } from '@/lib/utils/rateLimit';
+import { zefixSearchSchema } from '@/lib/validations/zefix';
 
 const ZEFIX_API_URL = 'https://www.zefix.admin.ch/ZefixPublicREST/api/v1/company/search';
 
@@ -16,15 +18,42 @@ export interface CompanySearchResult {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name } = body;
-
-    if (!name || name.trim().length < 3) {
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 
+               'anonymous';
+    const rateLimitResult = zefixRateLimiter.limit(ip);
+    
+    if (!rateLimitResult.success) {
       return NextResponse.json(
-        { error: 'Search query must be at least 3 characters' },
+        { error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': new Date(rateLimitResult.reset).toISOString(),
+            'Retry-After': Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          }
+        }
+      );
+    }
+
+    const body = await request.json();
+    
+    // Validate input with Zod
+    const validationResult = zefixSearchSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid input', 
+          details: validationResult.error.flatten().fieldErrors 
+        },
         { status: 400 }
       );
     }
+
+    const { name } = validationResult.data;
 
     // Get credentials from environment
     const username = process.env.ZEFIX_USERNAME;
@@ -79,7 +108,11 @@ export async function POST(request: NextRequest) {
       status: company.status,
     }));
 
-    return NextResponse.json(results);
+        const apiResponse = NextResponse.json(results);
+        apiResponse.headers.set('X-RateLimit-Limit', '10');
+        apiResponse.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+        apiResponse.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+        return apiResponse;
 
   } catch (error) {
     console.error('Zefix search error:', error);

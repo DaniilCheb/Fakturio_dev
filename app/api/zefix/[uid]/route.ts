@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeUid, isValidUid, transformZefixResponse, type ZefixCompany } from '@/lib/services/zefixService';
+import { zefixRateLimiter } from '@/lib/utils/rateLimit';
 
 const ZEFIX_API_URL = 'https://www.zefix.admin.ch/ZefixPublicREST/api/v1/company/uid';
 
@@ -12,6 +13,27 @@ export async function GET(
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 
+               'anonymous';
+    const rateLimitResult = zefixRateLimiter.limit(ip);
+    
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': new Date(rateLimitResult.reset).toISOString(),
+            'Retry-After': Math.ceil((rateLimitResult.reset - Date.now()) / 1000).toString(),
+          }
+        }
+      );
+    }
+
     const { uid } = await params;
     
     // Validate UID format
@@ -82,7 +104,11 @@ export async function GET(
     // Transform to simplified format
     const companyInfo = transformZefixResponse(companies[0]);
     
-    return NextResponse.json(companyInfo);
+    const apiResponse = NextResponse.json(companyInfo);
+    apiResponse.headers.set('X-RateLimit-Limit', '10');
+    apiResponse.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+    apiResponse.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+    return apiResponse;
     
   } catch (error) {
     console.error('Zefix lookup error:', error);

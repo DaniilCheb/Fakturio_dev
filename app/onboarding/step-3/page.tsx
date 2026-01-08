@@ -383,6 +383,7 @@ export default function OnboardingStep3Page() {
         city: formData.city.trim(),
         country: formData.country,
         account_currency: formData.currency,
+        vat_number: formData.company_uid || undefined,
       }
       
       const savedProfile = await updateUserProfileWithClient(supabase, user.id, profileUpdates)

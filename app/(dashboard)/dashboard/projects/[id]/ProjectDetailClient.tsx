@@ -14,7 +14,7 @@ import { Badge } from '@/app/components/ui/badge'
 import { EditIcon, DeleteIcon } from '@/app/components/Icons'
 import { useConfirmDialog } from '@/app/components/useConfirmDialog'
 import { type Project, deleteProjectWithClient } from '@/lib/services/projectService.client'
-import { type Invoice, getInvoiceStatus } from '@/lib/services/invoiceService.client'
+import { type Invoice } from '@/lib/services/invoiceService.client'
 import { type Contact } from '@/lib/services/contactService.client'
 import { type TimeEntry, calculateTimeEntrySummary, deleteTimeEntryWithClient, updateTimeEntryWithClient, type CreateTimeEntryInput } from '@/lib/services/timeEntryService.client'
 import { formatDate } from '@/lib/utils/dateUtils'
@@ -22,6 +22,8 @@ import { formatCurrency } from '@/lib/utils/formatters'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { useProjects } from '@/lib/hooks/queries'
 import ManualEntryModal from '@/app/(dashboard)/dashboard/time-tracking/components/ManualEntryModal'
+import SectionHeader from '@/app/components/SectionHeader'
+import InvoicesTable from '@/app/(dashboard)/dashboard/InvoicesTable'
 import {
   Table,
   TableBody,
@@ -295,31 +297,6 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
     )
   }
 
-  const getStatusBadge = (invoice: Invoice) => {
-    const status = getInvoiceStatus(invoice)
-    const variants: Record<typeof status, { className: string; label: string }> = {
-      paid: { 
-        className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent hover:bg-green-100",
-        label: "Paid" 
-      },
-      pending: { 
-        className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-transparent hover:bg-yellow-100",
-        label: "Issued" 
-      },
-      overdue: { 
-        className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent hover:bg-red-100",
-        label: "Overdue" 
-      },
-    }
-
-    const { className, label } = variants[status] || variants.pending
-
-    return (
-      <Badge variant="outline" className={className}>
-        {label}
-      </Badge>
-    )
-  }
 
   const actionButtons = (
     <div className="flex items-center gap-6">
@@ -352,7 +329,7 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight mb-1">
+          <h1 className="font-semibold text-[32px] text-foreground tracking-tight mb-1">
             {project.name}
           </h1>
           {project.status && getProjectStatusBadge(project.status)}
@@ -423,34 +400,34 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
 
       {/* Time Entries List */}
       <Card>
-        <div className="px-6 py-3 border-b flex items-center justify-between">
-          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
-            Time Entries
-          </p>
-          {selectedEntryIds.size > 0 && (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleCreateInvoiceFromEntries}
-                variant="ghost"
-                size="sm"
-                className="h-8"
-              >
-                <FileText className="h-4 w-4" style={{ marginRight: '2px' }} />
-                Create invoice
-              </Button>
-              <Button
-                onClick={handleDeleteSelectedEntries}
-                disabled={isDeletingEntries}
-                variant="ghost"
-                size="sm"
-                className="h-8 text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" style={{ marginRight: '2px' }} />
-                {isDeletingEntries ? 'Deleting...' : 'Delete'}
-              </Button>
-            </div>
-          )}
-        </div>
+        <SectionHeader
+          title="Time Entries"
+          actions={
+            selectedEntryIds.size > 0 ? (
+              <>
+                <Button
+                  onClick={handleCreateInvoiceFromEntries}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8"
+                >
+                  <FileText className="h-4 w-4" style={{ marginRight: '2px' }} />
+                  Create invoice
+                </Button>
+                <Button
+                  onClick={handleDeleteSelectedEntries}
+                  disabled={isDeletingEntries}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" style={{ marginRight: '2px' }} />
+                  {isDeletingEntries ? 'Deleting...' : 'Delete'}
+                </Button>
+              </>
+            ) : undefined
+          }
+        />
         <CardContent className="p-0">
           {timeEntries.length === 0 ? (
             <div className="p-8 text-center">
@@ -536,53 +513,9 @@ export default function ProjectDetailClient({ project, invoices, customer, timeE
       )}
 
       {/* Invoices List */}
-      <Card>
-        <div className="px-6 py-3 border-b">
-          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
-            Invoices
-          </p>
-        </div>
-        <CardContent className="p-0">
-          {invoices.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-muted-foreground">No invoices linked to this project yet.</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-[13px] font-medium px-6">Invoice</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Date</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Amount</TableHead>
-                  <TableHead className="text-[13px] font-medium px-6">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((invoice) => (
-                  <TableRow 
-                    key={invoice.id} 
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/dashboard/invoices/${invoice.id}`)}
-                  >
-                    <TableCell className="font-medium px-6">
-                      {invoice.invoice_number || `Invoice ${invoice.id.slice(0, 8)}`}
-                    </TableCell>
-                    <TableCell className="text-[14px] text-muted-foreground px-6">
-                      {formatDate(invoice.issued_on || invoice.created_at)}
-                    </TableCell>
-                    <TableCell className="text-[14px] font-medium px-6">
-                      {formatCurrency(invoice.total || 0, invoice.currency)}
-                    </TableCell>
-                    <TableCell className="px-6">
-                      {getStatusBadge(invoice)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+      <InvoicesTable 
+        filterFn={(invoice) => invoice.project_id === project.id}
+      />
     </>
   )
 }

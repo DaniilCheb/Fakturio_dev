@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
-import { deleteInvoice, getInvoiceById, updateInvoice, type UpdateInvoiceInput } from "@/lib/services/invoiceService"
+import { auth } from "@clerk/nextjs/server"
+import { deleteInvoice, getInvoiceById, updateInvoice } from "@/lib/services/invoiceService"
+import { updateInvoiceSchema } from "@/lib/validations/invoice"
+import { apiError } from "@/lib/utils/apiError"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id: invoiceId } = await params
     
     if (!invoiceId) {
@@ -39,6 +47,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id: invoiceId } = await params
     
     if (!invoiceId) {
@@ -49,79 +62,32 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const updates: UpdateInvoiceInput = {}
     
-    if (body.status) {
-      updates.status = body.status
-    }
-    
-    // Handle paid_date: include it if explicitly provided (even if null to clear it)
-    if (body.paid_date !== undefined) {
-      updates.paid_date = body.paid_date || null
-    }
-    if (body.invoice_number !== undefined) {
-      updates.invoice_number = body.invoice_number
-    }
-    if (body.issued_on) {
-      updates.issued_on = body.issued_on
-    }
-    if (body.due_date) {
-      updates.due_date = body.due_date
-    }
-    if (body.currency) {
-      updates.currency = body.currency
-    }
-    if (body.contact_id !== undefined) {
-      updates.contact_id = body.contact_id
-    }
-    if (body.project_id !== undefined) {
-      updates.project_id = body.project_id
-    }
-    if (body.bank_account_id !== undefined) {
-      updates.bank_account_id = body.bank_account_id
-    }
-    if (body.notes !== undefined) {
-      updates.notes = body.notes
-    }
-    if (body.from_info) {
-      updates.from_info = body.from_info
-    }
-    if (body.to_info) {
-      updates.to_info = body.to_info
-    }
-    if (body.items) {
-      updates.items = body.items
-    }
-    if (body.subtotal !== undefined) {
-      updates.subtotal = body.subtotal
-    }
-    if (body.vat_amount !== undefined) {
-      updates.vat_amount = body.vat_amount
-    }
-    if (body.vat_rate !== undefined) {
-      updates.vat_rate = body.vat_rate
-    }
-    if (body.total !== undefined) {
-      updates.total = body.total
-    }
-    if (body.exchange_rate !== undefined) {
-      updates.exchange_rate = body.exchange_rate
-    }
-    if (body.amount_in_account_currency !== undefined) {
-      updates.amount_in_account_currency = body.amount_in_account_currency
-    }
-    if (body.payment_terms) {
-      updates.payment_terms = body.payment_terms
+    // Validate input with Zod
+    const validationResult = updateInvoiceSchema.safeParse(body)
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid input', 
+          details: validationResult.error.flatten().fieldErrors 
+        },
+        { status: 400 }
+      )
     }
 
-    const updatedInvoice = await updateInvoice(invoiceId, updates)
+    const updates = validationResult.data
+    // Convert null values to undefined for type compatibility with service layer
+    const cleanUpdates: any = {}
+    for (const [key, value] of Object.entries(updates)) {
+      cleanUpdates[key] = value === null ? undefined : value
+    }
+    const updatedInvoice = await updateInvoice(invoiceId, cleanUpdates)
     
     return NextResponse.json(updatedInvoice)
   } catch (error) {
     console.error("Error updating invoice:", error)
-    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     return NextResponse.json(
-      { error: "Failed to update invoice", details: errorMessage },
+      apiError(error, "Failed to update invoice"),
       { status: 500 }
     )
   }
@@ -132,6 +98,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id: invoiceId } = await params
     
     if (!invoiceId) {

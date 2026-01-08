@@ -101,11 +101,11 @@ function DashboardContent() {
     <div className="max-w-[920px] mx-auto space-y-6 sm:space-y-8 w-full">
       {/* Title */}
       <div className="flex items-center justify-between">
-        <h1 className="text-[24px] sm:text-[32px] font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-[32px] font-semibold tracking-tight">Dashboard</h1>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="w-[120px] sm:w-[140px] text-[12px] sm:text-sm">
+            <Button className="w-[120px] sm:w-[140px] text-sm">
               <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               Create new
             </Button>

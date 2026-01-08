@@ -148,7 +148,11 @@ export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
       }
 
       // Immediately invalidate the query cache to update the UI
-      await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      if (user?.id) {
+        await queryClient.invalidateQueries({ queryKey: ['invoices', user.id] })
+      } else {
+        await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      }
 
       // Show snackbar with undo option
       toast("Invoice deleted", {
@@ -201,7 +205,11 @@ export default function InvoiceRowActions({ invoice }: InvoiceRowActionsProps) {
       })
 
       // Invalidate the query cache to refresh the list
-      await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      if (user?.id) {
+        await queryClient.invalidateQueries({ queryKey: ['invoices', user.id] })
+      } else {
+        await queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      }
       
       toast.success("Invoice restored", {
         description: `Invoice #${deletedInvoice.invoice_number} has been restored.`,

@@ -270,13 +270,13 @@ export default function Dashboard() {
                   <p className="text-[14px] text-[#666666] dark:text-[#aaa]">
                     {hoveredMonth !== null ? monthlyData[hoveredMonth]?.labelFull : t('dashboard.totalInvoiced')}
                   </p>
-                  <p className="text-[24px] md:text-[32px] font-semibold text-[#141414] dark:text-white transition-all duration-150">
+                  <p className="text-[32px] font-semibold text-[#141414] dark:text-white transition-all duration-150">
                     {formatCurrency(hoveredMonth !== null ? monthlyData[hoveredMonth]?.amount || 0 : totalAmount)}
                   </p>
                 </div>
                 <div className="flex-1 flex flex-col gap-1">
                   <p className="text-[14px] text-[#666666] dark:text-[#aaa]">{t('dashboard.monthlyAverage')}</p>
-                  <p className="text-[24px] md:text-[32px] font-semibold text-[#141414] dark:text-white transition-all duration-150">
+                  <p className="text-[32px] font-semibold text-[#141414] dark:text-white transition-all duration-150">
                     {formatCurrency(totalAmount / 12, accountCurrency)}
                   </p>
                 </div>

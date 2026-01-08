@@ -10,7 +10,7 @@ export default function TableRowLabel({
   className = ""
 }: TableRowLabelProps) {
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={`flex flex-col gap-0.5 ${className}`}>
       <span className="font-medium text-[14px]">{mainText}</span>
       {labelText && (
         <span className="text-[12px] text-muted-foreground font-light w-[200px]">

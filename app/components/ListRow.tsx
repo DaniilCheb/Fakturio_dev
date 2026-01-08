@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import React from 'react'
 import { TableCell, TableRow } from '@/app/components/ui/table'
+import { Checkbox } from '@/app/components/ui/checkbox'
 import TableRowLabel from '@/app/components/TableRowLabel'
 import StatusBadge, { type InvoiceStatus, type ProjectStatus, type ExpenseType } from '@/app/components/StatusBadge'
 import { formatCurrency } from '@/lib/utils/formatters'
@@ -52,6 +53,10 @@ export interface ListRowProps {
   actions?: ListRowActions
   className?: string
   padding?: 'default' | 'compact'
+  checkbox?: {
+    checked: boolean
+    onCheckedChange: (checked: boolean) => void
+  }
 }
 
 export default function ListRow({
@@ -62,11 +67,16 @@ export default function ListRow({
   actions,
   className = '',
   padding = 'default',
+  checkbox,
 }: ListRowProps) {
   const paddingClass = padding === 'compact' ? 'px-3.5 py-4' : 'px-6'
   const rowClassName = `group cursor-pointer hover:bg-muted/50 ${className}`
 
   const handleRowClick = (e: React.MouseEvent) => {
+    // Don't trigger row click if clicking on checkbox
+    if ((e.target as HTMLElement).closest('[role="checkbox"]')) {
+      return
+    }
     if (onClick) {
       onClick(e)
     }
@@ -124,6 +134,15 @@ export default function ListRow({
 
   return (
     <TableRow className={rowClassName} onClick={onClick ? handleRowClick : undefined}>
+      {checkbox && (
+        <TableCell className={`w-12 ${paddingClass}`}>
+          <Checkbox
+            checked={checkbox.checked}
+            onCheckedChange={checkbox.onCheckedChange}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </TableCell>
+      )}
       <TableCell className={`font-medium ${paddingClass}`}>
         {primaryCell}
       </TableCell>

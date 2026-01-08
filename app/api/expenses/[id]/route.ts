@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
-import { deleteExpense, getExpenseById, updateExpense, type UpdateExpenseInput } from "@/lib/services/expenseService"
+import { auth } from "@clerk/nextjs/server"
+import { deleteExpense, getExpenseById, updateExpense } from "@/lib/services/expenseService"
+import type { UpdateExpenseInput } from "@/lib/validations/expense"
+import { updateExpenseSchema } from "@/lib/validations/expense"
+import { apiError } from "@/lib/utils/apiError"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id: expenseId } = await params
     
     if (!expenseId) {
@@ -39,6 +48,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id: expenseId } = await params
     
     if (!expenseId) {
@@ -49,61 +63,33 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const updates: UpdateExpenseInput = {}
     
-    if (body.name !== undefined) {
-      updates.name = body.name
-    }
-    if (body.description !== undefined) {
-      updates.description = body.description
-    }
-    if (body.category) {
-      updates.category = body.category
-    }
-    if (body.type) {
-      updates.type = body.type
-    }
-    if (body.amount !== undefined) {
-      updates.amount = body.amount
-    }
-    if (body.currency) {
-      updates.currency = body.currency
-    }
-    if (body.vat_amount !== undefined) {
-      updates.vat_amount = body.vat_amount
-    }
-    if (body.vat_rate !== undefined) {
-      updates.vat_rate = body.vat_rate
-    }
-    if (body.date) {
-      updates.date = body.date
-    }
-    if (body.end_date !== undefined) {
-      updates.end_date = body.end_date
-    }
-    if (body.frequency !== undefined) {
-      updates.frequency = body.frequency
-    }
-    if (body.depreciation_years !== undefined) {
-      updates.depreciation_years = body.depreciation_years
-    }
-    if (body.receipt_url !== undefined) {
-      updates.receipt_url = body.receipt_url
-    }
-    if (body.project_id !== undefined) {
-      updates.project_id = body.project_id
-    }
-    if (body.contact_id !== undefined) {
-      updates.contact_id = body.contact_id
+    // Validate input with Zod
+    const validationResult = updateExpenseSchema.safeParse(body)
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid input', 
+          details: validationResult.error.flatten().fieldErrors 
+        },
+        { status: 400 }
+      )
     }
 
-    const updatedExpense = await updateExpense(expenseId, updates)
+    const updates = validationResult.data
+    // Convert null values to undefined for type compatibility with service layer
+    // The validation schema allows null, but the service expects undefined
+    const cleanUpdates: any = {}
+    for (const [key, value] of Object.entries(updates)) {
+      cleanUpdates[key] = value === null ? undefined : value
+    }
+    const updatedExpense = await updateExpense(expenseId, cleanUpdates)
     
     return NextResponse.json(updatedExpense)
   } catch (error) {
     console.error("Error updating expense:", error)
     return NextResponse.json(
-      { error: "Failed to update expense" },
+      apiError(error, "Failed to update expense"),
       { status: 500 }
     )
   }
@@ -114,6 +100,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { id: expenseId } = await params
     
     if (!expenseId) {

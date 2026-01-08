@@ -150,7 +150,7 @@ export default function NewProjectPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-[24px] md:text-[32px] font-semibold text-design-content-default tracking-tight">
+          <h1 className="text-[32px] font-semibold text-design-content-default tracking-tight">
             New Project
           </h1>
         </div>

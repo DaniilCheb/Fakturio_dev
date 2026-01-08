@@ -15,7 +15,16 @@ function formatDate(dateString: string): string {
 }
 
 // Invoice row component
-export default function InvoiceRow({ invoice }: { invoice: Invoice }) {
+export default function InvoiceRow({ 
+  invoice, 
+  checkbox 
+}: { 
+  invoice: Invoice
+  checkbox?: {
+    checked: boolean
+    onCheckedChange: (checked: boolean) => void
+  }
+}) {
   const displayStatus = getInvoiceStatus(invoice)
   const clientName = invoice.to_info?.name || "Unknown Client"
 
@@ -36,6 +45,7 @@ export default function InvoiceRow({ invoice }: { invoice: Invoice }) {
       actions={{
         custom: <InvoiceRowActions invoice={invoice} />,
       }}
+      checkbox={checkbox}
     />
   )
 }

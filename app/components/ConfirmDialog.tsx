@@ -59,7 +59,6 @@ export default function ConfirmDialog({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      maxWidth="sm"
     >
       <ModalBody>
         <p className="text-[14px] text-design-content-default text-left">

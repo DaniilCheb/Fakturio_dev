@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { sendInvoiceEmail } from '@/lib/services/emailService'
+import { sendInvoiceEmailSchema } from '@/lib/validations/email'
+import { apiError } from '@/lib/utils/apiError'
 
 export async function POST(
   request: NextRequest,
@@ -16,25 +18,21 @@ export async function POST(
     // Await params (Next.js 15 requires params to be awaited)
     const { id } = await params
 
-    // Parse request body
+    // Parse and validate request body
     const body = await request.json()
-    const { recipientEmail } = body
-
-    if (!recipientEmail || typeof recipientEmail !== 'string') {
+    
+    const validationResult = sendInvoiceEmailSchema.safeParse(body)
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'recipientEmail is required' },
+        { 
+          error: 'Invalid input', 
+          details: validationResult.error.flatten().fieldErrors 
+        },
         { status: 400 }
       )
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(recipientEmail)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      )
-    }
+    const { recipientEmail } = validationResult.data
 
     // Send email
     const result = await sendInvoiceEmail(id, recipientEmail)
@@ -53,10 +51,7 @@ export async function POST(
   } catch (error) {
     console.error('[API] Error sending invoice email:', error)
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : 'Internal server error',
-      },
+      apiError(error, 'Failed to send invoice email'),
       { status: 500 }
     )
   }

@@ -10,7 +10,7 @@ export default function Header({ title, subtitle, actions }: HeaderProps) {
   return (
     <div className="flex flex-row items-start justify-center gap-4 mb-2">
       <div className="flex flex-col gap-1 w-full">
-        <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight w-full flex flex-row">
+        <h1 className="font-semibold text-[32px] text-foreground tracking-tight w-full flex flex-row">
           {title}
         </h1>
         {subtitle && (

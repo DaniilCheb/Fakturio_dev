@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/",              // Guest invoice form (landing page)
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/forgot-password(.*)", // Password reset flow
   "/api/zefix(.*)", // Zefix API is public for now
   "/invoice/view(.*)", // Public invoice view (token-based access)
 ]);

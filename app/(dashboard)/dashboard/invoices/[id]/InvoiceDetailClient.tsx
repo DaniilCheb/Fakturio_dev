@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "@clerk/nextjs"
 import Link from "next/link"
@@ -15,6 +15,7 @@ import { generateInvoicePDF, generateInvoicePDFBlob } from "@/lib/services/pdfSe
 import { createClientSupabaseClient } from "@/lib/supabase-client"
 import { getBankAccountsWithClient } from "@/lib/services/bankAccountService.client"
 import type { GuestInvoice } from "@/lib/types/invoice"
+import PDFPreviewModal from "@/app/components/invoice/PDFPreviewModal"
 
 // Check Icon (local, as it's specific to this page)
 const CheckIcon = () => (
@@ -118,6 +119,8 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [emailInput, setEmailInput] = useState("")
   const [currentInvoice, setCurrentInvoice] = useState(invoice)
+  const [showPDFPreview, setShowPDFPreview] = useState(false)
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null)
 
   const invoiceStatus = getInvoiceStatus(currentInvoice)
   
@@ -132,6 +135,15 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
   }
 
   const daysUntilDue = getDaysUntilDue()
+
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (pdfPreviewUrl && pdfPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(pdfPreviewUrl)
+      }
+    }
+  }, [pdfPreviewUrl])
 
   const handleMarkAsPaid = async () => {
     setIsUpdatingStatus(true)
@@ -198,14 +210,22 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
       
       const blob = await generateInvoicePDFBlob(guestInvoice, { includeQRCode: true })
       const url = URL.createObjectURL(blob)
-      window.open(url, "_blank")
-      setTimeout(() => URL.revokeObjectURL(url), 100)
+      setPdfPreviewUrl(url)
+      setShowPDFPreview(true)
     } catch (error) {
       console.error("Error previewing PDF:", error)
       alert("Error previewing PDF. Please try again.")
     } finally {
       setIsPreviewing(false)
     }
+  }
+
+  const handleClosePDFPreview = () => {
+    if (pdfPreviewUrl && pdfPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(pdfPreviewUrl)
+    }
+    setPdfPreviewUrl(null)
+    setShowPDFPreview(false)
   }
 
   const handleDownloadPDF = async () => {
@@ -362,7 +382,7 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
       {/* Header with Actions */}
       <div className="flex flex-row items-center justify-between gap-4 mb-2">
         <div className="flex flex-col gap-1">
-          <h1 className="font-semibold text-[24px] md:text-[32px] text-foreground tracking-tight">
+          <h1 className="font-semibold text-[32px] text-foreground tracking-tight">
             {title}
           </h1>
           <div className="flex items-center gap-3">
@@ -539,6 +559,15 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
           </div>
         </div>
       )}
+
+      {/* PDF Preview Modal */}
+      <PDFPreviewModal
+        isOpen={showPDFPreview}
+        onClose={handleClosePDFPreview}
+        pdfUrl={pdfPreviewUrl}
+        isLoading={isPreviewing}
+        onDownload={handleDownloadPDF}
+      />
 
     </>
   )
