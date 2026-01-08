@@ -76,7 +76,7 @@ export default function AuthFromSection({
           iban: bankAccount?.iban || '',
           logo_url: profile?.logo_url,
           company_name: profile?.company_name,
-          uid: profile?.company_uid || undefined
+          uid: profile?.vat_number || undefined
         }
 
         onChange(newFromInfo)

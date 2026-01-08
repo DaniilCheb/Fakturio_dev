@@ -194,7 +194,7 @@ export default function AddCustomerModal({
           {/* Country */}
           <CountryPicker
             label="Country"
-            value={formData.country}
+            value={formData.country || 'Switzerland'}
             onChange={(value) => {
               const syntheticEvent = {
                 target: { name: 'country', value }

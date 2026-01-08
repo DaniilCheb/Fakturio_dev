@@ -123,7 +123,8 @@ export default function EditInvoicePage() {
       uid: toInfoData.uid || '',
       name: toInfoData.name || '',
       address: toInfoData.address || '',
-      zip: toInfoData.zip || ''
+      zip: toInfoData.zip || '',
+      city: toInfoData.city
     })
 
     // Project
@@ -268,9 +269,11 @@ export default function EditInvoicePage() {
         name: profile?.name || '',
         street: profile?.address || '',
         zip: zipCity || '',
+        city: profile?.city,
         iban: selectedBankAccount?.iban || '',
         logo_url: profile?.logo_url,
-        company_name: profile?.company_name
+        company_name: profile?.company_name,
+        uid: profile?.vat_number
       },
       to_info: {
         uid: toInfo.uid,

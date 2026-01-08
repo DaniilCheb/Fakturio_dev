@@ -476,16 +476,19 @@ export default function NewInvoicePage() {
         name: profile?.name || '',
         street: profile?.address || '',
         zip: zipCity || '',
+        city: profile?.city,
         iban: selectedBankAccount?.iban || '',
         logo_url: profile?.logo_url,
-        company_name: profile?.company_name
+        company_name: profile?.company_name,
+        uid: profile?.vat_number
       },
       to_info: {
         uid: toInfo.uid,
         name: toInfo.name,
         address: toInfo.address,
-        zip: toInfo.zip
-      },
+        zip: toInfo.zip,
+        city: toInfo.city ?? undefined
+      } as { uid?: string; name: string; address: string; zip: string; city?: string },
       description,
       items,
       discount: parseFloat(String(discount)) || 0,

@@ -289,7 +289,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                     Country
                   </label>
                   <CountryPicker
-                    value={formData.country}
+                    value={formData.country || 'Switzerland'}
                     onChange={(value) => {
                       const syntheticEvent = {
                         target: { value }

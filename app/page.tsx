@@ -43,6 +43,7 @@ export default function Home() {
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [issuedOn, setIssuedOn] = useState(getCurrentDateISO())
   const [dueDate, setDueDate] = useState('')
+  const [country, setCountry] = useState('Switzerland')
   const [currency, setCurrency] = useState('CHF')
   const [paymentMethod, setPaymentMethod] = useState<'Bank' | 'Card' | 'Cash' | 'Other'>('Bank')
   
@@ -128,6 +129,14 @@ export default function Home() {
         break
       case 'due_date':
         setDueDate(value)
+        break
+      case 'country':
+        setCountry(value)
+        // Auto-update currency based on country
+        const defaultCurrency = getCurrencyForCountry(value)
+        if (defaultCurrency) {
+          setCurrency(defaultCurrency)
+        }
         break
       case 'currency':
         setCurrency(value)
@@ -469,6 +478,7 @@ export default function Home() {
                   invoiceNumber={invoiceNumber}
                   issuedOn={issuedOn}
                   dueDate={dueDate}
+                  country={country}
                   currency={currency}
                   onChange={handleHeaderChange}
                   errors={validationErrors}

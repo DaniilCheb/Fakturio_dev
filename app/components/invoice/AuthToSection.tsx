@@ -15,6 +15,7 @@ export interface AuthToInfo {
   name: string
   address: string
   zip: string
+  city?: string
 }
 
 interface AuthToSectionProps {
