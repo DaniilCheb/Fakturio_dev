@@ -22,7 +22,7 @@ interface DashboardExpensesCardProps {
 const chartConfig = {
   amount: {
     label: "Amount",
-    color: "#46937e", // Teal color (matching invoices)
+    color: "#E76F51", // Coral/Orange color
   },
 } satisfies ChartConfig
 
@@ -97,6 +97,7 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
     
     const calculateMonthTotal = (date: Date) => {
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+      const targetYear = date.getFullYear()
       
       return expenses.reduce((sum, exp) => {
         const expDate = getExpenseDate(exp)
@@ -110,7 +111,12 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
           return sum
         }
         
-        // For recurring expenses, check if the expense started before or during this month
+        // For recurring expenses, only count if the expense date is in the target year
+        // and the expense started before or during this month
+        if (expDate.getFullYear() !== targetYear) {
+          return sum
+        }
+        
         const expStartDate = new Date(expDate.getFullYear(), expDate.getMonth(), 1)
         const currentMonthDate = new Date(date.getFullYear(), date.getMonth(), 1)
         
@@ -141,15 +147,19 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
     return { monthlyData: months, periodExpenses: filtered }
   }, [expenses, currentYear, accountCurrency])
 
-  const totalAmount = monthlyData.reduce((sum, month) => sum + month.amount, 0)
-  
   // Calculate monthly average based on current month (this card always shows current year)
   const currentMonth = new Date().getMonth() + 1
+  
+  // Only sum months that have actually occurred (up to current month)
+  const totalAmount = monthlyData.slice(0, currentMonth).reduce((sum, month) => sum + month.amount, 0)
   const monthlyAverage = totalAmount / currentMonth
+  
+  // For display, show total of all months (including future projections)
+  const totalAmountAllMonths = monthlyData.reduce((sum, month) => sum + month.amount, 0)
 
   const displayAmount = hoveredMonth !== null 
     ? monthlyData[hoveredMonth]?.amount ?? 0 
-    : totalAmount
+    : totalAmountAllMonths
   
   const displayLabel = hoveredMonth !== null 
     ? monthlyData[hoveredMonth]?.monthFull ?? "Total" 
@@ -167,7 +177,7 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
           asChild
           className="opacity-0 group-hover:opacity-100 transition-opacity h-auto py-1.5 px-2 text-[12px]"
         >
-          <Link href="/dashboard/expenses/new">
+          <Link href="/dashboard/expenses/new?returnTo=/dashboard">
             <Plus className="h-3.5 w-3.5 mr-1.5" />
             New Expense
           </Link>

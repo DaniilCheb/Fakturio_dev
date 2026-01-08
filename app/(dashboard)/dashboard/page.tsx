@@ -115,7 +115,7 @@ function DashboardContent() {
               <FileText className="mr-2 h-4 w-4" />
               Invoice
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNavigate('/dashboard/expenses/new')}>
+            <DropdownMenuItem onClick={() => handleNavigate('/dashboard/expenses/new?returnTo=/dashboard')}>
               <Receipt className="mr-2 h-4 w-4" />
               Expense
             </DropdownMenuItem>

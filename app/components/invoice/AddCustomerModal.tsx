@@ -276,7 +276,7 @@ export default function AddCustomerModal({
           {formData.uid && (
             <div className="mb-4">
               <Input
-                label="UID"
+                label="UID/VAT number"
                 value={formData.uid}
                 onChange={handleFieldChange('uid')}
                 placeholder="CHE-123.456.789"

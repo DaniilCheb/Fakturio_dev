@@ -180,7 +180,27 @@
   /* Add spacing above form field content (label + input container) */
   .cl-formField > div:first-child,
   [data-clerk-element="formField"] > div:first-child {
-    padding-top: 16px !important;
+    padding-top: 0px !important;
+  }
+  
+  /* Ensure email input field has correct height and padding */
+  input#emailAddress-field,
+  input[name="emailAddress"],
+  .cl-formFieldInput__emailAddress,
+  .cl-input__emailAddress {
+    height: 40px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Ensure password input field has correct height and padding */
+  input#password-field,
+  input[name="password"],
+  .cl-formFieldInput__password,
+  .cl-input__password {
+    height: 40px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 
   /* Hide firstName and lastName fields in sign-up */
@@ -924,6 +944,57 @@
 .dark [data-slot="calendar"] .rdp-day_today button,
 .dark .group\/calendar .rdp-day_today button {
   background-color: hsl(160 60% 45% / 0.08) !important;
+}
+
+/* Date Picker Calendar - Clean Navigation Layout */
+[data-slot="calendar"] {
+  background-color: white !important;
+}
+
+.dark [data-slot="calendar"] {
+  background-color: hsl(var(--background)) !important;
+}
+
+/* Make months container relative for absolute positioning of nav */
+[data-slot="calendar"] .rdp-months {
+  position: relative !important;
+}
+
+/* Month container needs top padding for the nav row */
+[data-slot="calendar"] .rdp-month {
+  padding-top: 0 !important;
+}
+
+/* Month caption row - centered at top, full width */
+[data-slot="calendar"] .rdp-month_caption {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 2rem !important;
+  margin-bottom: 0.5rem !important;
+  width: 100% !important;
+}
+
+/* Nav container - absolute positioned to span the full width */
+[data-slot="calendar"] .rdp-nav {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 2rem !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+}
+
+/* Make buttons clickable and align to edges */
+[data-slot="calendar"] .rdp-button_previous,
+[data-slot="calendar"] .rdp-button_next {
+  pointer-events: auto !important;
 }
 
 /* Big Calendar - Current Time Indicator Override (Maximum Specificity) */

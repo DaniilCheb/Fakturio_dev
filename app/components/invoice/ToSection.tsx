@@ -5,6 +5,7 @@ import Input from '../Input'
 import { ToInfo } from '@/lib/types/invoice'
 import ZefixCompanySelect from '../ZefixCompanySelect'
 import { PlusIcon } from '../Icons'
+import CountryPicker from '../CountryPicker'
 
 interface ToSectionProps {
   toInfo: ToInfo
@@ -13,8 +14,11 @@ interface ToSectionProps {
     toName?: string
     toAddress?: string
     toZip?: string
+    toCity?: string
+    toCountry?: string
   }
   onClearError?: (field: string) => void
+  syncedCountry?: string // Country synced from FromSection
 }
 
 interface CompanyInfo {
@@ -36,7 +40,7 @@ interface SearchResult {
   status: string
 }
 
-export default function ToSection({ toInfo, onChange, errors = {}, onClearError }: ToSectionProps) {
+export default function ToSection({ toInfo, onChange, errors = {}, onClearError, syncedCountry }: ToSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [lookupError, setLookupError] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -44,19 +48,68 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
   const [isCompanySelected, setIsCompanySelected] = useState(false)
   const [showFields, setShowFields] = useState(false)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const [hasParsedZip, setHasParsedZip] = useState(false)
+
+  // Parse zip field into postal code and city
+  const parseZipCity = (combined: string): { zip: string; city: string } => {
+    if (!combined) return { zip: '', city: '' }
+    const trimmed = combined.trim()
+    const match = trimmed.match(/^(\d{4,6})\s+(.+)$/)
+    if (match) {
+      return { zip: match[1], city: match[2] }
+    }
+    if (/^\d+$/.test(trimmed)) {
+      return { zip: trimmed, city: '' }
+    }
+    return { zip: '', city: trimmed }
+  }
+
+  // Parse existing combined zip value into separate fields on mount
+  useEffect(() => {
+    if (!hasParsedZip && toInfo.zip && !toInfo.city) {
+      const parsed = parseZipCity(toInfo.zip)
+      if (parsed.city) {
+        onChange({
+          ...toInfo,
+          zip: parsed.zip,
+          city: parsed.city,
+        })
+      }
+      setHasParsedZip(true)
+    }
+  }, [toInfo.zip, toInfo.city, hasParsedZip])
+
+  // Sync country from FromSection when it changes
+  useEffect(() => {
+    if (syncedCountry && syncedCountry !== toInfo.country) {
+      onChange({
+        ...toInfo,
+        country: syncedCountry
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncedCountry])
 
   // Show fields automatically when there are validation errors
   useEffect(() => {
-    if (errors.toName || errors.toAddress || errors.toZip) {
+    if (errors.toName || errors.toAddress || errors.toZip || errors.toCity) {
       setShowFields(true)
     }
-  }, [errors.toName, errors.toAddress, errors.toZip])
+  }, [errors.toName, errors.toAddress, errors.toZip, errors.toCity])
 
   const handleChange = (field: keyof ToInfo) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({
       ...toInfo,
       [field]: e.target.value
     })
+  }
+
+  const handleCountryChange = (newCountry: string) => {
+    onChange({
+      ...toInfo,
+      country: newCountry
+    })
+    onClearError?.('toCountry')
   }
 
   const handleSearchQueryChange = (value: string) => {
@@ -168,7 +221,8 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
       uid: company.uid,
       name: company.name,
       address: company.address,
-      zip: `${company.zip} ${company.city}`.trim(),
+      zip: company.zip,
+      city: company.city,
     })
     // Clear validation errors for pre-filled fields
     onClearError?.('toName')
@@ -183,6 +237,16 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
       </h2>
       <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-4 sm:p-5">
         <div className="flex flex-col gap-5">
+          {/* Country selection */}
+          <CountryPicker
+            label="Country"
+            value={toInfo.country || ''}
+            onChange={handleCountryChange}
+            placeholder="Select country"
+            error={errors.toCountry}
+            onErrorClear={() => onClearError?.('toCountry')}
+          />
+          
           {/* Company search */}
           <ZefixCompanySelect
             value={searchQuery}
@@ -212,7 +276,17 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
           {showFields && (
             <>
               <Input
-                label="UID"
+                label="Address"
+                value={toInfo.address || ''}
+                onChange={handleChange('address')}
+                placeholder="Address"
+                error={errors.toAddress}
+                required
+                onErrorClear={() => onClearError?.('toAddress')}
+                fieldName="toAddress"
+              />
+              <Input
+                label="UID/VAT number"
                 value={toInfo.uid || ''}
                 onChange={handleChange('uid')}
                 placeholder="CHE-123.456.789"
@@ -228,26 +302,28 @@ export default function ToSection({ toInfo, onChange, errors = {}, onClearError 
                 onErrorClear={() => onClearError?.('toName')}
                 fieldName="toName"
               />
-              <Input
-                label="Address"
-                value={toInfo.address || ''}
-                onChange={handleChange('address')}
-                placeholder="Address"
-                error={errors.toAddress}
-                required
-                onErrorClear={() => onClearError?.('toAddress')}
-                fieldName="toAddress"
-              />
-              <Input
-                label="ZIP / City"
-                value={toInfo.zip || ''}
-                onChange={handleChange('zip')}
-                placeholder="8037 Zurich"
-                error={errors.toZip}
-                required
-                onErrorClear={() => onClearError?.('toZip')}
-                fieldName="toZip"
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="ZIP"
+                  value={toInfo.zip || ''}
+                  onChange={handleChange('zip')}
+                  placeholder="8001"
+                  error={errors.toZip}
+                  required
+                  onErrorClear={() => onClearError?.('toZip')}
+                  fieldName="toZip"
+                />
+                <Input
+                  label="City"
+                  value={toInfo.city || ''}
+                  onChange={handleChange('city')}
+                  placeholder="Zurich"
+                  error={errors.toCity}
+                  required
+                  onErrorClear={() => onClearError?.('toCity')}
+                  fieldName="toCity"
+                />
+              </div>
             </>
           )}
         </div>

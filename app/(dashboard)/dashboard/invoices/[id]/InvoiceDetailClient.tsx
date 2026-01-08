@@ -57,6 +57,8 @@ async function convertInvoiceToGuestInvoice(
     zip: fromInfo.zip || "",
     iban: iban,
     logo_url: fromInfo.logo_url,
+    company_name: fromInfo.company_name,
+    uid: fromInfo.uid,
   }
 
   const toInfo = invoice.to_info || {}
@@ -391,7 +393,7 @@ export default function InvoiceDetailClient({ invoice, project, title }: Invoice
             {currentInvoice.to_info?.zip && <p>{currentInvoice.to_info.zip}</p>}
             {currentInvoice.to_info?.uid && (
               <p className="mt-2">
-                <span className="text-muted-foreground">UID: </span>
+                <span className="text-muted-foreground">UID/VAT number: </span>
                 {currentInvoice.to_info.uid}
               </p>
             )}

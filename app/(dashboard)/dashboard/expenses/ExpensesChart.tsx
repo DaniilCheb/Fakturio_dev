@@ -30,7 +30,7 @@ type TimePeriod = "this-year" | "last-12-months" | `year-${number}`
 const chartConfig = {
   amount: {
     label: "Amount",
-    color: "#46937e", // Teal color (matching invoices)
+    color: "#E76F51", // Coral/Orange color
   },
 } satisfies ChartConfig
 
@@ -126,6 +126,7 @@ export default function ExpensesChart({ expenses, accountCurrency = "CHF" }: Exp
 
     const calculateMonthTotal = (date: Date) => {
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+      const targetYear = date.getFullYear()
       
       return expenses.reduce((sum, exp) => {
         const expDate = getExpenseDate(exp)
@@ -139,7 +140,12 @@ export default function ExpensesChart({ expenses, accountCurrency = "CHF" }: Exp
           return sum
         }
         
-        // For recurring expenses, check if the expense started before or during this month
+        // For recurring expenses, only count if the expense date is in the target year
+        // and the expense started before or during this month
+        if (expDate.getFullYear() !== targetYear) {
+          return sum
+        }
+        
         const expStartDate = new Date(expDate.getFullYear(), expDate.getMonth(), 1)
         const currentMonthDate = new Date(date.getFullYear(), date.getMonth(), 1)
         

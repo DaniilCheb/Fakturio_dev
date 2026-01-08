@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, useUser } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
@@ -65,9 +65,18 @@ const ERROR_FIELD_PRIORITY = [
 
 export default function NewExpensePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { session } = useSession()
   const { user } = useUser()
   const queryClient = useQueryClient()
+
+  // If provided, redirect back to this path after save/cancel.
+  // We constrain it to internal dashboard routes to avoid open redirects.
+  const returnTo = useMemo(() => {
+    const value = searchParams?.get('returnTo') || ''
+    if (value && value.startsWith('/dashboard')) return value
+    return '/dashboard/expenses'
+  }, [searchParams])
   
   // Create Supabase client (memoized)
   const supabase = useMemo(() => {
@@ -347,8 +356,8 @@ export default function NewExpensePage() {
       // Invalidate expenses query to refetch the list
       await queryClient.invalidateQueries({ queryKey: ['expenses', user.id] })
       
-      // Redirect to expenses list
-      router.push('/dashboard/expenses')
+      // Redirect back to the caller (dashboard vs expenses list)
+      router.push(returnTo)
     } catch (error) {
       console.error('Error saving expense:', error)
       alert(`Failed to save expense: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -589,7 +598,7 @@ export default function NewExpensePage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/dashboard/expenses')}
+            onClick={() => router.push(returnTo)}
             className="w-full sm:w-auto"
           >
             Cancel

@@ -46,6 +46,7 @@ async function convertInvoiceToGuestInvoice(
     iban: iban,
     logo_url: fromInfo.logo_url,
     company_name: fromInfo.company_name,
+    uid: fromInfo.uid,
   }
 
   const toInfo = invoice.to_info || {}

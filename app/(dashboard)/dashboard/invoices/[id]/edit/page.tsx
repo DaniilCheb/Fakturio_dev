@@ -13,6 +13,7 @@ import { getUserProfileWithClient, Profile, getVatSettingsWithClient, VatSetting
 import { useInvoice } from '@/lib/hooks/queries'
 import { useLoadingBar } from '@/app/components/LoadingBarContext'
 import { getExchangeRate, convertAmount } from '@/lib/services/exchangeRateService'
+import { getCurrencyForCountry } from '@/lib/utils/countryCurrency'
 
 // Components
 import InvoiceHeader from '@/app/components/invoice/InvoiceHeader'
@@ -72,6 +73,7 @@ export default function EditInvoicePage() {
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [issuedOn, setIssuedOn] = useState('')
   const [dueDate, setDueDate] = useState('')
+  const [country, setCountry] = useState('Switzerland')
   const [currency, setCurrency] = useState('CHF')
   
   const [toInfo, setToInfo] = useState<AuthToInfo>({
@@ -186,6 +188,12 @@ export default function EditInvoicePage() {
         setBankAccounts(loadedBankAccounts)
         setVatSettings(loadedVatSettings)
         
+        // Set default country from profile if not already set from invoice
+        // Note: We check if country is still the default value to avoid overwriting invoice data
+        if (loadedProfile?.country && country === 'Switzerland') {
+          setCountry(loadedProfile.country)
+        }
+        
         // Set bank account if not already set from invoice
         if (!selectedBankAccountId && loadedBankAccounts.length > 0) {
           const defaultAccount = loadedBankAccounts.find(a => a.is_default) || loadedBankAccounts[0]
@@ -224,6 +232,14 @@ export default function EditInvoicePage() {
       case 'due_date':
         setDueDate(value)
         break
+      case 'country':
+        setCountry(value)
+        // Auto-update currency based on country
+        const defaultCurrency = getCurrencyForCountry(value)
+        if (defaultCurrency) {
+          setCurrency(defaultCurrency)
+        }
+        break
       case 'currency':
         setCurrency(value)
         break
@@ -260,7 +276,8 @@ export default function EditInvoicePage() {
         uid: toInfo.uid,
         name: toInfo.name,
         address: toInfo.address,
-        zip: toInfo.zip
+        zip: toInfo.zip,
+        city: toInfo.city
       },
       description,
       items,
@@ -533,12 +550,15 @@ export default function EditInvoicePage() {
         name: data.from_info.name,
         street: data.from_info.street,
         zip: data.from_info.zip,
-        iban: data.from_info.iban
+        city: data.from_info.city,
+        iban: data.from_info.iban,
+        uid: data.from_info.uid
       },
       to_info: {
         name: data.to_info.name,
         address: data.to_info.address,
         zip: data.to_info.zip,
+        city: data.to_info.city,
         uid: data.to_info.uid
       },
       description: data.description,
@@ -571,6 +591,7 @@ export default function EditInvoicePage() {
             invoiceNumber={invoiceNumber}
             issuedOn={issuedOn}
             dueDate={dueDate}
+            country={country}
             currency={currency}
             onChange={handleHeaderChange}
             errors={validationErrors}
@@ -601,6 +622,8 @@ export default function EditInvoicePage() {
           selectedBankAccountId={selectedBankAccountId}
           onChange={handleBankAccountChange}
           bankAccounts={bankAccounts}
+          currency={currency}
+          onCurrencyChange={(value) => handleHeaderChange('currency', value)}
           isLoading={isLoadingProfile}
           supabase={supabase}
           userId={user.id}

@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { BankAccount } from '@/lib/services/bankAccountService.client'
 import { Label } from '@/app/components/ui/label'
+import CurrencyPicker from '@/app/components/CurrencyPicker'
 import CreatableBankAccountSelect from '@/app/components/CreatableBankAccountSelect'
 import { Switch } from '@/app/components/ui/switch'
 
@@ -12,11 +13,14 @@ interface PaymentInformationSectionProps {
   selectedBankAccountId: string
   onChange: (bankAccountId: string) => void
   bankAccounts: BankAccount[]
+  currency: string
+  onCurrencyChange: (currency: string) => void
   isLoading?: boolean
   supabase: SupabaseClient
   userId: string
   errors?: {
     bank_account_id?: string
+    currency?: string
   }
   onClearError?: (field: string) => void
   onAccountAdded?: (account: BankAccount) => void
@@ -28,6 +32,8 @@ export default function PaymentInformationSection({
   selectedBankAccountId,
   onChange,
   bankAccounts,
+  currency,
+  onCurrencyChange,
   isLoading = false,
   supabase,
   userId,
@@ -62,6 +68,20 @@ export default function PaymentInformationSection({
       </h2>
       <div className="bg-white dark:bg-[#252525] border border-[#e0e0e0] dark:border-[#333] rounded-2xl p-4 sm:p-5">
         <div className="flex flex-col gap-4">
+          {/* Currency */}
+          <div className="flex flex-col gap-1" data-field="currency">
+            <CurrencyPicker
+              label="Currency"
+              value={currency}
+              onChange={(value) => {
+                onCurrencyChange(value)
+                onClearError?.('currency')
+              }}
+              error={errors.currency}
+              onErrorClear={() => onClearError?.('currency')}
+            />
+          </div>
+          
           {/* Bank Account Dropdown */}
           <div className="flex flex-col gap-1" data-field="bank_account_id">
             <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">

@@ -1,20 +1,13 @@
 'use client'
 
 import React from 'react'
-import {
-  Select as ShadcnSelect,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/app/components/ui/select'
 import { Label } from '@/app/components/ui/label'
 import { Input } from '@/app/components/ui/input'
 import { cn } from '@/lib/utils'
 import { ValidationErrors } from '@/lib/utils/invoiceValidation'
 import { Switch } from '@/app/components/ui/switch'
+import CurrencyPicker from '@/app/components/CurrencyPicker'
 
-const CURRENCIES = ['CHF', 'EUR', 'USD', 'GBP']
 const PAYMENT_METHODS = ['Bank', 'Card', 'Cash', 'Other'] as const
 
 interface GuestPaymentInformationSectionProps {
@@ -69,32 +62,14 @@ export default function GuestPaymentInformationSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Currency */}
             <div className="flex flex-col gap-1" data-field="currency">
-              <Label className="font-medium text-[13px] text-[rgba(20,20,20,0.8)] dark:text-[#999] tracking-[-0.208px]">
-                Currency <span className="text-destructive">*</span>
-              </Label>
-              <ShadcnSelect
+              <CurrencyPicker
+                label="Currency"
                 value={currency}
-                onValueChange={handleCurrencyChange}
-              >
-                <SelectTrigger className={cn(
-                  "w-full",
-                  errors.currency && "border-destructive focus:ring-destructive"
-                )}>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((curr) => (
-                    <SelectItem key={curr} value={curr}>
-                      {curr}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </ShadcnSelect>
-              {errors.currency && (
-                <p className="text-destructive text-[12px] mt-1">
-                  {errors.currency}
-                </p>
-              )}
+                onChange={handleCurrencyChange}
+                error={errors.currency}
+                required
+                onErrorClear={() => onClearError?.('currency')}
+              />
             </div>
 
             {/* Payment Method */}

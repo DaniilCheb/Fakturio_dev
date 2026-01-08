@@ -12,6 +12,7 @@ import { CloseIcon } from '@/app/components/Icons'
 import { Card } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import Input from '@/app/components/Input'
+import CountryPicker from '@/app/components/CountryPicker'
 
 interface SearchResult {
   name: string
@@ -451,16 +452,21 @@ export default function NewCustomerPage() {
             </div>
 
             {/* Country */}
-            <Input
+            <CountryPicker
               label="Country"
               value={formData.country || 'Switzerland'}
-              onChange={handleFieldChange('country')}
+              onChange={(value) => {
+                const syntheticEvent = {
+                  target: { value }
+                } as React.ChangeEvent<HTMLInputElement>
+                handleFieldChange('country')(syntheticEvent)
+              }}
               placeholder="Switzerland"
             />
 
-            {/* VAT Number / UID */}
+            {/* UID/VAT number */}
             <Input
-              label="VAT Number / UID"
+              label="UID/VAT number"
               value={formData.vat_number || ''}
               onChange={handleFieldChange('vat_number')}
               placeholder="CHE-123.456.789"

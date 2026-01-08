@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Modal, { ModalBody, ModalFooter } from '@/app/components/Modal'
 import Button from '@/app/components/Button'
+import CountryPicker from '@/app/components/CountryPicker'
 import { type Contact, type CreateContactInput } from '@/lib/services/contactService.client'
 
 interface AddCustomerModalProps {
@@ -191,24 +192,22 @@ export default function AddCustomerModal({
           </div>
 
           {/* Country */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-medium text-design-content-weak">
-              Country
-            </label>
-            <input
-              type="text"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
-              placeholder="Switzerland"
-            />
-          </div>
+          <CountryPicker
+            label="Country"
+            value={formData.country}
+            onChange={(value) => {
+              const syntheticEvent = {
+                target: { name: 'country', value }
+              } as React.ChangeEvent<HTMLInputElement>
+              handleChange(syntheticEvent)
+            }}
+            placeholder="Switzerland"
+          />
 
           {/* VAT Number */}
           <div className="flex flex-col gap-1">
             <label className="text-[13px] font-medium text-design-content-weak">
-              VAT Number / UID
+              UID/VAT number
             </label>
             <input
               type="text"

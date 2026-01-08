@@ -17,6 +17,7 @@ import { getContactByIdWithClient } from '@/lib/services/contactService.client'
 import { useSearchParams } from 'next/navigation'
 import { useLoadingBar } from '@/app/components/LoadingBarContext'
 import { getExchangeRate, convertAmount } from '@/lib/services/exchangeRateService'
+import { getCurrencyForCountry } from '@/lib/utils/countryCurrency'
 
 // Components
 import InvoiceHeader from '@/app/components/invoice/InvoiceHeader'
@@ -73,6 +74,7 @@ export default function NewInvoicePage() {
   const [invoiceNumber, setInvoiceNumber] = useState('')
   const [issuedOn, setIssuedOn] = useState(getCurrentDateISO())
   const [dueDate, setDueDate] = useState('')
+  const [country, setCountry] = useState('Switzerland')
   const [currency, setCurrency] = useState('CHF')
   
   const [toInfo, setToInfo] = useState<AuthToInfo>({
@@ -385,9 +387,19 @@ export default function NewInvoicePage() {
         setBankAccounts(loadedBankAccounts)
         setVatSettings(loadedVatSettings)
         
-        // Set default currency from profile
+        // Set default country and currency from profile
+        if (loadedProfile?.country) {
+          setCountry(loadedProfile.country)
+        }
         if (loadedProfile?.account_currency) {
           setCurrency(loadedProfile.account_currency)
+        } else if (loadedProfile?.country) {
+          // If no currency set but country is set, use country's default currency
+          const { getCurrencyForCountry } = await import('@/lib/utils/countryCurrency')
+          const defaultCurrency = getCurrencyForCountry(loadedProfile.country)
+          if (defaultCurrency) {
+            setCurrency(defaultCurrency)
+          }
         }
         
         // Set default bank account if available
@@ -427,6 +439,14 @@ export default function NewInvoicePage() {
         break
       case 'due_date':
         setDueDate(value)
+        break
+      case 'country':
+        setCountry(value)
+        // Auto-update currency based on country
+        const defaultCurrency = getCurrencyForCountry(value)
+        if (defaultCurrency) {
+          setCurrency(defaultCurrency)
+        }
         break
       case 'currency':
         setCurrency(value)
@@ -730,12 +750,15 @@ export default function NewInvoicePage() {
           name: data.from_info.name,
           street: data.from_info.street,
           zip: data.from_info.zip,
-          iban: data.from_info.iban
+          city: data.from_info.city,
+          iban: data.from_info.iban,
+          uid: data.from_info.uid
         },
         to_info: {
           name: data.to_info.name,
           address: data.to_info.address,
           zip: data.to_info.zip,
+          city: data.to_info.city,
           uid: data.to_info.uid
         },
         description: data.description,
@@ -841,12 +864,15 @@ export default function NewInvoicePage() {
         name: data.from_info.name,
         street: data.from_info.street,
         zip: data.from_info.zip,
-        iban: data.from_info.iban
+        city: data.from_info.city,
+        iban: data.from_info.iban,
+        uid: data.from_info.uid
       },
       to_info: {
         name: data.to_info.name,
         address: data.to_info.address,
         zip: data.to_info.zip,
+        city: data.to_info.city,
         uid: data.to_info.uid
       },
       description: data.description,
@@ -885,6 +911,7 @@ export default function NewInvoicePage() {
               invoiceNumber={invoiceNumber}
               issuedOn={issuedOn}
               dueDate={dueDate}
+              country={country}
               currency={currency}
               onChange={handleHeaderChange}
               errors={validationErrors}
@@ -916,6 +943,8 @@ export default function NewInvoicePage() {
           selectedBankAccountId={selectedBankAccountId}
           onChange={handleBankAccountChange}
           bankAccounts={bankAccounts}
+          currency={currency}
+          onCurrencyChange={(value) => handleHeaderChange('currency', value)}
           isLoading={isLoadingProfile}
           supabase={supabase}
           userId={user.id}

@@ -38,7 +38,7 @@ function EmptyState() {
         Track your business expenses to better understand your spending.
       </p>
       <Button variant="default" asChild>
-        <Link href="/dashboard/expenses/new">
+        <Link href="/dashboard/expenses/new?returnTo=/dashboard/expenses">
           <Plus className="mr-2 h-4 w-4" />
           Add Expense
         </Link>
@@ -128,7 +128,7 @@ export default function ExpensesPage() {
         title="Expenses" 
         actions={
           <Button variant="default" asChild>
-            <Link href="/dashboard/expenses/new">
+            <Link href="/dashboard/expenses/new?returnTo=/dashboard/expenses">
               <Plus className="mr-2 h-4 w-4" />
               New Expense
             </Link>

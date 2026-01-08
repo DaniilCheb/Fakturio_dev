@@ -7,6 +7,7 @@ import { updateUserProfileWithClient, type Profile } from '@/lib/services/settin
 import { formatUid } from '@/lib/services/zefixService'
 import { Loader2, X } from 'lucide-react'
 import CurrencyPicker from '@/app/components/CurrencyPicker'
+import CountryPicker from '@/app/components/CountryPicker'
 
 interface AccountFormProps {
   initialProfile: Profile | null
@@ -346,19 +347,16 @@ export default function AccountForm({ initialProfile }: AccountFormProps) {
       </div>
 
       {/* Country */}
-      <div className="flex flex-col gap-1">
-        <label className="text-[13px] font-medium text-design-content-weak">
-          Country
-        </label>
-        <input
-          type="text"
-          name="country"
-          value={formData.country}
-          onChange={handleChange}
-          className="w-full h-[40px] px-3 py-2 bg-design-surface-field dark:bg-[#252525] border border-design-border-default rounded-lg text-[14px] text-design-content-default focus:outline-none focus:border-design-content-default transition-colors"
-          placeholder="e.g., Switzerland"
-        />
-      </div>
+      <CountryPicker
+        label="Country"
+        value={formData.country}
+        onChange={(value) => {
+          setFormData(prev => ({ ...prev, country: value }))
+          setSuccess(false)
+          setError(null)
+        }}
+        placeholder="e.g., Switzerland"
+      />
 
       {/* Phone */}
       <div className="flex flex-col gap-1">

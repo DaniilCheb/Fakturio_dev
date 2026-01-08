@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/app/components/ui/card"
 import StatusBadge from "@/app/components/StatusBadge"
 import { EditIcon, DeleteIcon, ProjectsIcon } from "@/app/components/Icons"
 import BackLink from "@/app/components/BackLink"
+import CountryPicker from "@/app/components/CountryPicker"
 import { useConfirmDialog } from "@/app/components/useConfirmDialog"
 import { type Contact, type UpdateContactInput, updateContactWithClient, deleteContactWithClient } from "@/lib/services/contactService.client"
 import { type Invoice, getInvoiceStatus } from "@/lib/services/invoiceService.client"
@@ -287,18 +288,22 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
                   <label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
                     Country
                   </label>
-                  <input
-                    type="text"
+                  <CountryPicker
                     value={formData.country}
-                    onChange={handleChange('country')}
-                    className="w-full h-[40px] px-3 py-2 bg-design-surface-field border border-design-border-default rounded-lg text-[14px] text-design-content-default placeholder:text-[#9D9B9A] focus:outline-none focus:border-design-content-default transition-colors"
+                    onChange={(value) => {
+                      const syntheticEvent = {
+                        target: { value }
+                      } as React.ChangeEvent<HTMLInputElement>
+                      handleChange('country')(syntheticEvent)
+                    }}
                     placeholder="Switzerland"
+                    noLabel
                   />
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
-                  VAT Number / UID
+                  UID/VAT number
                 </label>
                 <input
                   type="text"
@@ -383,7 +388,7 @@ export default function CustomerDetailClient({ customer: initialCustomer, invoic
               {customer.vat_number && (
                 <div>
                   <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                    VAT Number / UID
+                    UID/VAT number
                   </p>
                   <p className="text-[15px] text-foreground">
                     {customer.vat_number}

@@ -339,7 +339,7 @@ export default function InvoicePDF({ invoice, includeQRCode, qrCodeDataUrl }: In
             <Text style={styles.partyText}>{invoice.to_info.address}</Text>
             <Text style={styles.partyText}>{invoice.to_info.zip}</Text>
             {invoice.to_info.uid && (
-              <Text style={[styles.partyText, { marginTop: 4 }]}>UID: {invoice.to_info.uid}</Text>
+              <Text style={[styles.partyText, { marginTop: 4 }]}>UID/VAT number: {invoice.to_info.uid}</Text>
             )}
           </View>
         </View>

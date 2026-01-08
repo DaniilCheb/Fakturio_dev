@@ -7,6 +7,7 @@ import { getCurrentDateISO, calculateDueDate } from '@/lib/utils/dateUtils'
 import { calculateGrandTotal } from '@/lib/utils/invoiceCalculations'
 import { validateInvoice, ValidationErrors } from '@/lib/utils/invoiceValidation'
 import { useInvoiceStorage } from '@/lib/hooks/useInvoiceStorage'
+import { getCurrencyForCountry } from '@/lib/utils/countryCurrency'
 import InvoiceHeader from './components/invoice/InvoiceHeader'
 import FromSection from './components/invoice/FromSection'
 import ToSection from './components/invoice/ToSection'
@@ -72,6 +73,7 @@ export default function Home() {
   ])
   const [discount, setDiscount] = useState<number | string>(0)
   const [enableQR, setEnableQR] = useState(true)
+  const [syncedCountry, setSyncedCountry] = useState<string | undefined>(undefined)
   
   // UI state
   const [showSaveModal, setShowSaveModal] = useState(false)
@@ -444,7 +446,7 @@ export default function Home() {
             {/* Header (mobile only — desktop headline lives in sidebar) */}
             <div className="mt-[64px] mb-8 px-4 lg:hidden">
               <h1 className="text-[30px] leading-[38px] font-semibold text-design-content-default tracking-[-0.512px]">
-                Simple invoicing and expense tracking for Swiss freelancers
+                Simple invoice and expense tracking for freelancers and small teams.
               </h1>
               <p className="text-[15px] text-design-content-weak leading-relaxed mt-4" style={{ fontWeight: 400 }}>
                 Create beautiful QR invoices, collect deductible expenses, have an overview of what your taxes will look like, and share everything easily with your accountant.
@@ -480,6 +482,14 @@ export default function Home() {
                 onChange={setFromInfo}
                 errors={validationErrors}
                 onClearError={clearError}
+                onCountryChange={(newCountry) => {
+                  setSyncedCountry(newCountry)
+                  // Update currency based on country
+                  const defaultCurrency = getCurrencyForCountry(newCountry)
+                  if (defaultCurrency) {
+                    handleHeaderChange('currency', defaultCurrency)
+                  }
+                }}
               />
 
               {/* To Section */}
@@ -488,6 +498,7 @@ export default function Home() {
                 onChange={setToInfo}
                 errors={validationErrors}
                 onClearError={clearError}
+                syncedCountry={syncedCountry}
               />
 
               {/* Description Section */}

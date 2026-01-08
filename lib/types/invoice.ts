@@ -2,10 +2,12 @@ export interface FromInfo {
   name: string
   street: string
   zip: string
+  city?: string
   iban: string
   logo_url?: string
   company_name?: string
   uid?: string
+  country?: string
 }
 
 export interface ToInfo {
@@ -13,6 +15,8 @@ export interface ToInfo {
   name: string
   address: string
   zip: string
+  city?: string
+  country?: string
 }
 
 export interface InvoiceItem {

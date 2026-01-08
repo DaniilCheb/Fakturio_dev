@@ -59,7 +59,7 @@ export default function TextArea({
       rows={rows}
       disabled={disabled}
       maxLength={maxLength}
-      className={`w-full px-2 py-2 bg-design-surface-field dark:bg-[#252525] border rounded-lg text-[15px] font-normal text-design-content-default focus:outline-none focus:border-design-content-default transition-all duration-200 resize-none ${
+      className={`w-full px-2 py-2 bg-design-surface-field dark:bg-[#252525] border rounded-lg text-[14px] font-normal text-design-content-default focus:outline-none focus:border-design-content-default transition-all duration-200 resize-none ${
         error 
           ? 'border-red-500 dark:border-red-500' 
           : 'border-design-border-default'

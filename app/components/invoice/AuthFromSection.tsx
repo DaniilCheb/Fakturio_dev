@@ -13,9 +13,11 @@ export interface AuthFromInfo {
   name: string
   street: string
   zip: string
+  city?: string
   iban: string
   logo_url?: string
   company_name?: string
+  uid?: string
 }
 
 interface AuthFromSectionProps {
@@ -25,6 +27,7 @@ interface AuthFromSectionProps {
     fromName?: string
     fromStreet?: string
     fromZip?: string
+    fromCity?: string
     fromIban?: string
   }
   onClearError?: (field: string) => void
@@ -64,17 +67,16 @@ export default function AuthFromSection({
         setHasProfile(!!profile)
         setHasBankAccount(!!bankAccount)
 
-        // Build the zip from city and postal_code
-        const zipCity = [profile?.postal_code, profile?.city].filter(Boolean).join(' ')
-
         // Pre-fill the form with profile data
         const newFromInfo: AuthFromInfo = {
           name: profile?.name || '',
           street: profile?.address || '',
-          zip: zipCity || '',
+          zip: profile?.postal_code || '',
+          city: profile?.city || '',
           iban: bankAccount?.iban || '',
           logo_url: profile?.logo_url,
-          company_name: profile?.company_name
+          company_name: profile?.company_name,
+          uid: profile?.company_uid || undefined
         }
 
         onChange(newFromInfo)
@@ -165,15 +167,33 @@ export default function AuthFromSection({
             fieldName="fromStreet"
           />
           <Input
-            label="ZIP / City"
-            value={fromInfo.zip || ''}
-            onChange={handleChange('zip')}
-            placeholder="8037 Zurich"
-            error={errors.fromZip}
-            required
-            onErrorClear={() => onClearError?.('fromZip')}
-            fieldName="fromZip"
+            label="UID/VAT number"
+            value={fromInfo.uid || ''}
+            onChange={handleChange('uid')}
+            placeholder="CHE-123.456.789"
           />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="ZIP"
+              value={fromInfo.zip || ''}
+              onChange={handleChange('zip')}
+              placeholder="8001"
+              error={errors.fromZip}
+              required
+              onErrorClear={() => onClearError?.('fromZip')}
+              fieldName="fromZip"
+            />
+            <Input
+              label="City"
+              value={fromInfo.city || ''}
+              onChange={handleChange('city')}
+              placeholder="Zurich"
+              error={errors.fromCity}
+              required
+              onErrorClear={() => onClearError?.('fromCity')}
+              fieldName="fromCity"
+            />
+          </div>
           <Input
             label="Your IBAN"
             value={fromInfo.iban || ''}

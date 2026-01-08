@@ -62,6 +62,8 @@ async function convertInvoiceToGuestInvoice(
     zip: fromInfo.zip || "",
     iban: iban,
     logo_url: fromInfo.logo_url,
+    company_name: fromInfo.company_name,
+    uid: fromInfo.uid,
   }
 
   // Safely extract to_info with defaults

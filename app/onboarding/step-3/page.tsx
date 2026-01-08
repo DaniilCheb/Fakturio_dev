@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useSession, useUser } from '@clerk/nextjs'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { updateUserProfileWithClient } from '@/lib/services/settingsService.client'
-import { getCurrencyForCountry, getCountryOptions, shouldPromptCurrencyUpdate } from '@/lib/utils/countryCurrency'
+import { getCurrencyForCountry, shouldPromptCurrencyUpdate } from '@/lib/utils/countryCurrency'
 import { getGuestCacheData } from '@/lib/services/guestCacheService'
 import { type CompanyInfo } from '@/lib/services/zefixService'
 import Input from '@/app/components/Input'
-import Select from '@/app/components/Select'
 import CurrencyPicker from '@/app/components/CurrencyPicker'
+import CountryPicker from '@/app/components/CountryPicker'
 import Button from '@/app/components/Button'
 import ZefixCompanySelect from '@/app/components/ZefixCompanySelect'
 import { Loader2 } from 'lucide-react'
@@ -144,8 +144,7 @@ export default function OnboardingStep3Page() {
 
 
   // Handle country change with currency auto-selection
-  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newCountry = e.target.value
+  const handleCountryChange = (newCountry: string) => {
     const previousCountry = previousCountryRef.current
     
     setFormData(prev => ({ ...prev, country: newCountry }))
@@ -409,8 +408,6 @@ export default function OnboardingStep3Page() {
     )
   }
 
-  const countryOptions = getCountryOptions()
-
   return (
     <div className="w-full">
       {/* Progress indicator */}
@@ -446,11 +443,10 @@ export default function OnboardingStep3Page() {
         {/* Country and Currency side-by-side */}
         <div className="flex gap-5">
           <div className="flex-1">
-            <Select
+            <CountryPicker
               label="Country"
               value={formData.country}
               onChange={handleCountryChange}
-              options={countryOptions}
               placeholder="Select your country"
               required
               error={errors.country}
