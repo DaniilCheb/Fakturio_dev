@@ -525,7 +525,7 @@ function InvoicesTableContent({
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Client</TableHead>
+              <TableHead className="text-[13px] font-normal pl-6 pr-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Client</TableHead>
               <TableHead className="hidden sm:table-cell text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Date</TableHead>
               <TableHead className="hidden sm:table-cell text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Amount</TableHead>
               <TableHead className="hidden sm:table-cell text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Status</TableHead>
