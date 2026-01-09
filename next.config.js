@@ -1,7 +1,51 @@
 /** @type {import('next').NextConfig} */
+const fs = require('fs');
+const path = require('path');
+
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-config-entry',message:'Webpack config entry',data:{workspacePath:process.cwd(),hasSpaces:process.cwd().includes(' '),hasSpecialChars:/[^a-zA-Z0-9\/\-_\.]/.test(process.cwd()),nodeEnv:process.env.NODE_ENV},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+// #endregion
+
 const nextConfig = {
   // Path alias is handled by tsconfig.json
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
+    // #region agent log
+    const cacheDir = path.join(process.cwd(), '.next', 'cache');
+    const cacheExists = fs.existsSync(cacheDir);
+    let cacheStats = null;
+    try {
+      if (cacheExists) {
+        cacheStats = fs.statSync(cacheDir);
+      }
+    } catch (e) {
+      // Ignore
+    }
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-cache-check',message:'Cache directory check',data:{cacheDir,cacheExists,isWritable:cacheExists?fs.accessSync(cacheDir,fs.constants.W_OK)?false:true:null,isServer,hasCacheConfig:!!config.cache},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+
+    // #region agent log
+    try {
+      const nodeModulesPath = path.join(process.cwd(), 'node_modules');
+      const nodeModulesExists = fs.existsSync(nodeModulesPath);
+      let hasSymlinks = false;
+      if (nodeModulesExists) {
+        try {
+          const entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true });
+          hasSymlinks = entries.some(entry => entry.isSymbolicLink());
+        } catch (e) {
+          // Ignore
+        }
+      }
+      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-symlink-check',message:'Symlink check in node_modules',data:{nodeModulesPath,nodeModulesExists,hasSymlinks},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    } catch (e) {
+      fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-symlink-check-error',message:'Symlink check error',data:{error:e.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    }
+    // #endregion
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-config-before',message:'Webpack config before modification',data:{cacheType:config.cache?.type,cacheDirectory:config.cache?.cacheDirectory,hasResolveConfig:!!config.resolve,resolveModules:config.resolve?.modules?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+
     // Fix for jszip and other node modules that need to be bundled for client
     if (!isServer) {
       config.resolve.fallback = {
@@ -11,6 +55,11 @@ const nextConfig = {
         tls: false,
       }
     }
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-config-after',message:'Webpack config after modification',data:{cacheType:config.cache?.type,cacheDirectory:config.cache?.cacheDirectory,hasResolveConfig:!!config.resolve},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+
     return config
   },
   async headers() {

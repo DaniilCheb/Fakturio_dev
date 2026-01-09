@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSession } from '@clerk/nextjs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Folder } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { createClientSupabaseClient } from '@/lib/supabase-client'
 import { startTimerWithClient, stopTimerWithClient } from '@/lib/services/timeEntryService.client'
 import { useRunningTimer, useProjects, useTimeEntries, useInvoices, useContacts } from '@/lib/hooks/queries'
@@ -26,6 +27,8 @@ import { ProjectsIcon } from '@/app/components/Icons'
 import ListRow, { type ListRowColumn } from '@/app/components/ListRow'
 import type { Project } from '@/lib/services/projectService.client'
 import type { TimeEntry } from '@/lib/services/timeEntryService.client'
+
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
 
 interface ProjectWithStats extends Project {
   timeTracked: number // in minutes
@@ -97,7 +100,51 @@ function ProjectRow({
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [showPopover, setShowPopover] = useState(false)
   const [description, setDescription] = useState('')
+  const [shouldPlayAnimation, setShouldPlayAnimation] = useState(false)
+  const [animationData, setAnimationData] = useState<any>(null)
+  const lottieRef = useRef<any>(null)
+  const prevIsTimerRunningRef = useRef(false)
   const isTimerRunning = runningTimer?.project_id === project.id
+
+  // Trigger animation when timer transitions from inactive to active
+  useEffect(() => {
+    const wasRunning = prevIsTimerRunningRef.current
+    const isNowRunning = isTimerRunning
+
+    // Detect transition from false to true
+    if (!wasRunning && isNowRunning) {
+      setShouldPlayAnimation(true)
+      // Reset animation after it completes (~2.6 seconds)
+      const timer = setTimeout(() => {
+        setShouldPlayAnimation(false)
+        setAnimationData(null)
+      }, 2600)
+      
+      // Update ref for next comparison
+      prevIsTimerRunningRef.current = isNowRunning
+      
+      return () => clearTimeout(timer)
+    }
+
+    // Update ref when timer stops
+    if (wasRunning && !isNowRunning) {
+      prevIsTimerRunningRef.current = false
+      setShouldPlayAnimation(false)
+      setAnimationData(null)
+    } else {
+      prevIsTimerRunningRef.current = isNowRunning
+    }
+  }, [isTimerRunning])
+
+  // Load animation data when animation should play
+  useEffect(() => {
+    if (shouldPlayAnimation && !animationData) {
+      fetch('/flixxo-coins-animation.json')
+        .then(res => res.json())
+        .then(data => setAnimationData(data))
+        .catch(err => console.error('Failed to load animation:', err))
+    }
+  }, [shouldPlayAnimation, animationData])
 
   useEffect(() => {
     if (!isTimerRunning || !runningTimer?.start_time) {
@@ -161,6 +208,7 @@ function ProjectRow({
     e.stopPropagation()
     const desc = description.trim() || undefined
     onStartTimer(project.id, desc)
+    // Close popover immediately after starting timer
     setShowPopover(false)
     setDescription('')
   }
@@ -172,23 +220,22 @@ function ProjectRow({
     }
   }
 
-  const timerButton = isTimerRunning ? (
-    <button
-      onClick={handleTimerClick}
-      disabled={isProcessing}
-      className={`
-        inline-flex items-center gap-2 px-2 py-[9px] rounded-[32px] text-[13px] font-medium
-        transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-        min-w-[110px] min-h-[46px] sm:min-h-0 justify-center
-        bg-foreground text-background hover:opacity-90
-      `}
-    >
-      <PauseIcon size={12} />
-      {formatTime(elapsedSeconds)}
-    </button>
-  ) : (
-    <Popover open={showPopover} onOpenChange={handlePopoverOpenChange}>
-      <PopoverTrigger asChild>
+  const timerButton = (
+    <div className="flex flex-col items-end justify-start relative">
+      {shouldPlayAnimation && animationData && (
+        <div className="flex justify-center mb-2 absolute -top-24 z-50">
+          <div className="w-24 h-24">
+            <Lottie
+              lottieRef={lottieRef}
+              animationData={animationData}
+              loop={false}
+              autoplay={true}
+              style={{ width: '100%', height: '100%' }}
+            />
+          </div>
+        </div>
+      )}
+      {isTimerRunning ? (
         <button
           onClick={handleTimerClick}
           disabled={isProcessing}
@@ -196,46 +243,64 @@ function ProjectRow({
             inline-flex items-center gap-2 px-2 py-[9px] rounded-[32px] text-[13px] font-medium
             transition-colors disabled:opacity-50 disabled:cursor-not-allowed
             min-w-[110px] min-h-[46px] sm:min-h-0 justify-center
-            border border-border hover:bg-muted
+            bg-foreground text-background hover:opacity-90
           `}
         >
-          <PlayIcon size={13} />
-          Start timer
+          <PauseIcon size={12} />
+          {formatTime(elapsedSeconds)}
         </button>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-80 p-3 rounded-xl" 
-        align="end"
-        side="bottom"
-        sideOffset={8}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <form onSubmit={handleStartWithDescription} className="flex items-center gap-2">
-          <Input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What are you working on?"
-            className="flex-1"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setShowPopover(false)
-                setDescription('')
-              }
-            }}
-          />
-          <Button 
-            type="submit" 
-            size="default"
-            disabled={isProcessing}
-            className="shrink-0 !min-w-0 w-auto"
+      ) : (
+        <Popover open={showPopover} onOpenChange={handlePopoverOpenChange}>
+          <PopoverTrigger asChild>
+            <button
+              onClick={handleTimerClick}
+              disabled={isProcessing}
+              className={`
+                inline-flex items-center gap-2 px-2 py-[9px] rounded-[32px] text-[13px] font-medium
+                transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                min-w-[110px] min-h-[46px] sm:min-h-0 justify-center
+                border border-border hover:bg-muted
+              `}
+            >
+              <PlayIcon size={13} />
+              Start timer
+            </button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-80 p-3 rounded-xl" 
+            align="end"
+            side="bottom"
+            sideOffset={8}
+            onClick={(e) => e.stopPropagation()}
           >
-            Start
-          </Button>
-        </form>
-      </PopoverContent>
-    </Popover>
+            <form onSubmit={handleStartWithDescription} className="flex items-center gap-2">
+              <Input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What are you working on?"
+                className="flex-1"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setShowPopover(false)
+                    setDescription('')
+                  }
+                }}
+              />
+              <Button 
+                type="submit" 
+                size="default"
+                disabled={isProcessing}
+                className="shrink-0 !min-w-0 w-auto"
+              >
+                Start
+              </Button>
+            </form>
+          </PopoverContent>
+        </Popover>
+      )}
+    </div>
   )
 
   const columns: ListRowColumn[] = [
