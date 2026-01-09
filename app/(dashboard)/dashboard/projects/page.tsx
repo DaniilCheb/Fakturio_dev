@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 import { useProjects, useInvoices, useContacts, useTimeEntries } from '@/lib/hooks/queries'
 import { type Project } from '@/lib/services/projectService.client'
 import ProjectsPageContent from './ProjectsPageContent'
-import { Skeleton } from '@/app/components/ui/skeleton'
 
 export interface ProjectWithStats extends Project {
   invoiceCount: number
@@ -13,27 +12,11 @@ export interface ProjectWithStats extends Project {
   timeTracked: number // in minutes
 }
 
-function ProjectsPageSkeleton() {
-  return (
-    <div className="max-w-[920px] mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-64 w-full" />
-      </div>
-    </div>
-  )
-}
-
 export default function ProjectsPage() {
   const { data: allProjects = [], isLoading: isLoadingProjects } = useProjects()
   const { data: allInvoices = [], isLoading: isLoadingInvoices } = useInvoices()
   const { data: allContacts = [], isLoading: isLoadingContacts } = useContacts()
   const { data: allTimeEntries = [], isLoading: isLoadingTimeEntries } = useTimeEntries()
-
-  const isLoading = isLoadingProjects || isLoadingInvoices || isLoadingContacts || isLoadingTimeEntries
 
   // Compute stats for each project
   const projectsWithStats = useMemo(() => {
@@ -53,10 +36,6 @@ export default function ProjectsPage() {
       }
     })
   }, [allProjects, allInvoices, allContacts, allTimeEntries])
-
-  if (isLoading) {
-    return <ProjectsPageSkeleton />
-  }
 
   return (
     <ProjectsPageContent 

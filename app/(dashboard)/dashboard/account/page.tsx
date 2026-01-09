@@ -7,6 +7,7 @@ import BankAccountsSection from './BankAccountsSection'
 import VATSettingsForm from './VATSettingsForm'
 import PricingTableStyler from './PricingTableStyler'
 import LogoutButton from '@/app/components/LogoutButton'
+import SectionHeader from '@/app/components/SectionHeader'
 
 export default async function AccountPage() {
   let profile = null
@@ -60,47 +61,47 @@ export default async function AccountPage() {
       )}
 
       {/* Profile Form */}
-      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
-        <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
-          Business Information
-        </h2>
-        <AccountForm initialProfile={profile} />
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl mb-6 overflow-hidden">
+        <SectionHeader title="Business Information" />
+        <div className="p-6">
+          <AccountForm initialProfile={profile} />
+        </div>
       </div>
 
       {/* Bank Accounts */}
-      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
-        <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
-          Bank Accounts
-        </h2>
-        <BankAccountsSection initialBankAccounts={bankAccounts} />
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl mb-6 overflow-hidden">
+        <SectionHeader title="Bank Accounts" />
+        <div className="p-6">
+          <BankAccountsSection initialBankAccounts={bankAccounts} />
+        </div>
       </div>
 
       {/* VAT Settings */}
-      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
-        <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
-          VAT Settings
-        </h2>
-        <VATSettingsForm initialVatSettings={vatSettings} />
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl mb-6 overflow-hidden">
+        <SectionHeader title="VAT Settings" />
+        <div className="p-6">
+          <VATSettingsForm initialVatSettings={vatSettings} />
+        </div>
       </div>
 
       {/* Pricing */}
-      <div className="bg-design-surface-default border border-design-border-default rounded-xl p-6 mb-6">
-        <h2 className="text-[18px] font-semibold text-design-content-default mb-6">
-          Pricing
-        </h2>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <PricingTableStyler>
-            <PricingTable
-              appearance={{
-                elements: {
-                  card: 'shadow-none border border-design-border-default rounded-xl bg-transparent',
-                  cardBox: 'shadow-none bg-transparent',
-                  rootBox: 'shadow-none bg-transparent',
-                  button: 'bg-[#141414] text-white hover:bg-[#333333] active:bg-[#000000] rounded-full px-5 py-2.5 h-[44px] text-[14px] font-medium',
-                },
-              }}
-            />
-          </PricingTableStyler>
+      <div className="bg-design-surface-default border border-design-border-default rounded-xl mb-6 overflow-hidden">
+        <SectionHeader title="Pricing" />
+        <div className="p-6">
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <PricingTableStyler>
+              <PricingTable
+                appearance={{
+                  elements: {
+                    card: 'shadow-none border border-design-border-default rounded-xl bg-transparent',
+                    cardBox: 'shadow-none bg-transparent',
+                    rootBox: 'shadow-none bg-transparent',
+                    button: 'bg-[#141414] text-white hover:bg-[#333333] active:bg-[#000000] rounded-full px-5 py-2.5 h-[44px] text-[14px] font-medium',
+                  },
+                }}
+              />
+            </PricingTableStyler>
+          </div>
         </div>
       </div>
 

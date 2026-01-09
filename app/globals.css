@@ -12,6 +12,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 @layer base {
   :root {
     /* Design System Variables - Base */
@@ -99,13 +109,25 @@
 
 @layer base {
   html {
-    font-size: 15px;
+    font-size: 16px;
+    font-family: "Radio Canada Big", sans-serif;
   }
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* SelectTrigger border color override */
+  button[role="combobox"].border.border-input {
+    border-color: rgba(224, 224, 224, 1) !important;
+  }
+  
+  /* Make checkbox border darker on row hover */
+  .group:hover [role="checkbox"],
+  tr:hover [role="checkbox"] {
+    border-color: rgba(137, 137, 137, 1) !important;
   }
 }
 
@@ -209,19 +231,35 @@
 
   /* Override global input height for list search inputs (Invoices/Expenses) */
   input.list-search-input {
-    height: 32px !important;
-    min-height: 32px !important;
-    max-height: 32px !important;
+    height: 31px !important;
+    min-height: 31px !important;
+    max-height: 31px !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
     box-sizing: border-box !important;
     border: none !important;
-    box-shadow: inset 0 0 0 1px hsl(var(--input)) !important;
+    border-style: none !important;
+    border-width: 0px !important;
+    border-color: rgba(0, 0, 0, 0) !important;
+    border-image: none !important;
+    box-shadow: none !important;
   }
   
   input.list-search-input:focus-visible {
-    box-shadow: inset 0 0 0 1px hsl(var(--ring)), 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+    box-shadow: none !important;
     outline: none !important;
+  }
+
+  /* Style the wrapper div around list search inputs */
+  div.relative:has(input.list-search-input) {
+    border: 1px solid rgba(224, 224, 224, 1) !important;
+    border-width: 1px !important;
+    border-color: rgba(224, 224, 224, 1) !important;
+    border-radius: 6px !important;
+    border-top-left-radius: 6px !important;
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+    border-bottom-left-radius: 6px !important;
   }
 
   /* Ensure email input field has correct padding */
@@ -1414,4 +1452,18 @@ div.rbc-time-header-content {
   overflow-x: visible !important;
   height: auto !important;
   max-height: none !important;
+}
+
+/* Skeleton shimmer utility */
+@layer utilities {
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted) / 0.5) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
+  }
 }

@@ -11,7 +11,7 @@ export default function SectionHeader({ title, actions, children, className = ""
   // Support legacy usage with children
   if (children) {
     return (
-      <div className={`px-6 h-[42px] flex items-center bg-card border-b border-border rounded-t-xl ${className}`}>
+      <div className={`px-6 h-[56px] flex items-center bg-card border-b border-border rounded-t-xl ${className}`}>
         {children}
       </div>
     )
@@ -19,14 +19,14 @@ export default function SectionHeader({ title, actions, children, className = ""
 
   // New API with title and optional actions
   return (
-    <div className={`px-6 py-3 border-b flex items-center justify-between h-[56px] ${className}`}>
+    <div className={`pl-6 pr-2 py-3 border-b flex items-center justify-between h-[56px] ${className}`} style={{ borderBottomColor: 'rgba(224, 224, 224, 1)' }}>
       {title && (
-        <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
+        <p className="text-[16px] font-medium tracking-[-0.3px]" style={{ color: 'rgba(20, 20, 20, 1)' }}>
           {title}
         </p>
       )}
       {actions && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {actions}
         </div>
       )}

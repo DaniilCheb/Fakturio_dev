@@ -1,6 +1,7 @@
 import { Skeleton } from "@/app/components/ui/skeleton"
-import { Card } from "@/app/components/ui/card"
-import { ChartCardSkeleton, ProjectRowSkeleton } from "@/app/components/Skeleton"
+import { Card, CardContent } from "@/app/components/ui/card"
+import { ProjectRowSkeleton } from "@/app/components/Skeleton"
+import Header from "@/app/components/Header"
 import SectionHeader from "@/app/components/SectionHeader"
 import {
   Table,
@@ -12,30 +13,19 @@ import {
 
 export default function Loading() {
   return (
-    <div className="max-w-[920px] mx-auto space-y-6 sm:space-y-8 w-full">
-      {/* Title */}
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-32" />
-      </div>
+    <div className="max-w-[920px] mx-auto space-y-8">
+      {/* Header */}
+      <Header 
+        title="Projects" 
+        actions={<Skeleton className="h-10 w-32" />}
+      />
 
-      {/* Invoices and Expenses Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 px-0 w-full">
-        <Card className="overflow-hidden">
-          <ChartCardSkeleton />
-        </Card>
-        <Card className="overflow-hidden">
-          <ChartCardSkeleton />
-        </Card>
-      </div>
-
-      {/* Projects Table */}
-      <Card className="overflow-hidden group">
-        <SectionHeader 
-          title="Active projects"
-          actions={<Skeleton className="h-8 w-24" />}
-        />
-        <div className="p-0">
+      {/* Table Skeleton */}
+      <Card className="overflow-hidden">
+        <SectionHeader>
+          <Skeleton className="h-4 w-32" />
+        </SectionHeader>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b border-border">
@@ -57,12 +47,12 @@ export default function Loading() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <ProjectRowSkeleton key={i} />
               ))}
             </TableBody>
           </Table>
-        </div>
+        </CardContent>
       </Card>
     </div>
   )

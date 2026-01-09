@@ -429,7 +429,7 @@ function InvoicesTableContent({
                 )}
               </div>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-[120px] h-8 text-[13px] bg-transparent shadow-none px-2">
+                <SelectTrigger className="w-[120px] h-[32px] text-[13px] bg-transparent shadow-none px-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -501,7 +501,7 @@ function InvoicesTableContent({
                 )}
               </div>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-[120px] h-8 text-[13px] bg-transparent shadow-none px-2">
+                <SelectTrigger className="w-[120px] h-[32px] text-[13px] bg-transparent shadow-none px-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -519,17 +519,17 @@ function InvoicesTableContent({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-[13px] font-medium px-6 w-12">
+              <TableHead className="text-[13px] font-normal px-4 w-12 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
                 <Checkbox
                   checked={allSelected}
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="text-[13px] font-medium px-6">Client</TableHead>
-              <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Date</TableHead>
-              <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Amount</TableHead>
-              <TableHead className="hidden sm:table-cell text-[13px] font-medium px-6">Status</TableHead>
-              <TableHead className="text-right text-[13px] font-medium px-3.5">Actions</TableHead>
+              <TableHead className="text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Client</TableHead>
+              <TableHead className="hidden sm:table-cell text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Date</TableHead>
+              <TableHead className="hidden sm:table-cell text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Amount</TableHead>
+              <TableHead className="hidden sm:table-cell text-[13px] font-normal px-4 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Status</TableHead>
+              <TableHead className="text-right text-[13px] font-normal px-3.5 !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

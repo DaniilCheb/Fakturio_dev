@@ -69,7 +69,7 @@ export default function ListRow({
   padding = 'default',
   checkbox,
 }: ListRowProps) {
-  const paddingClass = padding === 'compact' ? 'px-3.5 py-4' : 'px-6'
+  const paddingClass = padding === 'compact' ? 'px-4 py-4' : 'px-4'
   const rowClassName = `group cursor-pointer hover:bg-muted/50 ${className}`
 
   const handleRowClick = (e: React.MouseEvent) => {
@@ -143,7 +143,7 @@ export default function ListRow({
           />
         </TableCell>
       )}
-      <TableCell className={`font-medium ${paddingClass}`}>
+      <TableCell className={`font-medium ${padding === 'compact' ? 'pl-6 pr-4 py-4' : 'pl-6 pr-4'}`}>
         {primaryCell}
       </TableCell>
       {columns.map((column, index) => renderColumn(column, index))}

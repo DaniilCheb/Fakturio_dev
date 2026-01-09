@@ -239,7 +239,7 @@ export default function ExpensesChart({ expenses, accountCurrency = "CHF" }: Exp
     <Card className="overflow-hidden">
       <SectionHeader>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-0 text-[12px] font-medium text-muted-foreground uppercase tracking-wide hover:text-foreground transition-colors focus:outline-none">
+          <DropdownMenuTrigger className="flex items-center gap-0 text-[16px] font-medium text-muted-foreground tracking-[-0.2px] hover:text-foreground transition-colors focus:outline-none" style={{ color: 'rgba(20, 20, 20, 1)' }}>
             {getTimePeriodLabel(timePeriod)}
             <ChevronDown className="h-4 w-4" />
           </DropdownMenuTrigger>

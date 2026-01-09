@@ -9,7 +9,7 @@ export default function Loading() {
     <div className="max-w-[920px] mx-auto space-y-8">
       {/* Header */}
       <Header 
-        title="Expenses" 
+        title="Invoices" 
         actions={<Skeleton className="h-10 w-32" />}
       />
 

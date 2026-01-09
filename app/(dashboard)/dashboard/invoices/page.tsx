@@ -2,32 +2,11 @@ import { Suspense } from "react"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
-import { Skeleton } from "@/app/components/ui/skeleton"
 import Header from "@/app/components/Header"
 import { getInvoices, type Invoice } from "@/lib/services/invoiceService"
 import { getUserProfile } from "@/lib/services/settingsService"
 import InvoicesChart from "../InvoicesChart"
 import InvoicesTable from "../InvoicesTable"
-
-// Loading skeleton component
-function DashboardSkeleton() {
-  return (
-    <div className="max-w-[920px] mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-64 w-full" />
-      </div>
-      <div className="space-y-2 p-4">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
-      </div>
-    </div>
-  )
-}
 
 // Server component that fetches invoices
 async function InvoicesData() {
@@ -93,7 +72,7 @@ export default function InvoicesPage() {
       />
 
       {/* Stream invoices data with Suspense */}
-      <Suspense fallback={<DashboardSkeleton />}>
+      <Suspense fallback={null}>
         <InvoicesData />
       </Suspense>
     </div>

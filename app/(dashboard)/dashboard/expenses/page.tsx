@@ -59,32 +59,6 @@ function EmptyState() {
   )
 }
 
-// Loading skeleton component
-function ExpensesSkeleton() {
-  return (
-    <div className="max-w-[920px] mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-64 w-full" />
-      </div>
-      <Card className="overflow-hidden">
-        <SectionHeader>
-          <Skeleton className="h-4 w-32" />
-        </SectionHeader>
-        <CardContent className="p-0">
-          <div className="space-y-2 p-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
 
 // Expense row component
 function ExpenseRow({ 
@@ -220,13 +194,6 @@ export default function ExpensesPage() {
   // #region agent log
   fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'expenses/page.tsx:195',message:'After sortedExpenses hook, before early return',data:{isLoading,sortedExpensesLength:sortedExpenses.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
   // #endregion
-
-  if (isLoading) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'expenses/page.tsx:199',message:'Early return executed - isLoading true',data:{isLoading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    return <ExpensesSkeleton />
-  }
 
   // Toggle expense selection
   const toggleExpenseSelection = (expenseId: string) => {

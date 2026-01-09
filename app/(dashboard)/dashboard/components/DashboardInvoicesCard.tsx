@@ -125,9 +125,9 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
 
   return (
     <Card className="overflow-hidden group w-full">
-      <div className="border-b border-border px-3 sm:px-4 py-2 flex items-center justify-between">
-        <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
-          {currentYear} INVOICES
+      <div className="border-b border-border pl-6 pr-2 py-2 flex items-center justify-between">
+        <p className="text-[16px] font-medium text-[#141414] tracking-[-0.2px]">
+          {currentYear} Invoices
         </p>
         <Button
           variant="ghost"
@@ -141,7 +141,7 @@ export default function DashboardInvoicesCard({ invoices, defaultCurrency = "CHF
           </Link>
         </Button>
       </div>
-      <CardContent className="px-3 sm:px-3.5 py-4 sm:py-5 space-y-4 sm:space-y-5">
+      <CardContent className="px-6 pb-6 pt-4 sm:pt-5 space-y-4 sm:space-y-5">
         {/* Stats Row */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
           <div className="flex-1 space-y-1">

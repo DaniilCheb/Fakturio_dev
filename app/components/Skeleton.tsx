@@ -1,6 +1,8 @@
 'use client'
 
 import React from 'react'
+import { Skeleton as BaseSkeleton } from '@/app/components/ui/skeleton'
+import { TableRow, TableCell } from '@/app/components/ui/table'
 
 interface SkeletonProps {
   className?: string
@@ -8,9 +10,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className = '', style }: SkeletonProps) {
-  return (
-    <div className={`animate-pulse bg-[#e5e5e5] dark:bg-[#333] rounded ${className}`} style={style} />
-  )
+  return <BaseSkeleton className={className} style={style} />
 }
 
 export function InvoiceRowSkeleton() {
@@ -115,6 +115,135 @@ export function AuthFormSkeleton() {
       {/* Footer link skeleton */}
       <div className="mt-5 text-center">
         <Skeleton className="h-[14px] w-48 mx-auto" />
+      </div>
+    </div>
+  )
+}
+
+// Generic table row skeleton
+export function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
+  return (
+    <div className="flex items-center gap-4 px-6 py-4 border-b border-border last:border-none">
+      <Skeleton className="h-4 w-48" />
+      {Array.from({ length: columns - 1 }).map((_, i) => (
+        <Skeleton key={i} className="h-4 w-24 hidden sm:block" />
+      ))}
+      <div className="flex-1" />
+      <Skeleton className="h-8 w-8 rounded-full" />
+    </div>
+  )
+}
+
+// Chart card skeleton with stats
+export function ChartCardSkeleton() {
+  return (
+    <div className="space-y-6 p-6">
+      {/* Stats row */}
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex-1 space-y-1">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-32" />
+        </div>
+        <div className="flex-1 space-y-1">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-8 w-32" />
+        </div>
+      </div>
+      {/* Chart area */}
+      <Skeleton className="h-[180px] w-full rounded-lg" />
+    </div>
+  )
+}
+
+// Project row skeleton
+export function ProjectRowSkeleton() {
+  return (
+    <TableRow className="hover:bg-transparent">
+      <TableCell className="px-4">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+      </TableCell>
+      <TableCell className="hidden sm:table-cell px-4">
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+      <TableCell className="hidden sm:table-cell px-6">
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+      <TableCell className="hidden sm:table-cell px-6">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell className="px-6 text-right">
+        <Skeleton className="h-10 w-28 rounded-full ml-auto" />
+      </TableCell>
+    </TableRow>
+  )
+}
+
+// Customer row skeleton
+export function CustomerRowSkeleton() {
+  return (
+    <TableRow className="hover:bg-transparent">
+      <TableCell className="px-6">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      </TableCell>
+      <TableCell className="hidden sm:table-cell px-6">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell className="hidden sm:table-cell px-6">
+        <Skeleton className="h-4 w-20" />
+      </TableCell>
+      <TableCell className="hidden sm:table-cell px-6">
+        <Skeleton className="h-4 w-24" />
+      </TableCell>
+      <TableCell className="px-3.5 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+// Calendar skeleton for time tracking
+export function CalendarSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Calendar header */}
+      <div className="flex items-center justify-between px-4">
+        <Skeleton className="h-6 w-32" />
+        <div className="flex gap-2">
+          <Skeleton className="h-8 w-8 rounded" />
+          <Skeleton className="h-8 w-8 rounded" />
+        </div>
+      </div>
+      {/* Calendar grid */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        {/* Day headers */}
+        <div className="grid grid-cols-8 border-b border-border">
+          <Skeleton className="h-10 w-16" />
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className="h-10" />
+          ))}
+        </div>
+        {/* Time slots */}
+        <div className="space-y-1 p-2">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="flex gap-2">
+              <Skeleton className="h-12 w-16" />
+              <div className="flex-1 grid grid-cols-7 gap-1">
+                {Array.from({ length: 7 }).map((_, j) => (
+                  <Skeleton key={j} className="h-12" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

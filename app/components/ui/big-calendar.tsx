@@ -86,7 +86,7 @@ function CustomToolbar<TEvent extends object>({
           <ChevronLeft className="h-4 w-4" />
         </Button>
 
-        <span className="text-lg font-semibold">
+        <span className="text-base font-semibold">
           {label}
         </span>
 

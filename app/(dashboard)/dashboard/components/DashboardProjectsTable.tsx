@@ -25,6 +25,7 @@ import { Input } from '@/app/components/ui/input'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { ProjectsIcon } from '@/app/components/Icons'
 import ListRow, { type ListRowColumn } from '@/app/components/ListRow'
+import SectionHeader from '@/app/components/SectionHeader'
 import type { Project } from '@/lib/services/projectService.client'
 import type { TimeEntry } from '@/lib/services/timeEntryService.client'
 
@@ -466,8 +467,26 @@ export default function DashboardProjectsTable() {
     }
   }
 
+  const handleCreateProject = () => {
+    router.push('/dashboard/projects/new?returnTo=/dashboard')
+  }
+
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden group">
+      <SectionHeader 
+        title="Active projects"
+        actions={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCreateProject}
+            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 focus:opacity-100"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
+        }
+      />
       <CardContent className="p-0">
         {projectsWithStats.length === 0 ? (
           <ActiveProjectsEmptyState />
@@ -475,19 +494,19 @@ export default function DashboardProjectsTable() {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b border-border">
-                <TableHead className="px-3.5 py-3 text-[12px] font-medium capitalize" style={{ color: 'rgba(61, 61, 61, 1)' }}>
+                <TableHead className="px-6 text-[12px] font-normal capitalize !h-auto" style={{ color: 'rgba(61, 61, 61, 1)', paddingTop: '8px', paddingBottom: '8px' }}>
                   Projects
                 </TableHead>
-                <TableHead className="hidden sm:table-cell px-3.5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="hidden sm:table-cell px-4 text-[12px] font-normal text-muted-foreground capitalize !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
                   Time tracked
                 </TableHead>
-                <TableHead className="hidden sm:table-cell px-3.5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="hidden sm:table-cell px-6 text-[12px] font-normal text-muted-foreground capitalize !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
                   Billed
                 </TableHead>
-                <TableHead className="hidden sm:table-cell px-3.5 py-3 text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="hidden sm:table-cell px-6 text-[12px] font-normal text-muted-foreground capitalize !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
                   Hourly rate
                 </TableHead>
-                <TableHead className="px-3.5 py-3 text-right text-[12px] font-medium text-muted-foreground capitalize">
+                <TableHead className="px-6 text-right text-[12px] font-normal text-muted-foreground capitalize !h-auto" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
                   Time tracking
                 </TableHead>
               </TableRow>

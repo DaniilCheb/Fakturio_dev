@@ -43,6 +43,16 @@ const nextConfig = {
     // #endregion
 
     // #region agent log
+    const snapshotConfig = config.cache?.snapshot || {};
+    const resolvePaths = [
+      ...(config.resolve?.modules || []),
+      ...(config.resolve?.alias ? Object.values(config.resolve.alias) : []),
+    ].filter(Boolean);
+    const problematicPaths = resolvePaths.filter(p => typeof p === 'string' && (p.includes(' ') || /[^a-zA-Z0-9\/\-_\.]/.test(p)));
+    fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-snapshot-config',message:'Cache snapshot configuration',data:{snapshotType:snapshotConfig.managedPaths,snapshotImmutablePaths:snapshotConfig.immutablePaths,hasSnapshot:!!config.cache?.snapshot,cacheSnapshotBuildDependencies:config.cache?.snapshot?.buildDependencies,resolvePathsCount:resolvePaths.length,problematicPathsCount:problematicPaths.length,problematicPaths:problematicPaths.slice(0,5)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+
+    // #region agent log
     fetch('http://127.0.0.1:7242/ingest/a13d31c8-2d36-4a68-a9b4-e79d6903394a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'next.config.js:webpack-config-before',message:'Webpack config before modification',data:{cacheType:config.cache?.type,cacheDirectory:config.cache?.cacheDirectory,hasResolveConfig:!!config.resolve,resolveModules:config.resolve?.modules?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
 

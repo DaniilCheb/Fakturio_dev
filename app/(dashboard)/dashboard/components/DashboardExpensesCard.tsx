@@ -168,8 +168,8 @@ export default function DashboardExpensesCard({ expenses, accountCurrency = "CHF
   return (
     <Card className="overflow-hidden group w-full">
       <div className="border-b border-border px-3 sm:px-4 py-2 flex items-center justify-between">
-        <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide">
-          {currentYear} EXPENSES
+        <p className="text-[16px] font-medium text-[#141414] tracking-[-0.2px]">
+          {currentYear} Expenses
         </p>
         <Button
           variant="ghost"
